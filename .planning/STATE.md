@@ -1,19 +1,19 @@
 ---
 gsd_state_version: "1.0"
 milestone: v0.0
-current_phase: 1
+current_phase: 01
 current_phase_name: Qollab Smoke Test & Compliant Skeleton
 status: executing
-stopped_at: Roadmap created; ready to plan Phase 1
-last_updated: "2026-10-10T08:45:49.244Z"
+stopped_at: Completed 01-01-PLAN.md
+last_updated: "2026-10-10T18:35:26.720Z"
 last_activity: 2026-10-10
-last_activity_desc: Roadmap created (6 phases, 35/35 v1 requirements mapped)
-state_head: 40dab6f598e16366fcaa4ade9484b76adee44ee4
+last_activity_desc: Phase 01 execution started
+state_head: f95513bb497ee1dfbb910df84fb6d4c4c678d80d
 progress:
   total_phases: 6
   completed_phases: 0
   total_plans: 4
-  completed_plans: 0
+  completed_plans: 1
 ---
 
 # Project State
@@ -23,14 +23,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-10-09)
 
 **Core value:** Show, on a real fusion-relevant transport problem, that quantum amplitude estimation reaches a target accuracy with fewer samples than classical Monte Carlo, with an honest classical baseline sitting next to it.
-**Current focus:** Phase 1 - Qollab Smoke Test & Compliant Skeleton
+**Current focus:** Phase 01 — Qollab Smoke Test & Compliant Skeleton
 
 ## Current Position
 
-Phase: 1 (Qollab Smoke Test & Compliant Skeleton) — READY TO EXECUTE
-Plan: 0 of TBD in current phase
+Phase: 01 (Qollab Smoke Test & Compliant Skeleton) — EXECUTING
+Plan: 2 of 4
 Status: Ready to execute
-Last activity: 2026-10-10 - Roadmap created (6 phases, 35/35 v1 requirements mapped)
+Last activity: 2026-10-10 — Phase 01 execution started
 
 Progress: [░░░░░░░░░░] 0%
 
@@ -52,6 +52,11 @@ Progress: [░░░░░░░░░░] 0%
 - Trend: -
 
 *Updated after each plan completion*
+**Per-Plan Metrics:**
+
+| Plan | Duration | Tasks | Files |
+|------|----------|-------|-------|
+| Phase 01 P01 | 3 min | 3 tasks | 12 files |
 
 ## Accumulated Context
 
@@ -64,6 +69,9 @@ Recent decisions affecting current work:
 - [Roadmap]: Library/AI disclosure (DOCS-06) moved into Phase 1 with the other compliance items so a partial submission stays eligible.
 - [Research]: One quantum step = one collision; quantity estimated is "transmission within K collisions" (K=1 for Q1).
 - [Research]: MLAE submitted as one multi-circuit `backend.run` job; cost counted as N_A = Σ shots·(2k+1).
+- [Phase 01]: Compliance file scans use git ls-files --cached --others --exclude-standard so not-yet-committed files are gated too
+- [Phase 01]: Whitespace gate uses str.isspace() over the whole repo-relative path; size gate is 2,000,000 bytes (decimal)
+- [Phase 01]: Upload-set test in 01-01 requires only main.py and requirements.txt; LICENSE/README.md asserted by 01-02 docs tests
 
 ### Pending Todos
 
@@ -87,6 +95,6 @@ Items acknowledged and deferred at milestone close, most recent first:
 
 ## Session Continuity
 
-Last session: 2026-10-10
-Stopped at: Roadmap created; ready to plan Phase 1
+Last session: 2026-10-10T18:35:26.707Z
+Stopped at: Completed 01-01-PLAN.md
 Resume file: None

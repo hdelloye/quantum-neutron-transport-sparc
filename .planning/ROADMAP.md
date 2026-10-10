@@ -41,10 +41,10 @@ Decimal phases appear between their surrounding integers in numeric order.
   4. The repo carries an MIT LICENSE, the README line "This effort is supported by Qollab & IonQ.", and a disclosure of every external library and AI tool used, with licenses and confirmation the team may use them.
   5. An automated test fails if anything reachable from `main.py` imports qiskit-aer or qiskit-algorithms, if any committed data file exceeds 2 MB, or if code constructs a backend instead of receiving it as a parameter.
 
-**Plans**: 4 plans
+**Plans**: 1/4 plans executed
 Plans:
 **Wave 1**
-- [ ] 01-01-PLAN.md — Dependency approval, tracer (toy main.py + neutron_qae + local runner, SMOKE TEST PASSED), compliance gates with negative tests, placeholder cleanup (PLAT-01, PLAT-02, PLAT-04)
+- [x] 01-01-PLAN.md — Dependency approval, tracer (toy main.py + neutron_qae + local runner, SMOKE TEST PASSED), compliance gates with negative tests, placeholder cleanup (PLAT-01, PLAT-02, PLAT-04)
 
 **Wave 2** *(blocked on Wave 1 completion)*
 - [ ] 01-02-PLAN.md — MIT LICENSE, README with attribution line and library/AI disclosure, docs tests, runtime-record template, GitHub CLI install (DOCS-06, PLAT-03)
@@ -138,7 +138,7 @@ Plans:
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Qollab Smoke Test & Compliant Skeleton | 0/4 | Planned | - |
+| 1. Qollab Smoke Test & Compliant Skeleton | 1/4 | In Progress | - |
 | 2. Problem Spec & Kernels Contract | 0/TBD | Not started | - |
 | 3. Classical Baseline | 0/TBD | Not started | - |
 | 4. Quantum Oracle & Amplitude Estimation | 0/TBD | Not started | - |

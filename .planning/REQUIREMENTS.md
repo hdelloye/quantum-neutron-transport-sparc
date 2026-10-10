@@ -9,10 +9,10 @@ Requirements for the hackathon submission (deadline Oct 11 2026, 7:00 PM ET). Ea
 
 ### Platform & Repository
 
-- [ ] **PLAT-01**: Repo has a flat package at root next to `main.py`, `requirements.txt` pinning `qiskit==2.5.2`, `pyproject.toml`, `tests/`, `scripts/`; placeholder files with spaces in names are removed or renamed
+- [x] **PLAT-01**: Repo has a flat package at root next to `main.py`, `requirements.txt` pinning `qiskit==2.5.2`, `pyproject.toml`, `tests/`, `scripts/`; placeholder files with spaces in names are removed or renamed
 - [ ] **PLAT-02**: A toy `main.py` runs on Qollab's built-in simulator and on an IonQ simulator backend, is published, and runs start-to-finish from a logged-out browser (smoke test records Python/numpy/qiskit versions and whether `noise_model="ideal"` is accepted)
 - [ ] **PLAT-03**: Repository is on GitHub with teammates as collaborators, MIT LICENSE, and the attribution line "This effort is supported by Qollab & IonQ." in README
-- [ ] **PLAT-04**: Nothing reachable from `main.py` imports qiskit-aer or qiskit-algorithms; data files are ≤ 2 MB and loaded by literal path; `backend` is injected, never created in code
+- [x] **PLAT-04**: Nothing reachable from `main.py` imports qiskit-aer or qiskit-algorithms; data files are ≤ 2 MB and loaded by literal path; `backend` is injected, never created in code
 
 ### Physics & Classical Baseline
 
@@ -102,10 +102,10 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| PLAT-01 | Phase 1 | Pending |
+| PLAT-01 | Phase 1 | Complete |
 | PLAT-02 | Phase 1 | Pending |
 | PLAT-03 | Phase 1 | Pending |
-| PLAT-04 | Phase 1 | Pending |
+| PLAT-04 | Phase 1 | Complete |
 | DOCS-06 | Phase 1 | Pending |
 | PHYS-01 | Phase 2 | Pending |
 | PHYS-02 | Phase 2 | Pending |
