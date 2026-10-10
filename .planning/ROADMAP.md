@@ -19,7 +19,7 @@ The work runs from platform risk to evidence to submission. Phase 1 proves that 
 Decimal phases appear between their surrounding integers in numeric order.
 
 - [ ] **Phase 1: Qollab Smoke Test & Compliant Skeleton** - Toy Qiskit program published and running logged-out on Qollab built-in and IonQ simulators, inside a compliant flat-package repo on GitHub
-- [ ] **Phase 2: Problem Spec & Kernels Contract** - SPARC slab defined once with ENDF/B-VIII.0 cross sections; frozen `Kernels` contract and exact lattice ground truth
+- [x] **Phase 2: Problem Spec & Kernels Contract** - SPARC slab defined once with ENDF/B-VIII.0 cross sections; frozen `Kernels` contract and exact lattice ground truth (completed 2026-10-10)
 - [ ] **Phase 3: Classical Baseline** - Continuous delta-tracking MC (physics reference) and matched discrete lattice MC (baseline), validated and driven by an injected random source
 - [ ] **Phase 4: Quantum Oracle & Amplitude Estimation** - Q0/Q1 state preparation matching the exact value, Grover powers, vendored MLAE with analytic/Aer/IonQ runners and N_A cost accounting
 - [ ] **Phase 5: Scaling Study & Figures** - RMSE-vs-N_A headline plot, exit histograms, truncation-bias and wall-thickness studies, committed as precomputed artifacts
@@ -68,7 +68,7 @@ Plans:
   3. `Kernels`, built from `ProblemSpec`, exposes the first-collision column distribution, scatter ratio per column, and escape probability per column and direction; tests show probability is conserved across each table's outcomes, and the dataclass is frozen as the one contract both classical and quantum code import.
   4. The exact lattice solver enumerates every random-bit string of the discrete model and returns the exact transmission within K collisions; this value is the reference that Phase 3, 4 and 5 tests compare against.
 
-**Plans**: 2/2 plans executed
+**Plans**: 2/2 plans complete
 Plans:
 **Wave 1**
 - [x] 02-01-PLAN.md — Tracer sparc_first_wall() -> build_kernels() -> exact T0/T1 against the research reference; cited ENDF/B-VIII.0 provenance; column-4 boundary, conservation, symmetry, immutability and bit-layout edge tests; golden freeze of Kernels contract v1 (PHYS-01, PHYS-02, PHYS-05, PHYS-06)
@@ -146,7 +146,7 @@ Plans:
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Qollab Smoke Test & Compliant Skeleton | 4/4 | In Progress | - |
-| 2. Problem Spec & Kernels Contract | 2/2 | In Progress | - |
+| 2. Problem Spec & Kernels Contract | 2/2 | Complete    | 2026-10-10 |
 | 3. Classical Baseline | 0/TBD | Not started | - |
 | 4. Quantum Oracle & Amplitude Estimation | 0/TBD | Not started | - |
 | 5. Scaling Study & Figures | 0/TBD | Not started | - |
