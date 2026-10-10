@@ -18,10 +18,10 @@ Requirements for the hackathon submission (deadline Oct 11 2026, 7:00 PM ET). Ea
 ### Physics & Classical Baseline
 
 - [x] **PHYS-01**: ProblemSpec defines the 2D slab (10 cm × 10 cm, 16 × 16 grid), a 2.0 cm tungsten heavy alloy layer on the plasma side and 8.0 cm 316 stainless steel behind, with the material boundary handled correctly inside column 4
-- [ ] **PHYS-02**: One-group 14 MeV cross sections (total, scattering, absorption incl. non-elastic treatment) for both materials are taken from ENDF/B-VIII.0 and cited with source and evaluation date
+- [x] **PHYS-02**: One-group 14 MeV cross sections (total, scattering, absorption incl. non-elastic treatment) for both materials are taken from ENDF/B-VIII.0 and cited with source and evaluation date
 - [ ] **PHYS-03**: Continuous classical Monte Carlo (numpy, vectorized, seeded, Woodcock delta tracking, isotropic scattering, loss on exit) tallies transmission fraction, absorption fraction, exit-position histogram on the back face, and collision-order breakdown, with standard errors
 - [ ] **PHYS-04**: Continuous MC passes analytic checks: uncollided transmission equals e^{-τ}, and histories are reproducible from a seed
-- [ ] **PHYS-05**: `Kernels` dataclass holds the collision-to-collision probability tables (first-collision column, scatter ratio per column, escape probability per column and direction) derived from ProblemSpec, and is the frozen contract between classical and quantum code
+- [x] **PHYS-05**: `Kernels` dataclass holds the collision-to-collision probability tables (first-collision column, scatter ratio per column, escape probability per column and direction) derived from ProblemSpec, and is the frozen contract between classical and quantum code
 - [x] **PHYS-06**: Exact lattice solver enumerates every random-bit string of the discrete model and returns the exact "transmission within K collisions" (ground truth for all error plots)
 - [ ] **PHYS-07**: Discrete lattice MC samples exactly the `Kernels` model (matched mode) and its mean converges to the exact value within standard error
 - [ ] **PHYS-08**: Classical engine takes its random source as a parameter (numpy Generator by default) and never owns randomness
@@ -109,8 +109,8 @@ Which phases cover which requirements. Updated during roadmap creation.
 | PLAT-04 | Phase 1 | Complete |
 | DOCS-06 | Phase 1 | Complete |
 | PHYS-01 | Phase 2 | Complete |
-| PHYS-02 | Phase 2 | Pending |
-| PHYS-05 | Phase 2 | Pending |
+| PHYS-02 | Phase 2 | Complete |
+| PHYS-05 | Phase 2 | Complete |
 | PHYS-06 | Phase 2 | Complete |
 | PHYS-03 | Phase 3 | Pending |
 | PHYS-04 | Phase 3 | Pending |
