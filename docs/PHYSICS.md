@@ -191,6 +191,73 @@ How `MICRO_14MEV` and `SIGMA_N2N_14MEV` were derived from ENDF/B-VIII.0:
 
 The choice of 14.1 MeV is not fragile: moving the energy between 14.0 and 14.2 MeV changes Sigma_t by less than 0.3% and the uncollided transmission by less than 0.5%.
 
+### Reproduce the constants
+
+`scripts/derive_cross_sections.py` re-derives every `MICRO_14MEV` and `SIGMA_N2N_14MEV` value from the 36 isotopic files. It is optional and local-only: it lives in export-ignored `scripts/`, nothing in `neutron_qae` or `main.py` imports it, it never runs on Qollab, and it touches the network only with `--download` (HTTPS to www.nndc.bnl.gov, only the 36 named members of the ENDF/B-VIII.0 neutrons zip). It parses ENDF numbers with `float()` only. Keep the ENDF files in their own directory and run Python with `-I`.
+
+With the files already on disk:
+
+```bash
+.venv/bin/python -I scripts/derive_cross_sections.py --endf-dir <dir> --check --sha256-table
+```
+
+To fetch the missing files first (python.org macOS builds need the system CA bundle):
+
+```bash
+SSL_CERT_FILE=/etc/ssl/cert.pem .venv/bin/python -I scripts/derive_cross_sections.py --download <dir> --check --sha256-table
+```
+
+Expected last line (run on 2026-10-10 against the files listed below):
+
+```text
+MICRO_14MEV REPRODUCED (max rel dev 2.72e-06, max n2n abs dev 4.05e-05)
+```
+
+The script passes when every sigma_t, sigma_el and mubar_lab is within relative 1e-5 of `MICRO_14MEV` and every sigma(n,2n) within absolute 1e-4 of `SIGMA_N2N_14MEV`; the constants are the same derivation rounded to 6 significant figures (4 decimals for (n,2n)).
+
+### Parsed file checksums (sha256)
+
+The 36 files parsed for the run above, from the NNDC ENDF/B-VIII.0 neutrons zip (member directory `ENDF-B-VIII.0_neutrons/`):
+
+| File | MAT | sha256 |
+|---|---|---|
+| n-006_C_012.endf | 625 | daa7901e0067f9ac6d9b2392514ba00e71e37d00c8a8ecbbde0620237815f981 |
+| n-006_C_013.endf | 628 | abaa8cc34398e6ada0a8c451efd5eef1019a37c7a0a708a4280af71ab77621de |
+| n-014_Si_028.endf | 1425 | 34031d6a70ca4fda8a39b4cb037d966bd8c2cdc0b2df885382a8be1a5df304ab |
+| n-014_Si_029.endf | 1428 | f212f322a224d8cd2cc6d164ecba8f598e492d1f912b121043994b6ae096cfe1 |
+| n-014_Si_030.endf | 1431 | 56a633f775a581c0ac51031694853f2cff5a00b5ee196d56dbbd930af56a2a04 |
+| n-015_P_031.endf | 1525 | 1074533d30922be72a9c5f34ad7fd5e0224ff6b64eeb65eaae5a6e7d7125e807 |
+| n-016_S_032.endf | 1625 | 7ba8a10068f1caea4f0eff17c38fa2a74ae6d62a180b3f2d4b027a9cc6e8a373 |
+| n-016_S_033.endf | 1628 | e555b6e93b973b0a11ecbb04f9846b993f58c763d5c98de6ca05dae7eaf7c70b |
+| n-016_S_034.endf | 1631 | aa8d9b591978ef8971c74b31d7f3b90478dcc62908e3b1677023293a3170caa1 |
+| n-016_S_036.endf | 1637 | a992da4609efebeb4e341afec0b2ec0b35c8736269a968503b1b7f2740456579 |
+| n-024_Cr_050.endf | 2425 | ad442e640e82c98d22be47b60e41820a0ff3aeb8868c38de17b8af0cd4eee739 |
+| n-024_Cr_052.endf | 2431 | c42bee3cbc9171d2fb70f3fdf409faeebfc7d2d7ea12ebfc003e78410376aa14 |
+| n-024_Cr_053.endf | 2434 | 41aee5af2f3d671ea8c857fc642cf3c6e80d56976f774b11dad6316daf87bdfb |
+| n-024_Cr_054.endf | 2437 | 8cce14a7d12aacc82fbb1e0fc91c069daedf41063f02735e592fd1d3f3672a09 |
+| n-025_Mn_055.endf | 2525 | d2e907cfabc7f0b8da89eef0ebaaedefe9d9eca49830a58eb5955df3107988ba |
+| n-026_Fe_054.endf | 2625 | d5000c8d07900ff7e8022c55c81ce81ca5ee837a208227a90c60b22e8588cb76 |
+| n-026_Fe_056.endf | 2631 | b8bb897c76f85f7a22a989949c5c353e6b6541278b555b88be3a53102184bbae |
+| n-026_Fe_057.endf | 2634 | cdef054c5abbda7c740266cc01632c6b90ead02ec7d856630cab6906cfc96147 |
+| n-026_Fe_058.endf | 2637 | 57b574915c9f552950f93f8c9fbe8c40335d704d85209f1a299df5fa6fa2194c |
+| n-028_Ni_058.endf | 2825 | 098a3a11d5475aa9854f8275c4c25af608ffa937c38049733120b33203067b60 |
+| n-028_Ni_060.endf | 2831 | 8aee9f9294ee39aaa1899256e535bf33d4b8aa974831a3ab54492bb35c14b248 |
+| n-028_Ni_061.endf | 2834 | 119766f579c84a4f510d24eb6d129e2ab2651c433da78f23fc57ba18b30cc5b8 |
+| n-028_Ni_062.endf | 2837 | f0740804e97e693da6bc801ba0fdb599f4779a18a753805bde1b13f2ed384b91 |
+| n-028_Ni_064.endf | 2843 | 80454b9641844725a12e0a2dfb927c3adb84c029593e4ac7ef74f2b71049e2c1 |
+| n-042_Mo_092.endf | 4225 | 46e8ecba129cd3e1663cca605645fcbdadd03c17daa882b60844bb782618c6f6 |
+| n-042_Mo_094.endf | 4231 | ba6112ac44aa96235825f5196aa08e94a0161ea92415a25ccd05d11fda6a6e65 |
+| n-042_Mo_095.endf | 4234 | 4126c7cd6647f27514d008970f1c9fbf68139692bbee149a639adecd0c929249 |
+| n-042_Mo_096.endf | 4237 | e84ad36979f7bcef839c59c530e5ba8f5f2dfb14f98afc19cbec4cbd1b1ae6e2 |
+| n-042_Mo_097.endf | 4240 | be2d15b8942911892fb46f7a3a65736a5079e53b5d1079e21dcbc786e21f4bf3 |
+| n-042_Mo_098.endf | 4243 | 8f0ce9597cb4cfaace43e1264377d3cb274e2e59c61bec4fb23071fa5912f319 |
+| n-042_Mo_100.endf | 4249 | 0d7fa0243df8d27c6c30d060981c6d2ace987d927b3a8a02f23d3073e1d765d0 |
+| n-074_W_180.endf | 7425 | 653eda1cfdc03bd2c18d4f95ab12c3bd09fa826e723bd93f331d1407b301ebc1 |
+| n-074_W_182.endf | 7431 | bdc5fcab5e1f1ae2e09b7647c06b1a79e74e9ae26b4420c93c8176ad43752d0d |
+| n-074_W_183.endf | 7434 | a2c724526c67dbab4150a0e26542e8b2e25e6119c18a852ce4101496f4e091d4 |
+| n-074_W_184.endf | 7437 | 2d09fbd182f5840344489d2f12c01abea5a8f553f6b8813becbd2880a1d9f30f |
+| n-074_W_186.endf | 7443 | 65269bbefd5de35f1269cf227d3a33a6fb60ec152c9a668c0ee20e157f6a354d |
+
 ## Approximations disclosed
 
 - **One energy group.** Only 14 MeV-group neutrons are tracked; elastic scattering keeps them in the group.

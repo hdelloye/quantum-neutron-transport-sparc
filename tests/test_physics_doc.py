@@ -4,7 +4,11 @@ Every cross section, every isotope's ENDF/B-VIII.0 provenance, the model values,
 the contract strings are recomputed from neutron_qae and looked up in the doc, so a doc that
 drifts from the code (or a code change that is not documented) fails here.
 """
+import ast
+import re
 from pathlib import Path
+
+import compliance_checks as cc
 
 from neutron_qae import exact
 from neutron_qae import nuclear_data as nd
@@ -13,6 +17,7 @@ from neutron_qae.problem import sparc_first_wall
 
 ROOT = Path(__file__).resolve().parents[1]
 DOC = ROOT / "docs" / "PHYSICS.md"
+DERIVE = ROOT / "scripts" / "derive_cross_sections.py"
 SECTIONS = (
     "## Problem geometry and indexing",
     "## Nuclear data (ENDF/B-VIII.0, 14.1 MeV)",
@@ -106,3 +111,33 @@ def test_readme_points_to_physics_and_contract():
     text = (ROOT / "README.md").read_text(encoding="utf-8")
     for needle in ("docs/PHYSICS.md", "KERNELS_CONTRACT_VERSION", "tests/golden/"):
         assert needle in text, f"README.md missing {needle!r}"
+
+
+ALLOWED_SCRIPT_IMPORTS = {"argparse", "hashlib", "io", "json", "math", "os", "pathlib", "re", "sys", "urllib",
+                          "zipfile", "numpy", "neutron_qae"}
+FORBIDDEN_CALLS = {"eval", "exec", "compile", "__import__"}
+
+
+def test_derivation_script_is_local_and_safe():
+    tree = ast.parse(DERIVE.read_text(encoding="utf-8"), filename=str(DERIVE))
+    for node in ast.walk(tree):
+        if isinstance(node, ast.Import):
+            for alias in node.names:
+                assert alias.name.split(".")[0] in ALLOWED_SCRIPT_IMPORTS, f"import {alias.name} not allowed"
+        elif isinstance(node, ast.ImportFrom):
+            assert node.level == 0, "relative import in the derivation script"
+            assert node.module.split(".")[0] in ALLOWED_SCRIPT_IMPORTS, f"from {node.module} not allowed"
+        elif isinstance(node, ast.Call) and isinstance(node.func, ast.Name):
+            assert node.func.id not in FORBIDDEN_CALLS, f"call to {node.func.id}() in the derivation script"
+        elif isinstance(node, ast.Constant) and isinstance(node.value, str) and "://" in node.value:
+            assert node.value.startswith("https://www.nndc.bnl.gov/"), f"unexpected URL {node.value!r}"
+    reachable, _externals = cc.reachable_modules(ROOT)
+    assert DERIVE.resolve() not in {Path(f).resolve() for f in reachable}, "derivation script reachable from main.py"
+
+
+CHECKSUM_ROW = re.compile(r"^\| n-\d{3}_[A-Z][a-z]?_\d{3}\.endf \| \d+ \| [0-9a-f]{64} \|$")
+
+
+def test_physics_doc_records_checksums():
+    rows = [line for line in _doc().splitlines() if CHECKSUM_ROW.match(line)]
+    assert len(rows) == 36, f"expected 36 sha256 rows in docs/PHYSICS.md, found {len(rows)}"
