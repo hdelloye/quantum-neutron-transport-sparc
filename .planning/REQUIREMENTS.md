@@ -11,7 +11,8 @@ Requirements for the hackathon submission (deadline Oct 11 2026, 7:00 PM ET). Ea
 
 - [x] **PLAT-01**: Repo has a flat package at root next to `main.py`, `requirements.txt` pinning `qiskit==2.5.2`, `pyproject.toml`, `tests/`, `scripts/`; placeholder files with spaces in names are removed or renamed
 - [x] **PLAT-02**: A toy `main.py` runs on Qollab's built-in simulator and on an IonQ simulator backend, is published, and runs start-to-finish from a logged-out browser (smoke test records Python/numpy/qiskit versions and whether `noise_model="ideal"` is accepted)
-- [ ] **PLAT-03**: Repository is on GitHub with teammates as collaborators, MIT LICENSE, and the attribution line "This effort is supported by Qollab & IonQ." in README
+- [x] **PLAT-03**: Repository is on GitHub with teammates as collaborators, MIT LICENSE, and the attribution line "This effort is supported by Qollab & IonQ." in README
+  - *Note (01-04, 2026-10-10):* GitHub repo (private until v0), MIT LICENSE and attribution are done; the **collaborator clause remains open** until teammates are named and invited (`gh api -X PUT repos/hdelloye/quantum-neutron-transport-sparc/collaborators/{username} -f permission=push`).
 - [x] **PLAT-04**: Nothing reachable from `main.py` imports qiskit-aer or qiskit-algorithms; data files are ≤ 2 MB and loaded by literal path; `backend` is injected, never created in code
 
 ### Physics & Classical Baseline
@@ -104,7 +105,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 |-------------|-------|--------|
 | PLAT-01 | Phase 1 | Complete |
 | PLAT-02 | Phase 1 | Complete |
-| PLAT-03 | Phase 1 | Pending |
+| PLAT-03 | Phase 1 | Complete (collaborator invites open: no teammates named yet) |
 | PLAT-04 | Phase 1 | Complete |
 | DOCS-06 | Phase 1 | Complete |
 | PHYS-01 | Phase 2 | Pending |

@@ -3,17 +3,17 @@ gsd_state_version: "1.0"
 milestone: v0.0
 current_phase: 01
 current_phase_name: Qollab Smoke Test & Compliant Skeleton
-status: executing
-stopped_at: Completed 01-03-PLAN.md
-last_updated: "2026-10-10T19:51:26.767Z"
+status: verifying
+stopped_at: Completed 01-04-PLAN.md
+last_updated: "2026-10-10T20:09:26.918Z"
 last_activity: 2026-10-10
 last_activity_desc: Phase 01 execution started
-state_head: 90a7261be789d6ace286a4db9f5aebf304665177
+state_head: 905508ab6e18e633c56834368e938af447681ed2
 progress:
   total_phases: 6
   completed_phases: 0
   total_plans: 4
-  completed_plans: 3
+  completed_plans: 4
 ---
 
 # Project State
@@ -29,7 +29,7 @@ See: .planning/PROJECT.md (updated 2026-10-09)
 
 Phase: 01 (Qollab Smoke Test & Compliant Skeleton) — EXECUTING
 Plan: 4 of 4
-Status: Ready to execute
+Status: Phase complete — ready for verification
 Last activity: 2026-10-10 — Phase 01 execution started
 
 Progress: [░░░░░░░░░░] 0%
@@ -59,6 +59,7 @@ Progress: [░░░░░░░░░░] 0%
 | Phase 01 P01 | 3 min | 3 tasks | 12 files |
 | Phase 01 P02 | 11 min | 2 tasks | 4 files |
 | Phase 01 P03 | 60 min | 3 tasks | 5 files |
+| Phase 01 P04 | 3 min | 3 tasks | 0 files |
 
 ## Accumulated Context
 
@@ -80,10 +81,14 @@ Recent decisions affecting current work:
 - [Phase 01]: Ideal IonQ runs use backend.set_options(noise_model='ideal') (ideal, sampled); the run kwarg gives exact round(p*shots) with no shot noise and is never used for statistics
 - [Phase 01]: Qollab project published as public default v1.0 (Hippolyte's choice, not v0.0-smoke): https://qollab.xyz/u/hdelloye/quantum-neutron-transport-spar
 - [Phase 01]: Logged-out IonQ run (R8) refused by Qollab (credits apply, sign in) despite anon_enabled true; judged Built-in path passes logged out
+- [Phase 01]: GitHub repo hdelloye/quantum-neutron-transport-sparc created PRIVATE until v0 (Hippolyte: 'private until v0'); flip public before the v0 publish
+- [Phase 01]: No teammates invited yet (teammates=none-yet, orchestrator-proposed default); PLAT-03 collaborator clause open until usernames are named
+- [Phase 01]: Commit email and LICENSE holder line kept (orchestrator-proposed defaults); repo-local user.name Hippolyte Delloye
 
 ### Pending Todos
 
-None yet.
+- [Phase 6 / v0, due before ~Oct 10 7:00 PM ET]: Flip the GitHub repository public before the v0 publish: `gh repo edit hdelloye/quantum-neutron-transport-sparc --visibility public --accept-visibility-change-consequences` (currently PRIVATE per Hippolyte's 'private until v0').
+- [PLAT-03]: Invite teammates as collaborators once their GitHub usernames are known: `gh api -X PUT repos/hdelloye/quantum-neutron-transport-sparc/collaborators/{username} -f permission=push` (201 = invited, 204 = already a collaborator, 404 = report the spelling, do not guess). PLAT-03's collaborator clause stays open until then.
 
 ### Blockers/Concerns
 
@@ -105,6 +110,6 @@ Items acknowledged and deferred at milestone close, most recent first:
 
 ## Session Continuity
 
-Last session: 2026-10-10T19:51:26.754Z
-Stopped at: Completed 01-03-PLAN.md
+Last session: 2026-10-10T20:09:26.904Z
+Stopped at: Completed 01-04-PLAN.md
 Resume file: None
