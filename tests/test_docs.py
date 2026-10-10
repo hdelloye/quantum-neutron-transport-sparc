@@ -80,3 +80,19 @@ def test_license_and_readme_ship_to_qollab():
 
 def test_readme_fits_qollab_writeup():
     assert len(_readme()) < 65_000
+
+
+RUNTIME_SECTIONS = (
+    "## Static facts (read from Qollab's runtime code, 2026-10-10)",
+    "## Empirical runs",
+    "## Raw reports",
+    "## Conclusions for later phases",
+)
+
+
+def test_runtime_record_has_sections():
+    path = ROOT / "docs" / "QOLLAB-RUNTIME.md"
+    assert path.is_file()
+    lines = path.read_text(encoding="utf-8").splitlines()
+    for heading in RUNTIME_SECTIONS:
+        assert heading in lines, f"docs/QOLLAB-RUNTIME.md missing section {heading!r}"
