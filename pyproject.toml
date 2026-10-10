@@ -1,0 +1,25 @@
+[build-system]
+requires = ["setuptools>=77"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "neutron-qae"
+version = "0.1.0"
+description = "QAE vs classical Monte Carlo neutron transport through a SPARC-like first wall"
+readme = "README.md"
+license = "MIT"
+license-files = ["LICENSE"]
+requires-python = ">=3.12"
+dependencies = ["qiskit==2.5.2", "numpy>=2.0,<3", "matplotlib"]
+
+[project.optional-dependencies]
+dev = ["pytest>=9", "ruff==0.16.10", "qiskit-aer==0.17.2", "qiskit-algorithms==0.4.0"]
+
+[tool.setuptools]
+packages = ["neutron_qae"]          # REQUIRED: auto-discovery fails ("Multiple top-level packages discovered in a flat-layout: ['data', 'neutron_qae']")
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = [".", "tests"]         # import main.py, neutron_qae and tests/compliance_checks.py without installing
+addopts = "-ra"
+markers = ["slow: long-running"]
