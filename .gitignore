@@ -1,0 +1,17 @@
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv
+venv/
+.pytest_cache/
+.ruff_cache/
+build/
+dist/
+.DS_Store
+.env
+# Local-only reference material (e.g. third-party textbook PDFs); never committed
+references/
+# Research tool cache
+.planning/research/.cache/
+# GSD executor worktrees
+.claude/worktrees/

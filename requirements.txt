@@ -1,0 +1,3 @@
+# Qollab runtime requirements. Qollab reads only this file.
+# Do not list numpy/scipy/matplotlib: Pyodide ships its own builds.
+qiskit==2.5.2
