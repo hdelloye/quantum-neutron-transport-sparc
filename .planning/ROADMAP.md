@@ -39,7 +39,12 @@ Decimal phases appear between their surrounding integers in numeric order.
   3. A teammate added as a GitHub collaborator can clone the repo, install `requirements.txt` (pinning `qiskit==2.5.2`), import the flat package sitting next to `main.py`, and run `pytest` green; no file names with spaces remain.
   4. The repo carries an MIT LICENSE, the README line "This effort is supported by Qollab & IonQ.", and a disclosure of every external library and AI tool used, with licenses and confirmation the team may use them.
   5. An automated test fails if anything reachable from `main.py` imports qiskit-aer or qiskit-algorithms, if any committed data file exceeds 2 MB, or if code constructs a backend instead of receiving it as a parameter.
-**Plans**: TBD
+**Plans**: 4 plans
+Plans:
+- [ ] 01-01-PLAN.md — Dependency approval, tracer (toy main.py + neutron_qae + local runner, SMOKE TEST PASSED), compliance gates with negative tests, placeholder cleanup (PLAT-01, PLAT-02, PLAT-04)
+- [ ] 01-02-PLAN.md — MIT LICENSE, README with attribution line and library/AI disclosure, docs tests, runtime-record template, GitHub CLI install (DOCS-06, PLAT-03)
+- [ ] 01-03-PLAN.md — Qollab upload, built-in + IonQ Forte 1 smoke runs, publish v0.0-smoke, logged-out re-run, findings recorded in docs/QOLLAB-RUNTIME.md (PLAT-02)
+- [ ] 01-04-PLAN.md — GitHub auth, publication decision, repo create + push, collaborator invites, fresh-clone pytest (PLAT-03)
 **Research flag**: yes. Empirical Qollab checks: logged-out run behaviour, `noise_model` pass-through, Pyodide performance, IonQ gate-count/size limits (research/SUMMARY.md, Gaps to Address).
 
 ### Phase 2: Problem Spec & Kernels Contract
@@ -113,7 +118,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Qollab Smoke Test & Compliant Skeleton | 0/TBD | Not started | - |
+| 1. Qollab Smoke Test & Compliant Skeleton | 0/4 | Planned | - |
 | 2. Problem Spec & Kernels Contract | 0/TBD | Not started | - |
 | 3. Classical Baseline | 0/TBD | Not started | - |
 | 4. Quantum Oracle & Amplitude Estimation | 0/TBD | Not started | - |
