@@ -3,6 +3,7 @@
 A missing attribution line or an undisclosed library/AI tool can disqualify the submission,
 so these checks fail loudly when the README or LICENSE drift.
 """
+import json
 from pathlib import Path
 
 import compliance_checks as cc
@@ -96,3 +97,25 @@ def test_runtime_record_has_sections():
     lines = path.read_text(encoding="utf-8").splitlines()
     for heading in RUNTIME_SECTIONS:
         assert heading in lines, f"docs/QOLLAB-RUNTIME.md missing section {heading!r}"
+
+
+REPORT_PREFIX = "QOLLAB_RUNTIME_REPORT="
+PUBLIC_URL_PREFIX = "https://qollab.xyz/u/"
+
+
+def test_runtime_findings_recorded():
+    """The runtime record must hold real Qollab reports, not the 01-02 template placeholders."""
+    text = (ROOT / "docs" / "QOLLAB-RUNTIME.md").read_text(encoding="utf-8")
+    reports = [json.loads(line.split("=", 1)[1])
+               for line in text.splitlines() if line.startswith(REPORT_PREFIX)]
+    assert reports, "no QOLLAB_RUNTIME_REPORT= lines recorded"
+    for report in reports:
+        assert {"runtime", "backend", "toy"} <= set(report), sorted(report)
+    assert any(not r["backend"]["is_ionq"] and r["toy"]["accepted"] for r in reports), \
+        "no accepted Built-in simulator run recorded"
+    assert any(r["backend"]["is_ionq"] for r in reports), "no IonQ run recorded"
+    assert any(r["backend"]["is_ionq"] and r["toy"]["accepted"] for r in reports), \
+        "no accepted IonQ run recorded"
+    assert PUBLIC_URL_PREFIX in text, "published Qollab URL missing"
+    assert "ACCEPTED / REJECTED" not in text, "template placeholder left in the conclusions"
+    assert "Phase 4 IonQ path should use" in text
