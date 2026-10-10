@@ -56,7 +56,7 @@ Requirements for the hackathon submission (deadline Oct 11 2026, 7:00 PM ET). Ea
 - [ ] **DOCS-03**: README covers what it does, the problem, how to run (locally and on Qollab), replication steps, and a section per judging criterion (novelty, technical execution, impact, documentation)
 - [ ] **DOCS-04**: Prior-art section cites Olivier & Nowak (arXiv:2410.19489), Lee/Lee/Kim (PRD 111, 116001), Miao/Jin/Sone (arXiv:2607.10772) and states the narrowed novelty claim
 - [ ] **DOCS-05**: Limitations section states: one-group physics, K-collision truncation, ideal-simulator scaling plot, noise on IonQ simulators, no wall-clock speedup claim, sampling-complexity argument only
-- [ ] **DOCS-06**: Disclosure of all external libraries and AI tools used, with licenses, and confirmation the team may use them
+- [x] **DOCS-06**: Disclosure of all external libraries and AI tools used, with licenses, and confirmation the team may use them
 - [ ] **DOCS-07**: Short demo video and repo link attached to the Qollab project page, theme tag Quantum Impact
 - [ ] **DOCS-08**: HANDOFF.md describes module ownership, how to run tests, the frozen `Kernels` contract, and what is left to do, so teammates can continue from GitHub
 
@@ -106,7 +106,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 | PLAT-02 | Phase 1 | Pending |
 | PLAT-03 | Phase 1 | Pending |
 | PLAT-04 | Phase 1 | Complete |
-| DOCS-06 | Phase 1 | Pending |
+| DOCS-06 | Phase 1 | Complete |
 | PHYS-01 | Phase 2 | Pending |
 | PHYS-02 | Phase 2 | Pending |
 | PHYS-05 | Phase 2 | Pending |
