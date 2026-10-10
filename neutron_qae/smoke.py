@@ -80,17 +80,14 @@ def ghz(n: int):
     return qc
 
 
-def all_ones(n: int):
-    from qiskit import QuantumCircuit
-
-    qc = QuantumCircuit(n, n, name=f"ones{n}")
-    qc.x(range(n))
-    qc.measure(range(n), range(n))
-    return qc
-
-
 def run_toy(backend, shots: int = 200, n: int = 6, ideal_mode: str = "none") -> dict:
-    """ONE backend.run call carrying TWO circuits (proves the multi-circuit single job MLAE needs)."""
+    """ONE backend.run call carrying ONE circuit (a GHZ state), on every backend.
+
+    Qollab allows one job per run on IonQ, and its IonQ proxy accepts only job type
+    ionq.circuit.v1. qiskit-ionq sends a list or tuple (even of length one) as
+    ionq.multi-circuit.v1, which Qollab rejects with HTTP 400, so the circuit is passed
+    as a bare QuantumCircuit, never wrapped in a list.
+    """
     from qiskit import transpile
 
     shots = max(2, min(int(shots), 10_000))
@@ -108,31 +105,29 @@ def run_toy(backend, shots: int = 200, n: int = 6, ideal_mode: str = "none") -> 
     elif is_ionq(backend):
         applied = "none (dialog's noise model)"
 
-    circuits = [ghz(n), all_ones(n)]
     t0 = time.perf_counter()
-    tcirc = transpile(circuits, backend, optimization_level=1)  # IonQ recommends level 0-1
+    tcirc = transpile(ghz(n), backend, optimization_level=1)  # one QuantumCircuit in, one out
     t_transpile = time.perf_counter() - t0
 
-    out = {"ideal_mode": ideal_mode, "applied": applied, "run_kwargs": run_kwargs, "n": n}
+    out = {"ideal_mode": ideal_mode, "applied": applied, "run_kwargs": run_kwargs, "n": n,
+           "circuits_per_job": 1}
     t0 = time.perf_counter()
     try:
-        job = backend.run(tcirc, **run_kwargs)  # the ONLY job this run sends
-        result = job.result()
-        counts = [dict(result.get_counts(i)) for i in range(len(tcirc))]
+        job = backend.run(tcirc, **run_kwargs)  # the ONLY job this run sends; bare circuit, not a list
+        counts = dict(job.result().get_counts())
         out.update(accepted=True, error=None, counts=counts)
     except Exception as exc:  # noqa: BLE001 - AttributeError inside qiskit-ionq masks an IonQ error
-        out.update(accepted=False, error=f"{type(exc).__name__}: {exc}", counts=[])
+        out.update(accepted=False, error=f"{type(exc).__name__}: {exc}", counts={})
     out["transpile_s"] = round(t_transpile, 3)
     out["run_s"] = round(time.perf_counter() - t0, 3)
 
     if out["counts"]:
-        ghz_counts, ones_counts = out["counts"]
+        ghz_counts = out["counts"]
         ideal_keys = {"0" * n, "1" * n}
         total = sum(ghz_counts.values())
         off = sum(v for k, v in ghz_counts.items() if k not in ideal_keys)
         exact_half = ghz_counts.get("0" * n) == total / 2 == ghz_counts.get("1" * n)
         out["ghz_off_ideal_fraction"] = round(off / total, 4)
-        out["ones_fraction"] = round(ones_counts.get("1" * n, 0) / sum(ones_counts.values()), 4)
         out["noise_verdict"] = (
             "noisy" if off else "ideal, exact round(p*shots) (no shot noise)" if exact_half else "ideal, sampled"
         )

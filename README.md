@@ -58,7 +58,7 @@ docs/              project records, e.g. QOLLAB-RUNTIME.md with the Qollab runti
 - Nothing reachable from `main.py` imports qiskit-aer, qiskit-algorithms or qiskit-ionq. Those packages are not installed for every Qollab backend choice.
 - Data files stay at or under 2 MB and are referenced by literal path strings in the code, because Qollab only loads data files whose path appears as a literal.
 - The `main()` signature stays on one line, with `int`, `float`, `str` or `bool` parameters and literal defaults, so Qollab can build the Run settings form. `main.py` never calls `main()` itself; Qollab does.
-- One `backend.run` call per run on IonQ: all circuits go in a single job.
+- One job per run and one circuit per job on Qollab's IonQ backends: Qollab allows a single `backend.run` call per run and its IonQ proxy accepts only job type `ionq.circuit.v1`, so the circuit is passed to `backend.run` on its own, never in a list (qiskit-ionq sends any list as `ionq.multi-circuit.v1`, which Qollab rejects).
 - `tests/test_compliance.py` enforces these rules on every test run.
 
 ## Libraries, tools and licenses (disclosure)
