@@ -8,6 +8,8 @@ This effort is supported by Qollab & IonQ.
 
 Phase 1 is the Qollab smoke test and compliant skeleton: a toy Qiskit `main.py` that reports what the Qollab runtime provides, runs a small GHZ circuit on the selected backend and prints `SMOKE TEST PASSED`. The physics and quantum parts (the problem specification, the shared `Kernels` contract, the classical Monte Carlo, the quantum oracle, maximum-likelihood amplitude estimation (MLAE) and the figures) arrive in later phases as modules under `neutron_qae/`.
 
+Phase 2 added the SPARC first-wall problem definition, with cited ENDF/B-VIII.0 cross sections, and the frozen `Kernels` contract that the classical and quantum engines share (see [docs/PHYSICS.md](docs/PHYSICS.md)). These modules are not used by `main.py` yet.
+
 ## Run it on Qollab
 
 1. Use a browser that supports WebAssembly JSPI: a recent Chrome, Edge or Opera, or Firefox 153 or later. Qollab runs Python inside the browser, so other browsers cannot start the runtime.
@@ -45,11 +47,18 @@ requirements.txt   Qollab-facing dependencies (only qiskit==2.5.2)
 pyproject.toml     local install, dev extras and pytest config (not used by Qollab)
 LICENSE            MIT license
 README.md          this file; also the Qollab project write-up
-neutron_qae/       the Python package (smoke test now; physics and QAE modules later)
+neutron_qae/       the Python package:
+  smoke.py         Phase 1 Qollab smoke test run by main.py
+  nuclear_data.py  cited 14.1 MeV ENDF/B-VIII.0 cross sections and material compositions
+  problem.py       ProblemSpec: the SPARC first-wall slab, geometry and one-group materials
+  kernels.py       frozen Kernels contract v1 shared by the classical and quantum engines
+  exact.py         exact lattice solver (literal bit-string enumeration, T0 and T1)
 data/              small data files loaded by literal path (each at most 2 MB)
 scripts/           local-only tools, e.g. run_local.py which injects a simulator like Qollab
-tests/             pytest suite: compliance gates, smoke test, docs checks
-docs/              project records, e.g. QOLLAB-RUNTIME.md with the Qollab runtime findings
+tests/             pytest suite: compliance gates, smoke test, physics, contract and docs checks
+  golden/          frozen contract values (tests/golden/kernels_v1.json)
+docs/              project records: QOLLAB-RUNTIME.md (Qollab runtime findings), PHYSICS.md (physics, data
+                   sources and the Kernels contract)
 ```
 
 ## Rules every module follows
@@ -60,6 +69,7 @@ docs/              project records, e.g. QOLLAB-RUNTIME.md with the Qollab runti
 - The `main()` signature stays on one line, with `int`, `float`, `str` or `bool` parameters and literal defaults, so Qollab can build the Run settings form. `main.py` never calls `main()` itself; Qollab does.
 - One job per run and one circuit per job on Qollab's IonQ backends: Qollab allows a single `backend.run` call per run and its IonQ proxy accepts only job type `ionq.circuit.v1`, so the circuit is passed to `backend.run` on its own, never in a list (qiskit-ionq sends any list as `ionq.multi-circuit.v1`, which Qollab rejects).
 - `tests/test_compliance.py` enforces these rules on every test run.
+- Physics enters classical and quantum code only through the frozen `Kernels` contract (`neutron_qae/kernels.py`, `KERNELS_CONTRACT_VERSION = "1"`, values frozen in `tests/golden/kernels_v1.json`). Import it; never rebuild private tables. Changing it is a contract change, described in docs/PHYSICS.md. `tests/test_kernels_golden.py` checks the freeze on every test run.
 
 ## Libraries, tools and licenses (disclosure)
 
