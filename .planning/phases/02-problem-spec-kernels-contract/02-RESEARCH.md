@@ -506,7 +506,7 @@ Isotropic raw gives T₀ = 0.08674615049972412 and T₁ = 0.11006367028977174. T
 | A5 | Literature totals (~5.4 b W, ~2.5 b Fe at 14 MeV) as plausibility only | Nuclear Data | None: the values were computed from the files. |
 | A6 | ENDF/B-VIII.1 exists | State of the Art | None for this phase |
 
-## Open Questions
+## Open Questions (RESOLVED — Q1: transport-corrected model locked by orchestrator, plan PD-01; Q2: derivation script included, plan 02-02 PD-07; Q3: owned by Phase 4 QC-03)
 
 1. **Transport-corrected vs raw isotropic (A1).**
    - What we know: transport-corrected is 15× closer to the ENDF-angular reference.
