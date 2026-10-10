@@ -76,6 +76,7 @@ Show, on a real fusion-relevant transport problem, that quantum amplitude estima
 | Headline figure is error-vs-shots, histograms are supporting | The scaling plot is the evidence for the Core Value; histograms make it visual | — Pending |
 | Classical engine takes its random source as a parameter | Keeps the engine identical across experiments; also lets a future RNG section reuse it | — Pending |
 | Interactive front end deferred to v2 | Core comparison must work first; teammates build the UI after handoff | — Pending |
+| 2026-10-10 note (01-03): MLAE on Qollab IonQ cannot be one multi-circuit job | Qollab's IonQ proxy accepts only `ionq.circuit.v1` and allows one job per Run, so an IonQ Run carries exactly one circuit; the MLAE row above holds for local/Built-in runs only. Ideal IonQ runs via `set_options(noise_model="ideal")` (sampled) | ⚠️ Revisit in Phase 4 |
 
 ## Evolution
 
