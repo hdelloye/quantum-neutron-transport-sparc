@@ -7,7 +7,7 @@ status: planning
 stopped_at: Phase 02 complete, ready to plan Phase 1
 last_updated: "2026-10-10T23:40:21.485Z"
 last_activity: 2026-10-10
-last_activity_desc: Phase 02 complete, transitioned to Phase 1
+last_activity_desc: Phase 02 complete; next Phases 3 and 4 (Phase 1 gaps are human actions)
 state_head: 25ef97f1210bc3291f14dc3b48cfaefa0617f05e
 progress:
   total_phases: 6
@@ -21,10 +21,10 @@ progress:
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-10-09)
+See: .planning/PROJECT.md (updated 2026-10-10)
 
 **Core value:** Show, on a real fusion-relevant transport problem, that quantum amplitude estimation reaches a target accuracy with fewer samples than classical Monte Carlo, with an honest classical baseline sitting next to it.
-**Current focus:** Phase 02 — Problem Spec & Kernels Contract
+**Current focus:** Phases 3 (Classical Baseline) and 4 (Quantum Oracle & AE) — both depend only on the frozen Phase 2 contract and can be planned/executed in parallel; Phase 1 has two human-dependent gaps (logged-out IonQ refused by Qollab; teammates not yet invited)
 
 ## Current Position
 
@@ -103,10 +103,10 @@ Recent decisions affecting current work:
 ### Blockers/Concerns
 
 - [Phase 1]: ~~Qollab behaviour undocumented (logged-out running, `noise_model="ideal"` pass-through, Pyodide performance).~~ Resolved 2026-10-10 by 01-03; see docs/QOLLAB-RUNTIME.md.
-- [Phase 1]: Placeholder files with spaces in names still at repo root ("Monte Carlo Transport Problem", ".tex", "MonteCarlo Transport Problem.py"); remove or rename.
+- [Phase 1]: ~~Placeholder files with spaces in names still at repo root.~~ Resolved 2026-10-10 by 01-01 (deleted; textbook PDF moved to gitignored references/).
 - [Phase 2]: ~~Real ENDF/B-VIII.0 14 MeV cross sections for W heavy alloy and 316 SS not yet pulled; K=1 coverage fraction (~90%) will move.~~ Resolved 2026-10-10 by 02-01: Real ENDF/B-VIII.0 cross sections pulled; transport-corrected K=1 coverage is 99.7% (89.9% only under isotropic_raw).
 - [Phase 4]: All Qollab IonQ simulators apply noise by default; 01-03 showed `backend.set_options(noise_model="ideal")` gives ideal sampled IonQ counts. Headline scaling plot stays ideal/local.
-- [Deadline]: v0 publish by ~hour 24 (Oct 10 ~7:00 PM ET); IonQ cloud runs before ~hour 36 (Oct 11 ~7:00 AM ET); final by Oct 11 7:00 PM ET.
+- [Deadline]: v0 publish target (~Oct 10 7:00 PM ET) PASSED without a v0 publish of the real project (the Phase 1 smoke test v1.0 is what is live on Qollab, possibly unpublished); flip the repo public and publish v0 as soon as Phase 3/4 have something green; IonQ cloud runs before ~hour 36 (Oct 11 ~7:00 AM ET); final by Oct 11 7:00 PM ET.
 - [Phase 4]: Qollab IonQ runs carry exactly ONE circuit (ionq.circuit.v1 only + one job per Run). MLAE as one multi-circuit job is impossible on Qollab IonQ; redesign the IonQ path (one Run per Grover power, or a single A Q^k execution proof with the MLAE curve from local/Built-in runs). See docs/QOLLAB-RUNTIME.md
 - [Phase 1]: Anonymous (logged-out) IonQ jobs are refused by Qollab ('credits apply, sign in') despite anon_enabled true; logged-out judges can run only the Built-in simulator path
 
@@ -121,5 +121,5 @@ Items acknowledged and deferred at milestone close, most recent first:
 ## Session Continuity
 
 Last session: 2026-10-10T22:28:08.099Z
-Stopped at: Phase 02 complete, ready to plan Phase 1
+Stopped at: Phase 2 complete and verified (4/4); Phase 1 executed with 2 human gaps; next: plan Phases 3 and 4
 Resume file: None

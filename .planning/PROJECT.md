@@ -12,22 +12,24 @@ Show, on a real fusion-relevant transport problem, that quantum amplitude estima
 
 ### Validated
 
-(None yet — ship to validate)
+- ✓ Runnable top-level `main.py` on Qollab (toy smoke test), published, runs logged-out on the built-in simulator; signed-in on IonQ Forte 1 — Phase 1 (logged-out IonQ refused by Qollab policy)
+- ✓ Modular repository layout (`neutron_qae` flat package, compliance gates, MIT LICENSE, attribution, disclosure) on GitHub (private until v0) — Phase 1
+- ✓ Two-layer SPARC first-wall geometry as `ProblemSpec` (2.0 cm WHA interface handled exactly inside column 4) — Phase 2
+- ✓ One-group 14 MeV physics from ENDF/B-VIII.0 (transport-corrected, cited per isotope in `docs/PHYSICS.md`) — Phase 2
+- ✓ Frozen `Kernels` contract + exact lattice enumeration (T1 = 0.24300446519524305, golden `tests/golden/kernels_v1.json`) — Phase 2
 
 ### Active
 
 - [ ] Classical Monte Carlo transport engine (Python) for a 2D slab, 10 cm thick × 10 cm wide, 16 × 16 grid
-- [ ] Two-layer SPARC first-wall geometry: 2 cm tungsten heavy alloy (plasma side) + 8 cm 316 stainless steel, material determined by column index
-- [ ] One-group 14 MeV neutron physics: fixed total, scattering and absorption cross sections per material; isotropic scattering; particle lost on exit through any face
-- [ ] Three classical solvers: continuous Monte Carlo (physics reference), discrete lattice Monte Carlo on the same kernels (like-for-like baseline), exact lattice enumeration (ground truth); outputs: transmission and absorption fractions, exit-position histogram, collision-order breakdown, standard errors
+- [ ] Two remaining classical solvers: continuous Monte Carlo (physics reference) and discrete lattice Monte Carlo on the frozen kernels (like-for-like baseline); the exact lattice enumeration shipped in Phase 2; outputs: transmission and absorption fractions, exit-position histogram, collision-order breakdown, standard errors
 - [ ] Pluggable random-bit source on the classical engine (numpy PRNG by default) so the engine never owns its randomness
 - [ ] Qiskit state-preparation circuit where one quantum step is one collision (kernels precomputed from cross sections), every random choice consumes fresh qubits, transmission within K collisions flagged on an ancilla (Q0 ≈ 5 qubits, Q1 ≈ 12 qubits)
-- [ ] Maximum-likelihood amplitude estimation (vendored numpy) of the transmission fraction from one multi-circuit job, total ≤ 24 qubits, runnable without error on the IonQ simulator through Qollab
+- [ ] Maximum-likelihood amplitude estimation (vendored numpy) of the transmission fraction, total ≤ 24 qubits; the MLAE curve comes from local/built-in runs, and the IonQ path on Qollab carries exactly one circuit per Run (Phase 1 finding), so the IonQ run is an execution proof of A·Q^k, not the full multi-circuit job
 - [ ] Sweep producing an RMSE-versus-N_A plot (N_A = Σ shots·(2k+1), ≥ 50 repetitions, against the exact discrete value) showing 1/sqrt(N) classical versus 1/N QAE scaling
 - [ ] Overlaid exit-position histograms, classical versus quantum, at matched shot counts
-- [ ] Runnable top-level `main.py` (Qollab runs Pyodide in the judge's browser; notebooks are not run) that completes from a logged-out Qollab browser
+- [ ] Final `main.py` quick mode (live small MLAE run + precomputed figures) that completes from a logged-out Qollab browser on the built-in simulator — toy version validated in Phase 1
 - [ ] Documentation covering the four judging criteria (novelty, technical execution, impact, documentation), the attribution line "This effort is supported by Qollab & IonQ.", library disclosure, MIT license, and replication instructions
-- [ ] Modular repository layout so teammates can pick up the classical engine, the quantum circuits, or the writeup independently
+- [ ] Teammates invited as GitHub collaborators and HANDOFF.md written (repo flipped public before the v0 publish)
 
 ### Out of Scope
 
@@ -37,7 +39,7 @@ Show, on a real fusion-relevant transport problem, that quantum amplitude estima
 - Multigroup or continuous-energy neutron physics — costs qubits the budget does not have; one-group is sufficient to demonstrate the scaling argument
 - 3D geometry or finer than 16 × 16 grid — position register would exceed the qubit budget
 - Real IonQ hardware runs — the hackathon provides the simulator; hardware noise would confound the scaling comparison
-- Anisotropic scattering, fission, (n,2n) multiplication — real for 14 MeV in tungsten but out of scope for v1
+- Anisotropic scattering, fission, (n,2n) multiplication — real for 14 MeV in tungsten but out of scope for v1; Phase 2 uses a transport-corrected one-group model (within 6.5% of an ENDF-angular reference) and treats (n,2n) as removal, both disclosed in `docs/PHYSICS.md`
 
 ## Context
 
@@ -77,6 +79,8 @@ Show, on a real fusion-relevant transport problem, that quantum amplitude estima
 | Classical engine takes its random source as a parameter | Keeps the engine identical across experiments; also lets a future RNG section reuse it | — Pending |
 | Interactive front end deferred to v2 | Core comparison must work first; teammates build the UI after handoff | — Pending |
 | 2026-10-10 note (01-03): MLAE on Qollab IonQ cannot be one multi-circuit job | Qollab's IonQ proxy accepts only `ionq.circuit.v1` and allows one job per Run, so an IonQ Run carries exactly one circuit; the MLAE row above holds for local/Built-in runs only. Ideal IonQ runs via `set_options(noise_model="ideal")` (sampled) | ⚠️ Revisit in Phase 4 |
+| 2026-10-10 (02-01, PD-01/PD-02): transport-corrected one-group model with WHA 97W-2Ni-1Fe at 18.5 g/cm³ and 316 SS (PNNL-15870) at 8.00 g/cm³ | Against a Monte Carlo with real ENDF angular distributions (T = 0.229), transport-corrected gives 0.244 (+6.5%) while raw isotropic gives 0.122 (−46%); K=1 then covers 99.7% of transmission | ✓ Frozen in `kernels_v1.json` |
+| 2026-10-10 (02-01, PD-04/PD-06): `Kernels` contract v1 covers K ∈ {0, 1}; golden file compared at rtol 1e-12 + spec fingerprint; changes require `freeze_kernels.py --write --force` and a version bump | K=2 needs > 24 qubits; hashing floats would break across platforms | ✓ Phases 3 and 4 import it |
 
 ## Evolution
 
@@ -96,4 +100,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-10-10 after research and roadmap*
+*Last updated: 2026-10-10 after Phase 2 (Phase 1 executed with two human-dependent gaps open)*
