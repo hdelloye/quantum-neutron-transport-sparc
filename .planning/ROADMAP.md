@@ -30,6 +30,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 ## Phase Details
 
 ### Phase 1: Qollab Smoke Test & Compliant Skeleton
+
 **Goal**: Platform risk is retired before any physics is built: a toy Qiskit `main.py` is published on Qollab and runs start-to-finish from a logged-out browser on both the built-in and an IonQ simulator, served from a compliant, importable GitHub repo that teammates can clone.
 **Depends on**: Nothing (first phase)
 **Requirements**: PLAT-01, PLAT-02, PLAT-03, PLAT-04, DOCS-06
@@ -39,15 +40,25 @@ Decimal phases appear between their surrounding integers in numeric order.
   3. A teammate added as a GitHub collaborator can clone the repo, install `requirements.txt` (pinning `qiskit==2.5.2`), import the flat package sitting next to `main.py`, and run `pytest` green; no file names with spaces remain.
   4. The repo carries an MIT LICENSE, the README line "This effort is supported by Qollab & IonQ.", and a disclosure of every external library and AI tool used, with licenses and confirmation the team may use them.
   5. An automated test fails if anything reachable from `main.py` imports qiskit-aer or qiskit-algorithms, if any committed data file exceeds 2 MB, or if code constructs a backend instead of receiving it as a parameter.
+
 **Plans**: 4 plans
 Plans:
+**Wave 1**
 - [ ] 01-01-PLAN.md — Dependency approval, tracer (toy main.py + neutron_qae + local runner, SMOKE TEST PASSED), compliance gates with negative tests, placeholder cleanup (PLAT-01, PLAT-02, PLAT-04)
+
+**Wave 2** *(blocked on Wave 1 completion)*
 - [ ] 01-02-PLAN.md — MIT LICENSE, README with attribution line and library/AI disclosure, docs tests, runtime-record template, GitHub CLI install (DOCS-06, PLAT-03)
+
+**Wave 3** *(blocked on Wave 2 completion)*
 - [ ] 01-03-PLAN.md — Qollab upload, built-in + IonQ Forte 1 smoke runs, publish v0.0-smoke, logged-out re-run, findings recorded in docs/QOLLAB-RUNTIME.md (PLAT-02)
+
+**Wave 4** *(blocked on Wave 3 completion)*
 - [ ] 01-04-PLAN.md — GitHub auth, publication decision, repo create + push, collaborator invites, fresh-clone pytest (PLAT-03)
+
 **Research flag**: yes. Empirical Qollab checks: logged-out run behaviour, `noise_model` pass-through, Pyodide performance, IonQ gate-count/size limits (research/SUMMARY.md, Gaps to Address).
 
 ### Phase 2: Problem Spec & Kernels Contract
+
 **Goal**: The SPARC first-wall problem is defined exactly once with sourced 14 MeV cross sections, and the frozen `Kernels` contract plus the exact "transmission within K collisions" value exist, so classical and quantum work can proceed independently against the same ground truth.
 **Depends on**: Phase 1
 **Requirements**: PHYS-01, PHYS-02, PHYS-05, PHYS-06
@@ -56,11 +67,13 @@ Plans:
   2. Every one-group 14 MeV cross section (total, scattering, absorption including the non-elastic treatment) for both materials is cited in code and docs with its ENDF/B-VIII.0 source and evaluation date.
   3. `Kernels`, built from `ProblemSpec`, exposes the first-collision column distribution, scatter ratio per column, and escape probability per column and direction; tests show probability is conserved across each table's outcomes, and the dataclass is frozen as the one contract both classical and quantum code import.
   4. The exact lattice solver enumerates every random-bit string of the discrete model and returns the exact transmission within K collisions; this value is the reference that Phase 3, 4 and 5 tests compare against.
+
 **Plans**: TBD
 **Research flag**: light. Short ENDF/B-VIII.0 lookup for 14 MeV tungsten heavy alloy and 316 SS values, non-elastic/(n,2n) treatment, transport correction.
 **Contract note**: freeze `Kernels` and the exact solver before Phases 3 and 4 start; any later change is an explicit contract change that re-runs both branches' contract tests.
 
 ### Phase 3: Classical Baseline
+
 **Goal**: An honest classical baseline exists: a continuous delta-tracking Monte Carlo serves as the physics reference, and a discrete lattice Monte Carlo samples exactly the `Kernels` model the circuit encodes; both are validated against analytic and exact answers and both are driven by an injected random source.
 **Depends on**: Phase 2
 **Requirements**: PHYS-03, PHYS-04, PHYS-07, PHYS-08
@@ -69,10 +82,12 @@ Plans:
   2. The continuous MC's uncollided transmission matches e^{-τ} within its standard error, and two runs with the same seed reproduce identical histories.
   3. The discrete lattice MC (matched mode) samples the frozen `Kernels` model, and its mean converges to the exact lattice solver value within standard error as the number of histories grows.
   4. Both engines take their random source as a parameter (numpy Generator by default), and swapping in a different source requires no engine code change.
+
 **Plans**: TBD
 **Runs in parallel with**: Phase 4 (both depend only on Phase 2).
 
 ### Phase 4: Quantum Oracle & Amplitude Estimation
+
 **Goal**: A state-preparation circuit within 24 qubits, whose flag probability equals the exact lattice value, is wrapped in Grover powers and a vendored maximum-likelihood amplitude estimator, producing transmission estimates through analytic, Aer and IonQ runners with cost counted honestly as applications of A.
 **Depends on**: Phase 2
 **Requirements**: QC-01, QC-02, QC-03, QC-04, QC-05, QC-06, QAE-01, QAE-02, QAE-03, QAE-04
@@ -82,11 +97,13 @@ Plans:
   3. The vendored numpy MLAE, given counts from one `backend.run([...])` job of A·Q^k circuits, returns the same estimate as qiskit-algorithms MLAE on identical counts, and every estimate reports its cost as N_A = Σ shots·(2k+1), never raw shots or `num_oracle_queries`.
   4. The analytic, Aer and IonQ runners share one interface; analytic and Aer agree within statistical error on at least three (k, shots) points, and an IonQ-runner job (decomposed to at most 7 controls per gate, transpiled once as a whole circuit, `backend.run` + `get_counts`, no Sampler) completes on Qollab's IonQ simulator and yields counts the MLAE accepts.
   5. A resource table lists qubits, CX count and depth for Q0 and Q1 after a single full-circuit transpile, all within the 24-qubit budget.
+
 **Plans**: TBD
 **Research flag**: yes. Qubit/gate budget spike with the real Phase 2 cross sections before building Q1; Lee/Lee/Kim full text for circuit-design comparison; IonQ gate/size limits on submission.
 **Runs in parallel with**: Phase 3. IonQ cloud runs finish before ~hour 36 (Oct 11 ~7:00 AM ET).
 
 ### Phase 5: Scaling Study & Figures
+
 **Goal**: The Core Value evidence exists: on the same discrete problem, RMSE against the exact value falls roughly as 1/N_A for MLAE versus 1/sqrt(N_A) for matched classical MC, with supporting exit histograms, a truncation-bias disclosure and a wall-thickness rare-event study, all committed as precomputed artifacts.
 **Depends on**: Phase 3, Phase 4
 **Requirements**: ANLY-01, ANLY-02, ANLY-03, ANLY-04, ANLY-05
@@ -96,9 +113,11 @@ Plans:
   3. A truncation-bias figure or table compares transmission within K collisions to full continuous transmission, so the K = 1 approximation is quantified and disclosed.
   4. Repeating the comparison for at least three slab thicknesses shows the classical-to-MLAE sample-count ratio growing as transmission falls.
   5. Sweep results and figures are committed as JSON/PNG files of at most 2 MB each, and the figures re-render from those files without rerunning the sweep.
+
 **Plans**: TBD
 
 ### Phase 6: Submission, Documentation & Handoff
+
 **Goal**: A judge opening the Qollab project from a logged-out browser can run a quick mode that finishes, read documentation that addresses every judging criterion honestly, and watch the demo video; teammates can continue the work from GitHub.
 **Depends on**: Phase 5
 **Requirements**: DOCS-01, DOCS-02, DOCS-03, DOCS-04, DOCS-05, DOCS-07, DOCS-08
@@ -108,6 +127,7 @@ Plans:
   3. The README explains what the project does, the problem, how to run it locally and on Qollab, and how to replicate the results, with one section per judging criterion (novelty, technical execution, impact, documentation).
   4. The README's prior-art section cites Olivier & Nowak (arXiv:2410.19489), Lee/Lee/Kim (PRD 111, 116001) and Miao/Jin/Sone (arXiv:2607.10772) and states only the narrowed novelty claim; its limitations section states one-group physics, K-collision truncation, ideal-simulator scaling plot, IonQ simulator noise, no wall-clock speedup claim, sampling-complexity argument only.
   5. The Qollab project has the demo video, repo link and Quantum Impact theme tag attached, and a teammate following HANDOFF.md can find module owners, run the tests, read the frozen `Kernels` contract and pick up a remaining task.
+
 **Plans**: TBD
 **Time-triggered checkpoint**: the v0 publish (DOCS-02) does not wait for Phases 3-5; it ships whatever is green at ~hour 24. The README skeleton and HANDOFF.md can be drafted as soon as Phase 2 freezes `Kernels`.
 
