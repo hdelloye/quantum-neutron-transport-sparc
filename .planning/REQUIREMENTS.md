@@ -102,13 +102,47 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| (filled by roadmap) | | |
+| PLAT-01 | Phase 1 | Pending |
+| PLAT-02 | Phase 1 | Pending |
+| PLAT-03 | Phase 1 | Pending |
+| PLAT-04 | Phase 1 | Pending |
+| DOCS-06 | Phase 1 | Pending |
+| PHYS-01 | Phase 2 | Pending |
+| PHYS-02 | Phase 2 | Pending |
+| PHYS-05 | Phase 2 | Pending |
+| PHYS-06 | Phase 2 | Pending |
+| PHYS-03 | Phase 3 | Pending |
+| PHYS-04 | Phase 3 | Pending |
+| PHYS-07 | Phase 3 | Pending |
+| PHYS-08 | Phase 3 | Pending |
+| QC-01 | Phase 4 | Pending |
+| QC-02 | Phase 4 | Pending |
+| QC-03 | Phase 4 | Pending |
+| QC-04 | Phase 4 | Pending |
+| QC-05 | Phase 4 | Pending |
+| QC-06 | Phase 4 | Pending |
+| QAE-01 | Phase 4 | Pending |
+| QAE-02 | Phase 4 | Pending |
+| QAE-03 | Phase 4 | Pending |
+| QAE-04 | Phase 4 | Pending |
+| ANLY-01 | Phase 5 | Pending |
+| ANLY-02 | Phase 5 | Pending |
+| ANLY-03 | Phase 5 | Pending |
+| ANLY-04 | Phase 5 | Pending |
+| ANLY-05 | Phase 5 | Pending |
+| DOCS-01 | Phase 6 | Pending |
+| DOCS-02 | Phase 6 | Pending |
+| DOCS-03 | Phase 6 | Pending |
+| DOCS-04 | Phase 6 | Pending |
+| DOCS-05 | Phase 6 | Pending |
+| DOCS-07 | Phase 6 | Pending |
+| DOCS-08 | Phase 6 | Pending |
 
 **Coverage:**
 - v1 requirements: 35 total
-- Mapped to phases: 0
-- Unmapped: 35 ⚠️
+- Mapped to phases: 35
+- Unmapped: 0
 
 ---
 *Requirements defined: 2026-10-10*
-*Last updated: 2026-10-10 after initial definition*
+*Last updated: 2026-10-10 after roadmap creation (traceability filled)*
