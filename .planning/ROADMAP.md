@@ -68,10 +68,10 @@ Plans:
   3. `Kernels`, built from `ProblemSpec`, exposes the first-collision column distribution, scatter ratio per column, and escape probability per column and direction; tests show probability is conserved across each table's outcomes, and the dataclass is frozen as the one contract both classical and quantum code import.
   4. The exact lattice solver enumerates every random-bit string of the discrete model and returns the exact transmission within K collisions; this value is the reference that Phase 3, 4 and 5 tests compare against.
 
-**Plans**: 2 plans
+**Plans**: 1/2 plans executed
 Plans:
 **Wave 1**
-- [ ] 02-01-PLAN.md — Tracer sparc_first_wall() -> build_kernels() -> exact T0/T1 against the research reference; cited ENDF/B-VIII.0 provenance; column-4 boundary, conservation, symmetry, immutability and bit-layout edge tests; golden freeze of Kernels contract v1 (PHYS-01, PHYS-02, PHYS-05, PHYS-06)
+- [x] 02-01-PLAN.md — Tracer sparc_first_wall() -> build_kernels() -> exact T0/T1 against the research reference; cited ENDF/B-VIII.0 provenance; column-4 boundary, conservation, symmetry, immutability and bit-layout edge tests; golden freeze of Kernels contract v1 (PHYS-01, PHYS-02, PHYS-05, PHYS-06)
 
 **Wave 2** *(blocked on Wave 1 completion; Phases 3 and 4 can start as soon as 02-01 is committed, 02-02 changes no contract file)*
 - [ ] 02-02-PLAN.md — docs/PHYSICS.md with every cross section, MAT number and evaluation date checked against the code; README contract pointers; optional local-only ENDF derivation script (PHYS-02, PHYS-05)
@@ -146,7 +146,7 @@ Plans:
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Qollab Smoke Test & Compliant Skeleton | 4/4 | In Progress | - |
-| 2. Problem Spec & Kernels Contract | 0/2 | Not started | - |
+| 2. Problem Spec & Kernels Contract | 1/2 | In Progress | - |
 | 3. Classical Baseline | 0/TBD | Not started | - |
 | 4. Quantum Oracle & Amplitude Estimation | 0/TBD | Not started | - |
 | 5. Scaling Study & Figures | 0/TBD | Not started | - |
