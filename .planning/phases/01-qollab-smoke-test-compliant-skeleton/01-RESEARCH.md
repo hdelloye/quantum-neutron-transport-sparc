@@ -1123,16 +1123,16 @@ License sources: installed-package metadata (`qiskit 2.5.2 | Apache-2.0`, `qiski
 | A10 | GitHub noreply email preferred for new commits | Runbook A3 | Privacy only; user choice |
 | A11 | `sys.platform == "emscripten"` on Qollab | smoke.py comment | None: the value is reported, not asserted |
 
-## Open Questions
+## Open Questions (RESOLVED)
 
-1. **Does the Qollab proxy / IonQ accept `noise_model="ideal"` from the playground?**
+1. **Does the Qollab proxy / IonQ accept `noise_model="ideal"` from the playground?** RESOLVED (deferred to plan, settled empirically): plan 01-03 Task 2 runs R5 (ideal_mode kwarg) and R6 (ideal_mode set_options) on IonQ Forte 1, and plan 01-03 Task 3 records ACCEPTED or REJECTED for each in `docs/QOLLAB-RUNTIME.md` and picks the Phase 4 IonQ path by the rule in the noise_model table. All three outcomes (set_options sampled, kwarg unsampled, execution only) are handled, so no plan blocks on the answer.
    - Known: the client sends it (both qiskit-ionq versions). Qollab's fetch rewriter does not touch the job body; it only parses `input` for the circuit panel.
    - Unclear: server-side validation by the Qollab proxy and IonQ.
    - Recommendation: smoke runs 4b/4c. Record in `docs/QOLLAB-RUNTIME.md`.
-2. **Pyodide speed for the Phase 6 live demo.**
+2. **Pyodide speed for the Phase 6 live demo.** RESOLVED (deferred to plan, settled empirically): plan 01-03 Task 2 runs the perf probe on the Built-in simulator at 12 qubits (R1, required) and at 16 and 20 qubits (R2, R3, optional), and plan 01-03 Task 3 records the Pyodide live-run budget against the native timings under "Conclusions for later phases" in `docs/QOLLAB-RUNTIME.md`.
    - Recommendation: perf runs at 12/16/20 qubits on the built-in simulator; compare with the native 0.021 / 0.338 / 6.486 s.
-3. **Teammate GitHub usernames and LICENSE holder names.** Needed from Hippolyte at the GitHub checkpoint.
-4. **Does a zero-parameter `def main():` get called?** The parser yields an empty default list, so probably yes, but this is not needed since the toy has parameters.
+3. **Teammate GitHub usernames and LICENSE holder names.** Needed from Hippolyte at the GitHub checkpoint. RESOLVED (deferred to plan): plan 01-04 Task 2 (blocking-human checkpoint:decision) collects `teammates=` and `license=` (this also settles assumption A7), and plan 01-04 Task 3 steps 2 and 5 apply them. A `teammates=none-yet` reply leaves the PLAT-03 collaborator clause reported as a gap (plan 01-04 "Flagged assumptions").
+4. **Does a zero-parameter `def main():` get called?** The parser yields an empty default list, so probably yes, but this is not needed since the toy has parameters. RESOLVED (not needed): the toy main() keeps four typed parameters (plan 01-01 Task 2), and no plan depends on the zero-parameter case.
 
 ## Environment Availability
 
