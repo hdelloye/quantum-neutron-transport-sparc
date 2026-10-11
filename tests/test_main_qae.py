@@ -54,12 +54,19 @@ def test_main_qae_builtin_seeded(monkeypatch, capsys):
     assert qae["n_A"] == 18000
     assert abs(qae["a_hat"] - 0.245094) < 5e-7, qae["a_hat"]
     assert qae["contract"]["abs_diff"] <= 1e-12
-    assert qae["ionq_records"] is None            # the committed data/ionq_runs.json is empty
+    committed = runners.ionq_estimate(runners.load_ionq_records(ROOT / runners.IONQ_RUNS_FILE))
+    if committed is None:                         # data/ionq_runs.json has no usable sampled records
+        assert qae["ionq_records"] is None
+    else:                                         # plan 04-04 records: the Built-in run reports their estimate
+        ionq = qae["ionq_records"]
+        assert ionq["a_hat"] == committed.a_hat and ionq["se"] == committed.se, ionq
+        assert ionq["n_A"] == committed.n_A and ionq["ks"] == list(committed.ks), ionq
     out, lines, rep = _lines(capsys, "QAE_REPORT=")
     assert len(rep) == 1, out[-800:]
     assert json.loads(rep[0].split("=", 1)[1]) == qae
     assert lines[-1] == "QAE RUN COMPLETED"
-    assert "IonQ records: none yet" in out
+    assert ("IonQ records: none yet" in out) == (committed is None)
+    assert ("IonQ Forte 1 records (ideal, sampled): k=" in out) == (committed is not None)
 
 
 def test_main_qae_ionq_sends_one_bare_circuit(monkeypatch, capsys):

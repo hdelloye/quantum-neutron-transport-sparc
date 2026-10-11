@@ -125,11 +125,30 @@ Qollab allows one job per Run, and its IonQ proxy accepts only one circuit per j
 
 ## IonQ results
 
-No IonQ records yet; plan 04-04 records them.
+Three IonQ Forte 1 runs on Qollab (2026-10-11): model Q1, `ideal_mode = set_options`, 1000 shots each, all accepted and sampled. They are stored verbatim in `data/ionq_runs.json`. The full record (run table, verbatim console lines, size ladder, timings, analysis) is in [docs/QOLLAB-RUNTIME.md](QOLLAB-RUNTIME.md), section "Phase 4 IonQ runs (2026-10-11)".
+
+| k | CX | hits / 1000 | P(flag) measured | sin^2((2k + 1) theta) | Exact binomial tail probability | run_s |
+|---|---|---|---|---|---|---|
+| 0 | 313 | 267 | 0.267 | 0.2430 | P(X >= 267) = 4.3e-02 | 11.96 |
+| 1 | 1,503 | 988 | 0.988 | 0.9994 | P(X <= 988) = 2.1e-12 | 22.29 |
+| 2 | 2,693 | 349 | 0.349 | 0.2859 | P(X >= 349) = 8.6e-06 | 22.55 |
+
+- **IonQ-only MLAE estimate (k = 0, 1, 2).** a_hat = 0.228671, |a_hat - T1| = 1.43e-02, Fisher se = 2.24e-03, z = -6.38, N_A = 9,000.
+  - This misses the planned 4-sigma check. The check was not loosened and no record was dropped: `test_ionq_only_estimate_within_4_sigma` carries a strict xfail that matches only these three exact records.
+  - The k = 0 record alone gives 0.267 (N_A = 1,000), which is +1.77 binomial sigma from T1 = 0.24300.
+- **Why it misses: the k = 1 and k = 2 points are not shot noise.**
+  - No single theta fits all three points: the deviance is 14.6 on 2 degrees of freedom (p = 6.7e-04).
+  - IonQ returned 3, 20 and 42 shots (k = 0, 1, 2) on 12-bit outcomes that the exact statevector of the same transpiled circuit gives probability below 1e-9.
+  - Locally, the same transpiled circuits reproduce sin^2((2k + 1) theta) exactly.
+  - IonQ's own probability panel, as rendered by Qollab, showed the same shifts (relayed from Hippolyte's screen with the paste).
+  - The deviation therefore arises in IonQ's ideal cloud simulation of the submitted circuit, or in its submission path. Rounding the rotation angles locally does not reproduce it, so the cause is open.
+- **Size ladder.** Every body was accepted up to 306,656 bytes (k = 2), so Q1lite was not needed.
+- **Noise-model runs.** None were run (the optional R4/R5).
+- **Built-in path.** The same upload ran the full Built-in QAE in the browser: a_hat = 0.242072, se = 1.26e-03, N_A = 18,000, in 1.41 s.
 
 ## What this evidence does and does not show
 
 - **The argument is sampling complexity only.** The MLAE error falls roughly as 1/N_A, while classical Monte Carlo falls as 1/sqrt(N) for the same unit of cost. It says nothing about neutrons being "quantum", and nothing about wall-clock time: no wall-clock or quantum-advantage claim is made.
 - **The full 1/N_A curve comes from simulation, not IonQ.** It comes from the analytic and Aer runners in Phase 5, and the QAE-04 tests check that the analytic emulator matches Aer.
-- **What IonQ shows.** The IonQ runs prove that the real 12-qubit circuit executes through Qollab's one-circuit IonQ path. Together, the k = 0, 1, 2 records give a three-power IonQ-only estimate with its N_A.
+- **What IonQ shows.** The IonQ runs prove that the real 12-qubit circuit executes through Qollab's one-circuit IonQ path. Together, the k = 0, 1, 2 records give a three-power IonQ-only estimate with its N_A. That estimate is 6.4 sigma below T1 because IonQ's ideal simulation of the deeper Grover circuits departs from the exact circuit (see "IonQ results"), so the IonQ data are an execution proof, not an accuracy result.
 - **Noise-model runs.** IonQ runs under the Forte 1 noise model are reported for honesty, as rounded probabilities. They are not used for statistics; with about 1.5k two-qubit gates at k = 1, noise is expected to wash out the amplification.

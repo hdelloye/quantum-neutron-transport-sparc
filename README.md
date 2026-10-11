@@ -127,6 +127,11 @@ The quantum half estimates the same transmission fraction as the matched classic
   All stay within 24 qubits.
 - **MLAE** combines the counts of several Grover powers k into one estimate with a Fisher standard error. Its cost is N_A = sum of shots (2k + 1), the number of applications of A. One application of A is the same unit as one classical history.
 - **IonQ protocol.** Qollab's IonQ path carries one circuit per run, so the IonQ estimate is built from separate runs at k = 0, 1 and 2 with `ideal_mode = set_options`. Each run prints an `IONQ_RECORD=` line. Records are ingested into `data/ionq_runs.json`, and the Built-in run shows the resulting IonQ-only estimate to every visitor.
+- **IonQ results (2026-10-11, execution proof plus a three-power IonQ-only estimate).**
+  - Three IonQ Forte 1 runs on Qollab (k = 0, 1, 2; 1000 shots each; ideal, sampled) were all accepted, with request bodies up to 307 KB. They gave P(flag) = 0.267, 0.988 and 0.349, against the exact 0.2430, 0.9994 and 0.2859.
+  - The IonQ-only MLAE estimate is a_hat = 0.228671 (se 2.24e-03, N_A = 9,000). That is 6.4 sigma below T1, because the k = 1 and k = 2 points depart from the exact circuit far beyond shot noise. It is reported as found; see [docs/QUANTUM.md](docs/QUANTUM.md).
+  - The Built-in run of the same upload ran the full QAE in the browser: a_hat = 0.242072, se = 1.26e-03, N_A = 18,000.
+  - No speedup is claimed from these runs.
 - **Honest framing.**
   - The comparison is sampling complexity only: estimation error against N_A, roughly 1/N_A for MLAE against 1/sqrt(N) for classical Monte Carlo.
   - It is not a wall-clock or quantum-advantage claim.

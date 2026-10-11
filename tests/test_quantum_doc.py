@@ -5,6 +5,7 @@ output of ``scripts/qae_local.py resources``), so code and doc cannot drift.
 """
 from __future__ import annotations
 
+import json
 import subprocess
 import sys
 from pathlib import Path
@@ -91,3 +92,15 @@ def test_ionq_results_section_matches_records_state():
         assert "No IonQ records yet" not in section
     else:
         assert "No IonQ records yet" in section
+
+
+def test_ionq_records_in_docs_match_data():
+    """docs/QOLLAB-RUNTIME.md quotes exactly the accepted records stored in data/ionq_runs.json."""
+    text = (ROOT / "docs" / "QOLLAB-RUNTIME.md").read_text(encoding="utf-8")
+    quoted = [json.loads(line.split("=", 1)[1]) for line in text.splitlines() if line.startswith("IONQ_RECORD=")]
+    stored = load_ionq_records(ROOT / IONQ_RUNS_FILE)
+    doc_set = {json.dumps(r, sort_keys=True) for r in quoted if r.get("accepted") is True}
+    data_set = {json.dumps(r, sort_keys=True) for r in stored}
+    assert len(data_set) == len(stored), "duplicate records in data/ionq_runs.json"
+    assert doc_set == data_set, (f"docs quote {len(doc_set)} accepted records, data holds {len(data_set)}; "
+                                 f"only in docs: {len(doc_set - data_set)}, only in data: {len(data_set - doc_set)}")
