@@ -185,8 +185,11 @@ def sample_exit_rows(k, bitstrings, source=None) -> np.ndarray:
       in input order, picks the row by inverse CDF of ``back_exit_rows[x, phi, :]`` scaled by
       its own total, clamped to ny - 1 (never a zero-mass row past the last positive one).
     - any other x <= nx string (absorbed, or scattered but not escaped): -1.
-    - x > nx: zero amplitude in the ideal circuit; mapped to -1 so noisy hardware counts never
-      crash (callers should report how many there were, not drop them silently).
+    - zero-amplitude strings, mapped to -1 without drawing so noisy hardware counts never crash
+      and never land in a zero-mass row (callers should report how many there were, not drop
+      them silently): x > nx, and x < nx with a == 1, e == 1 in a bin whose
+      ``back_exit_rows[x, phi]`` has no mass (``flight[x, phi, BACK] == 0``; 168 of the 256
+      bins). The engine never produces either kind.
 
     ``source`` is coerced with ``as_source`` only when at least one uniform is needed, so empty
     or row-free input draws nothing. Raises TypeError for a non-Kernels ``k``, ValueError for
@@ -211,9 +214,11 @@ def sample_exit_rows(k, bitstrings, source=None) -> np.ndarray:
     col = x % nx
     r = np.full(s.size, -1, np.int64); r[x == nx] = sp.row_of(sp.beam_y)
     se_ = np.nonzero((x < nx) & (a == 1) & (e == 1))[0]
+    cr = np.cumsum(k.back_exit_rows, axis=-1)[col[se_], phi[se_]]
+    live = cr[:, -1] > 0                 # e = 1 in a bin with no back-face mass: zero amplitude -> -1
+    se_, cr = se_[live], cr[live]
     if se_.size:
         src = as_source(source)
-        cr = np.cumsum(k.back_exit_rows, axis=-1)[col[se_], phi[se_]]
         u = draw(src, se_.size) * cr[:, -1]
         r[se_] = np.minimum((cr <= u[:, None]).sum(axis=1), sp.ny - 1)
     return r
