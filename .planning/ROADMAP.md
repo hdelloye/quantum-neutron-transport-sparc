@@ -22,7 +22,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 2: Problem Spec & Kernels Contract** - SPARC slab defined once with ENDF/B-VIII.0 cross sections; frozen `Kernels` contract and exact lattice ground truth (completed 2026-10-10)
 - [x] **Phase 3: Classical Baseline** - Continuous delta-tracking MC (physics reference) and matched discrete lattice MC (baseline), validated and driven by an injected random source (completed 2026-10-10)
 - [x] **Phase 4: Quantum Oracle & Amplitude Estimation** - Q0/Q1 state preparation matching the exact value, Grover powers, vendored MLAE with analytic/Aer/IonQ runners and N_A cost accounting (completed 2026-10-11)
-- [ ] **Phase 5: Scaling Study & Figures** - RMSE-vs-N_A headline plot, exit histograms, truncation-bias and wall-thickness studies, committed as precomputed artifacts
+- [x] **Phase 5: Scaling Study & Figures** - RMSE-vs-N_A headline plot, exit histograms, truncation-bias and wall-thickness studies, committed as precomputed artifacts (completed 2026-10-11)
 - [ ] **Phase 6: Submission, Documentation & Handoff** - v0 at ~hour 24, final logged-out-runnable Qollab project, README covering all four judging criteria, demo video, HANDOFF.md
 
 **Layering:** Phases 3 and 4 depend only on Phase 2 (the frozen `Kernels` contract and exact solver) and run in parallel. Phase 5 needs both contract tests green (discrete MC converges to exact; circuit amplitude equals exact). Phase 6 finalizes last, but its v0 publish is time-triggered.
@@ -141,7 +141,7 @@ Plans:
   4. Repeating the comparison for at least three slab thicknesses shows the classical-to-MLAE sample-count ratio growing as transmission falls.
   5. Sweep results and figures are committed as JSON/PNG files of at most 2 MB each, and the figures re-render from those files without rerunning the sweep.
 
-**Plans**: 3/3 plans executed
+**Plans**: 3/3 plans complete
 Plans:
 **Wave 1**
 - [x] 05-01-PLAN.md — Tracer (quick sweep -> validated data/scaling_rmse.json -> PNG rendered from the JSON -> literal paths reachable from main.py via one changed import line), full headline sweep (matched lattice MC vs analytic MLAE, Aer cross-check, R = 100, IonQ as one labelled marker never fitted), artifacts/analysis/figures modules, re-render script, edge gates (ANLY-01, ANLY-05)
@@ -178,5 +178,5 @@ Plans:
 | 2. Problem Spec & Kernels Contract | 2/2 | Complete    | 2026-10-10 |
 | 3. Classical Baseline | 2/2 | Complete    | 2026-10-10 |
 | 4. Quantum Oracle & Amplitude Estimation | 4/4 | Complete    | 2026-10-11 |
-| 5. Scaling Study & Figures | 3/3 | In Progress | - |
+| 5. Scaling Study & Figures | 3/3 | Complete    | 2026-10-11 |
 | 6. Submission, Documentation & Handoff | 0/TBD | Not started | - |
