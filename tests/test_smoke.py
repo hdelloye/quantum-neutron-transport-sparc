@@ -1,4 +1,5 @@
-"""PLAT-02 local mirror: main.main() runs end-to-end with an injected BasicSimulator."""
+"""PLAT-02 local mirror: main.main(mode="smoke") runs the Phase 1 smoke test end-to-end with an
+injected BasicSimulator (GHZ on 6 qubits and the 12-qubit perf probe are fixed since Phase 4)."""
 import os
 from pathlib import Path
 
@@ -13,11 +14,13 @@ def test_main_runs_with_injected_basic_simulator(monkeypatch):
     monkeypatch.chdir(ROOT)                     # Qollab: project root is the cwd
     import main as entry
     monkeypatch.setattr(entry, "backend", BasicSimulator(), raising=False)
-    report = entry.main(shots=200, ghz_qubits=4, ideal_mode="none", perf_qubits=4)
+    report = entry.main(mode="smoke", shots=200, ideal_mode="none")
     assert report["toy"]["accepted"]
     assert report["toy"]["ghz_off_ideal_fraction"] == 0.0     # ideal simulator
     assert report["toy"]["circuits_per_job"] == 1
-    assert set(report["toy"]["counts"]) <= {"0000", "1111"}  # one circuit -> one counts dict
+    assert set(report["toy"]["counts"]) <= {"000000", "111111"}  # one circuit -> one counts dict
+    assert report["mode"] == "smoke"
+    assert report["perf"]["qubits"] == 12
     assert report["runtime"]["data_file_literal_path"].startswith("data file")
 
 
@@ -49,7 +52,7 @@ def test_ionq_like_backend_sends_exactly_one_job(monkeypatch, mode):
     monkeypatch.chdir(ROOT)
     import main as entry
     monkeypatch.setattr(entry, "backend", FakeIonQSimulator(), raising=False)
-    report = entry.main(shots=50, ghz_qubits=3, ideal_mode=mode, perf_qubits=4)
+    report = entry.main(mode="smoke", shots=50, ideal_mode=mode)
     assert calls["run"] == 1
     assert len(calls["inputs"]) == 1
     assert isinstance(calls["inputs"][0], QuantumCircuit)
@@ -57,4 +60,5 @@ def test_ionq_like_backend_sends_exactly_one_job(monkeypatch, mode):
     assert report["backend"]["is_ionq"] is True
     assert report["toy"]["accepted"] is True, report["toy"]["error"]
     assert report["toy"]["circuits_per_job"] == 1
+    assert report["toy"]["n"] == 6
     assert "skipped" in report["perf"]
