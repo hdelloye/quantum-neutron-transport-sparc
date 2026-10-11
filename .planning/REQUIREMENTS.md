@@ -44,11 +44,11 @@ Requirements for the hackathon submission (deadline Oct 11 2026, 7:00 PM ET). Ea
 
 ### Scaling Study & Figures
 
-- [ ] **ANLY-01**: Error-vs-N_A plot: RMSE over ≥ 50 repetitions against the exact value, for discrete classical MC and MLAE, on log-log axes with fitted slopes (expected ≈ −0.5 and ≈ −1)
+- [x] **ANLY-01**: Error-vs-N_A plot: RMSE over ≥ 50 repetitions against the exact value, for discrete classical MC and MLAE, on log-log axes with fitted slopes (expected ≈ −0.5 and ≈ −1)
 - [ ] **ANLY-02**: Overlaid exit-position histograms, classical vs quantum (direct sampling of Q1), at matched shot counts, labelled as circuit validation rather than speedup evidence
 - [ ] **ANLY-03**: Truncation-bias figure/table: transmission within K collisions vs full continuous transmission, so the K=1 approximation is quantified and disclosed
 - [ ] **ANLY-04**: Wall-thickness / rare-event study: repeat the scaling comparison for at least three slab thicknesses and show the sample-count ratio growing as transmission falls
-- [ ] **ANLY-05**: Precomputed sweep results and figures are committed as JSON/PNG ≤ 2 MB each so `main.py` can render them without rerunning the sweep
+- [x] **ANLY-05**: Precomputed sweep results and figures are committed as JSON/PNG ≤ 2 MB each so `main.py` can render them without rerunning the sweep
 
 ### Qollab Submission & Documentation
 
@@ -126,11 +126,11 @@ Which phases cover which requirements. Updated during roadmap creation.
 | QAE-02 | Phase 4 | Complete |
 | QAE-03 | Phase 4 | Complete |
 | QAE-04 | Phase 4 | Complete |
-| ANLY-01 | Phase 5 | Pending |
+| ANLY-01 | Phase 5 | Complete |
 | ANLY-02 | Phase 5 | Pending |
 | ANLY-03 | Phase 5 | Pending |
 | ANLY-04 | Phase 5 | Pending |
-| ANLY-05 | Phase 5 | Pending |
+| ANLY-05 | Phase 5 | Complete |
 | DOCS-01 | Phase 6 | Pending |
 | DOCS-02 | Phase 6 | Pending |
 | DOCS-03 | Phase 6 | Pending |

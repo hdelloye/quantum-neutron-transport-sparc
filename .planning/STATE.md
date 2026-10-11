@@ -1,19 +1,19 @@
 ---
 gsd_state_version: "1.0"
 milestone: v0.0
-current_phase: 5
+current_phase: 05
 current_phase_name: Scaling Study & Figures
 status: executing
-stopped_at: Phase 04 complete, ready to plan Phase 1
-last_updated: "2026-10-11T08:40:56.212Z"
+stopped_at: Completed 05-01-PLAN.md
+last_updated: "2026-10-11T08:53:08.102Z"
 last_activity: 2026-10-11
-last_activity_desc: Phase 04 complete, transitioned to Phase 1
-state_head: aeb040a4643e0e2eca7f63331992df6c4f82b50c
+last_activity_desc: Phase 05 execution started
+state_head: 79cea3d95dc58f806552874b939d31dd5868aaeb
 progress:
   total_phases: 6
   completed_phases: 3
   total_plans: 15
-  completed_plans: 12
+  completed_plans: 13
 ---
 
 # Project State
@@ -23,14 +23,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-10-10)
 
 **Core value:** Show, on a real fusion-relevant transport problem, that quantum amplitude estimation reaches a target accuracy with fewer samples than classical Monte Carlo, with an honest classical baseline sitting next to it.
-**Current focus:** Phase 04 — Quantum Oracle & Amplitude Estimation
+**Current focus:** Phase 05 — Scaling Study & Figures
 
 ## Current Position
 
-Phase: 5 (Scaling Study & Figures) — READY TO EXECUTE
-Plan: Not started
+Phase: 05 (Scaling Study & Figures) — EXECUTING
+Plan: 2 of 3
 Status: Ready to execute
-Last activity: 2026-10-11 — Phase 04 complete, transitioned to Phase 1
+Last activity: 2026-10-11 — Phase 05 execution started
 
 Progress: [█████░░░░░] 50%
 
@@ -70,6 +70,7 @@ Progress: [█████░░░░░] 50%
 | Phase 04 P02 | 14min | 3 tasks | 5 files |
 | Phase 04 P03 | 14min | 3 tasks | 12 files |
 | Phase 04 P04 | 121min | 3 tasks | 7 files |
+| Phase 05 P01 | 10min | 3 tasks | 11 files |
 
 ## Accumulated Context
 
@@ -123,6 +124,11 @@ Recent decisions affecting current work:
 - [Phase 04]: IonQ execution proof accepted with a documented discrepancy (Hippolyte: accept (a)): Q1 A·Q^k runs on Qollab IonQ Forte 1 and mlae.estimate accepts the counts (SC4 Qollab half met); the IonQ-only estimate misses 4 sigma (a=0.228671, z=-6.38, N_A=9000), cause open; strict xfail keyed to KNOWN_4SIGMA_MISS, tolerance unchanged
 - [Phase 04]: One circuit per Run IonQ protocol validated end to end on Qollab (R1-R3 k=0,1,2 accepted, records ingested verbatim); A-P1 confirmed: Pyodide runs the Q1 QAE in the browser (R0 a_hat 0.242072, N_A 18000, 1.412 s)
 - [Phase 04]: Qollab IonQ request-body limit is above 307 KB (306,656 B Q1 k=2 accepted; only a lower bound); Q1lite fallback never needed
+- [Phase 05]: PD-24: artifacts under data/ as JSON + PNG with literal paths in stdlib-only neutron_qae/artifacts.py (main-reachable via one import line); envelope neutron_qae.artifact v1; canonical JSON, size check before parse, NaN rejected; integrity = size cap + schema + provenance
+- [Phase 05]: PD-25: headline = lattice MC (histories) vs MLAE (applications of A, exponential schedule, 300 shots/power) vs exact T1, R = 100 nested repetitions, analytic primary + Aer cross-check, OLS log-log fits (classical all points, MLAE M >= 2); IonQ one marker never in a fit
+- [Phase 05]: PD-26: seed 2026, SeedSequence spawn(3) per stage, Aer seed_simulator 1818751028 in one memory job; full artifacts from committed code (git_dirty false)
+- [Phase 05]: PD-30: figures render from artifact JSON only, lazy pyplot, no backend selection or show, allowlisted matplotlib calls, dpi 50..200, validated palette
+- [Phase 05]: PD-31: default suite runs no real sweep; micro configs only; suite under 30 s (27.55 s after 05-01)
 
 ### Pending Todos
 
@@ -151,6 +157,6 @@ Items acknowledged and deferred at milestone close, most recent first:
 
 ## Session Continuity
 
-Last session: 2026-10-11T06:34:34.701Z
-Stopped at: Phase 04 complete, ready to plan Phase 1
+Last session: 2026-10-11T08:53:08.069Z
+Stopped at: Completed 05-01-PLAN.md
 Resume file: None
