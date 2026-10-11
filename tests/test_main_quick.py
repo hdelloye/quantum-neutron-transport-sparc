@@ -5,6 +5,8 @@ Default tests stay cheap (model Q0, at most one rendered figure); the four-figur
 from __future__ import annotations
 
 import json
+import os
+import time
 from pathlib import Path
 
 import pytest
@@ -86,3 +88,73 @@ def test_quick_on_ionq_sends_one_bare_circuit(monkeypatch, capsys, tmp_path):
     assert report["quick"]["live"]["accepted"] is True
     assert _report_line(out) == report["quick"]
     assert lines[-1] == "QUICK MODE OK"
+
+
+# ---- Task 3: figure-failure isolation, reachability, slow four-figure timing ----
+
+def test_corrupt_artifact_gives_incomplete_not_a_crash(monkeypatch, capsys, tmp_path):
+    bad = tmp_path / "bad.json"
+    bad.write_text("{", encoding="utf-8")
+    be = BasicSimulator()
+    be.set_options(seed_simulator=1)
+    entry = _entry(monkeypatch, be, tmp_path / "figs",
+                   [("exit_histograms", str(bad), "quick_fig_exit_histograms.png")])
+    report = entry.main(shots=50, model="Q0")
+    (fig,) = report["quick"]["figures"]
+    assert fig["ok"] is False and fig["error"].startswith("ValueError"), fig
+    last = capsys.readouterr().out.splitlines()[-1]
+    assert last.startswith("QUICK MODE INCOMPLETE: live run ok, 0 of 1 figures rendered"), last
+
+
+def test_one_failing_renderer_does_not_stop_the_others(monkeypatch, capsys, tmp_path):
+    import matplotlib.pyplot as plt
+
+    from neutron_qae import figures
+
+    be = BasicSimulator()
+    be.set_options(seed_simulator=1)
+    monkeypatch.chdir(ROOT)
+    import main as entry
+    items = [it for it in entry.QUICK_FIGURES if it[0] in ("scaling_rmse", "exit_histograms")]
+    entry = _entry(monkeypatch, be, tmp_path, items)
+
+    def broken(doc):
+        plt.subplots()                              # a figure is open when the renderer fails
+        raise RuntimeError("renderer broke")
+
+    monkeypatch.setitem(figures.RENDERERS, "scaling_rmse", broken)
+    before = len(plt.get_fignums())
+    report = entry.main(shots=50, model="Q0")
+    figs = {f["kind"]: f for f in report["quick"]["figures"]}
+    assert figs["scaling_rmse"]["ok"] is False and figs["scaling_rmse"]["error"].startswith("RuntimeError")
+    assert figs["exit_histograms"]["ok"] is True
+    last = capsys.readouterr().out.splitlines()[-1]
+    assert last == "QUICK MODE INCOMPLETE: live run ok, 1 of 2 figures rendered", last
+    assert [p.name for p in tmp_path.iterdir()] == ["quick_fig_exit_histograms.png"]
+    assert len(plt.get_fignums()) <= before + 1     # the broken renderer's stray figure at most
+
+
+def test_figures_module_is_reachable_and_imports_stay_clean():
+    import compliance_checks as cc
+
+    paths, _ = cc.reachable_modules(ROOT)
+    assert ROOT / "neutron_qae" / "figures.py" in {Path(p).resolve() for p in paths}
+    assert cc.forbidden_imports(ROOT) == set()
+
+
+@pytest.mark.slow
+@pytest.mark.skipif(os.environ.get("NEUTRON_QAE_SLOW") != "1",
+                    reason="four-figure quick run; run with NEUTRON_QAE_SLOW=1 -m slow")
+def test_quick_full_defaults_four_figures_under_5s(monkeypatch, capsys, tmp_path):
+    be = BasicSimulator()
+    be.set_options(seed_simulator=2026)
+    entry = _entry(monkeypatch, be, tmp_path)
+    t0 = time.perf_counter()
+    report = entry.main()
+    dt = time.perf_counter() - t0
+    quick = report["quick"]
+    assert quick["live"]["hits"] == [262, 1000, 277] and quick["figures_ok"] == 4
+    sizes = [artifacts.png_dimensions(tmp_path / name) for _, _, name in entry.QUICK_FIGURES]
+    assert sizes == [(630, 414), (630, 414), (810, 360), (810, 360)], sizes
+    assert capsys.readouterr().out.splitlines()[-1] == "QUICK MODE OK"
+    assert dt < 5.0, dt
