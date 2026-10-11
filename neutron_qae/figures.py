@@ -106,7 +106,58 @@ def render_scaling(doc):
     return fig
 
 
-RENDERERS = {"scaling_rmse": render_scaling}
+def _sample_text(n) -> str:
+    """'1e6' for an exact power of ten, else the comma-grouped integer."""
+    e = round(math.log10(n))
+    return f"1e{e}" if 10 ** e == n else f"{n:,}"
+
+
+def render_exit_histograms(doc):
+    """Overlaid back-face exit-row histograms (log y) from an ``exit_histograms`` artifact dict.
+
+    Circuit validation only: both histograms converge as 1 / sqrt(N); the title says so.
+    """
+    import matplotlib.pyplot as plt
+
+    r = doc["results"]
+    p = doc["parameters"]
+    shots = p["shots"]
+    rows = list(range(p["rows"]))
+    fig, ax = plt.subplots(figsize=FIGSIZE_ONE, facecolor=SURFACE, subplot_kw={"facecolor": SURFACE})
+    ax.set_yscale("log")
+    cl = [c / shots for c in r["classical"]["row_counts"]]
+    qu = [c / shots for c in r["quantum"]["row_counts"]]
+    ax.step(rows, cl, where="mid", color=CLASSICAL, linewidth=LINE_WIDTH,
+            label=f"classical lattice MC ({shots:,} histories)")
+    ax.step(rows, qu, where="mid", color=MLAE_ANALYTIC, linewidth=LINE_WIDTH, linestyle="--",
+            label=f"Q1 direct sampling, k = 0, Aer ({shots:,} shots)")
+    ax.plot(rows, r["exact"]["row_probabilities"], marker="o", linestyle="none", color=EXACT,
+            markersize=MARKER_SIZE - 1.5, label="exact K = 1 distribution")
+    c = r["chi2"]
+    box = "\n".join([
+        f"chi-square, 16 rows + no exit, dof {c['classical_vs_quantum']['dof']}:",
+        f"  classical vs quantum {c['classical_vs_quantum']['value']:.2f}",
+        f"  classical vs exact {c['classical_vs_exact']['value']:.2f}",
+        f"  quantum vs exact {c['quantum_vs_exact']['value']:.2f}",
+        f"  bound dof + 5 sqrt(2 dof) = {c['classical_vs_quantum']['bound']:.2f}",
+    ])
+    ax.text(0.015, 0.97, box, transform=ax.transAxes, fontsize=7, color=SECONDARY, va="top", ha="left",
+            bbox={"facecolor": SURFACE, "edgecolor": GRID, "boxstyle": "round,pad=0.3"})
+    ax.set_xticks(rows)
+    ax.set_xlim(-0.6, len(rows) - 0.4)
+    positive = [v for v in cl + qu + list(r["exact"]["row_probabilities"]) if v > 0]
+    ax.set_ylim(min(positive) / 2, max(positive) * 25)     # headroom for the text box and legend
+    ax.grid(True, which="major", color=GRID, linewidth=0.5)
+    ax.set_xlabel("exit row on the back face (0 = y in [0, 0.625) cm; row 8 = beam line)")
+    ax.set_ylabel("fraction of samples")
+    ax.set_title("Back-face exit rows: lattice MC vs direct sampling of Q1 (k = 0, Aer), "
+                 f"{_sample_text(shots)} samples each\n" + r["label"], fontsize=9)
+    ax.legend(fontsize=7, loc="upper right")
+    fig.tight_layout()
+    return fig
+
+
+RENDERERS = {"scaling_rmse": render_scaling, "exit_histograms": render_exit_histograms}
 
 
 def render_file(kind, json_path, png_path, dpi=DEFAULT_DPI) -> dict:

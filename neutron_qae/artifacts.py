@@ -35,9 +35,16 @@ MIN_FULL_REPETITIONS = 50
 
 SCALING_FILE = "data/scaling_rmse.json"
 SCALING_FIGURE = "data/fig_scaling_rmse.png"
+HISTOGRAM_FILE = "data/exit_histograms.json"
+HISTOGRAM_FIGURE = "data/fig_exit_histograms.png"
 
 # kind -> (JSON path, PNG path); only implemented kinds are registered.
-ARTIFACTS = {"scaling_rmse": (SCALING_FILE, SCALING_FIGURE)}
+ARTIFACTS = {
+    "scaling_rmse": (SCALING_FILE, SCALING_FIGURE),
+    "exit_histograms": (HISTOGRAM_FILE, HISTOGRAM_FIGURE),
+}
+HISTOGRAM_LABEL = "circuit validation, not speedup evidence"
+MIN_FULL_HISTOGRAM_SHOTS = 1_000_000
 
 _PNG_SIGNATURE = b"\x89PNG\r\n\x1a\n"
 _HEX = set("0123456789abcdef")
@@ -289,7 +296,76 @@ def _validate_scaling(doc):
         _validate_ionq_marker(marker)
 
 
-_VALIDATORS = {"scaling_rmse": _validate_scaling}
+# ---------------------------------------------------------------- kind: exit_histograms
+
+def _validate_count_block(b, field, shots, rows):
+    _dict(b, field)
+    rc = _get(b, "row_counts", field)
+    if not isinstance(rc, list) or len(rc) != rows:
+        _fail(f"{field}.row_counts", f"must be a list of {rows} integers")
+    for i, c in enumerate(rc):
+        _int(c, f"{field}.row_counts[{i}]", 0)
+    none = _int(_get(b, "no_back_exit", field), f"{field}.no_back_exit", 0)
+    got = _get(b, "shots", field)
+    if not _is_int(got) or got != shots:
+        _fail(f"{field}.shots", f"must equal parameters.shots {shots}, got {got!r}")
+    if sum(rc) + none != shots:
+        _fail(f"{field}.no_back_exit", f"row_counts sum {sum(rc)} + no_back_exit {none} must equal shots {shots}")
+    return rc
+
+
+def _validate_chi2(c, field):
+    _dict(c, field)
+    _num(_get(c, "value", field), f"{field}.value", 0)
+    _int(_get(c, "dof", field), f"{field}.dof", 1)
+    _num(_get(c, "bound", field), f"{field}.bound", positive=True)
+
+
+def _validate_histograms(doc):
+    p = doc["parameters"]
+    full = doc["profile"] == "full"
+    if _get(p, "model", "parameters") != "Q1":
+        _fail("parameters.model", f"must be 'Q1', got {p['model']!r}")
+    k = _get(p, "k", "parameters")
+    if not _is_int(k) or k != 0:
+        _fail("parameters.k", f"must be 0 (A only, direct sampling), got {k!r}")
+    shots = _int(_get(p, "shots", "parameters"), "parameters.shots", MIN_FULL_HISTOGRAM_SHOTS if full else 1)
+    rows = _get(p, "rows", "parameters")
+    if not _is_int(rows) or rows != 16:
+        _fail("parameters.rows", f"must be 16, got {rows!r}")
+    _str(_get(p, "backend", "parameters"), "parameters.backend")
+    _int(_get(p, "aer_seed_simulator", "parameters"), "parameters.aer_seed_simulator", 0)
+
+    r = doc["results"]
+    _validate_count_block(_get(r, "classical", "results"), "results.classical", shots, rows)
+    q = _get(r, "quantum", "results")
+    _validate_count_block(q, "results.quantum", shots, rows)
+    for key in ("flag_hits", "outside_support", "flag_mismatch", "distinct_strings"):
+        _int(_get(q, key, "results.quantum"), f"results.quantum.{key}", 0)
+    if q["flag_hits"] > shots:
+        _fail("results.quantum.flag_hits", f"must be <= shots {shots}, got {q['flag_hits']}")
+    e = _dict(_get(r, "exact", "results"), "results.exact")
+    pr = _get(e, "row_probabilities", "results.exact")
+    if not isinstance(pr, list) or len(pr) != rows:
+        _fail("results.exact.row_probabilities", f"must be a list of {rows} numbers")
+    for i, x in enumerate(pr):
+        _num(x, f"results.exact.row_probabilities[{i}]", 0)
+    t1 = _num(_get(e, "T1", "results.exact"), "results.exact.T1")
+    if not 0.0 < t1 < 1.0:
+        _fail("results.exact.T1", f"must lie in (0, 1), got {t1!r}")
+    if abs(math.fsum(pr) - t1) > 1e-12:
+        _fail("results.exact.row_probabilities", f"must sum to T1 within 1e-12 (sum {math.fsum(pr)!r}, T1 {t1!r})")
+    pn = _num(_get(e, "no_back_exit_probability", "results.exact"), "results.exact.no_back_exit_probability", 0)
+    if abs(pn - (1.0 - t1)) > 1e-12:
+        _fail("results.exact.no_back_exit_probability", f"must equal 1 - T1 within 1e-12, got {pn!r}")
+    chi2 = _dict(_get(r, "chi2", "results"), "results.chi2")
+    for key in ("classical_vs_quantum", "classical_vs_exact", "quantum_vs_exact"):
+        _validate_chi2(_get(chi2, key, "results.chi2"), f"results.chi2.{key}")
+    if _get(r, "label", "results") != HISTOGRAM_LABEL:
+        _fail("results.label", f"must be exactly {HISTOGRAM_LABEL!r}, got {r['label']!r}")
+
+
+_VALIDATORS = {"scaling_rmse": _validate_scaling, "exit_histograms": _validate_histograms}
 
 
 # ---------------------------------------------------------------- I/O

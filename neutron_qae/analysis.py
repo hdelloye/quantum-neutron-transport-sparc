@@ -24,7 +24,8 @@ import numbers
 import numpy as np
 
 from neutron_qae import mlae
-from neutron_qae.mc_lattice import run_lattice
+from neutron_qae.exact import N_BITS, bitstring_probabilities_k1
+from neutron_qae.mc_lattice import run_lattice, sample_exit_rows
 from neutron_qae.runners import AnalyticRunner, BackendRunner
 
 
@@ -211,3 +212,117 @@ def cost_at_target(cost, rmse, target):
             f = (lt - ly0) / (ly1 - ly0)
             return float(10 ** (lc0 + f * (lc1 - lc0)))
     return None
+
+
+# ---------------------------------------------------------------- exit histograms (PD-27, ANLY-02)
+
+def classical_exit_rows(kernels, shots, seed_seq) -> dict:
+    """Back-face exit-row counts of ``shots`` lattice histories (``run_lattice``)."""
+    shots = _check_int("shots", shots, 1)
+    res = run_lattice(kernels, shots, seed_seq)
+    rows = [int(c) for c in res.row_counts]
+    transmitted = int(res.transmitted)
+    if sum(rows) != transmitted:
+        raise AssertionError(f"classical row counts sum to {sum(rows)}, transmitted is {transmitted}")
+    return {"row_counts": rows, "no_back_exit": shots - transmitted, "transmitted": transmitted, "shots": shots}
+
+
+def quantum_exit_rows(backend, problem, shots, seed_simulator, row_source) -> dict:
+    """Back-face exit-row counts from ``shots`` direct samples of A (k = 0, every qubit measured).
+
+    One ``backend.run`` of the transpiled A circuit (``BackendRunner(..., measure="all")``).
+    Every count key must be a binary string of ``problem.qubits`` characters and the counts must
+    sum to ``shots`` (ValueError otherwise). Key character 0 is the flag; ``int(key, 2) & 0x7FF``
+    is exact.py's 11-bit string s. Keys are sorted ascending, expanded with ``np.repeat`` and fed
+    to the same ``mc_lattice.sample_exit_rows`` the lattice engine uses, with ``row_source``.
+    ``outside_support`` counts shots on zero-amplitude strings (sample_exit_rows maps them to -1,
+    indistinguishable from no back-face exit, so they are counted against the exact support);
+    ``flag_mismatch`` counts shots whose flag disagrees with the string's transmitted predicate.
+    """
+    shots = _check_int("shots", shots, 1)
+    n_bits = problem.qubits
+    if n_bits != N_BITS + 1:
+        raise ValueError(f"quantum_exit_rows needs the Q1 layout ({N_BITS + 1} qubits), got {n_bits}")
+    circuit = BackendRunner(backend, problem, measure="all").circuits([0])[0]
+    counts = dict(backend.run(circuit, shots=shots, seed_simulator=seed_simulator).result().get_counts(0))
+    total = 0
+    for key, value in counts.items():
+        if not isinstance(key, str) or len(key) != n_bits or set(key) - {"0", "1"}:
+            raise ValueError(f"count key {key!r} is not a {n_bits}-character binary string")
+        if not _is_int(value) or value < 0:
+            raise ValueError(f"count for {key!r} must be a non-negative integer, got {value!r}")
+        total += int(value)
+    if total != shots:
+        raise ValueError(f"counts sum to {total}, expected shots = {shots}")
+    keys = sorted(counts)
+    vals = np.array([int(counts[key]) for key in keys], dtype=np.int64)
+    full = np.array([int(key, 2) for key in keys], dtype=np.int64)
+    s = full & ((1 << N_BITS) - 1)
+    flag = (full >> N_BITS) & 1
+    table = {int(sv): (p, bool(t)) for sv, p, t in bitstring_probabilities_k1(problem.kernels)}
+    outside = mismatch = 0
+    for sv, f, v in zip(s.tolist(), flag.tolist(), vals.tolist()):
+        p, t = table.get(sv, (0.0, False))
+        if p <= 0.0:
+            outside += v
+        if bool(f) != t:
+            mismatch += v
+    rows = sample_exit_rows(problem.kernels, np.repeat(s, vals), row_source)
+    ny = problem.kernels.spec.ny
+    row_counts = [int(c) for c in np.bincount(rows[rows >= 0], minlength=ny)]
+    return {"row_counts": row_counts, "no_back_exit": shots - sum(row_counts),
+            "flag_hits": int(vals[flag == 1].sum()), "outside_support": int(outside),
+            "flag_mismatch": int(mismatch), "distinct_strings": len(keys), "shots": shots}
+
+
+def chi2_bound(dof) -> float:
+    """The project's chi-square acceptance bound dof + 5 sqrt(2 dof) (Phase 3 convention)."""
+    dof = _check_int("dof", dof, 1)
+    return float(dof + 5.0 * math.sqrt(2.0 * dof))
+
+
+def _counts_array(name, v):
+    a = np.asarray(v)
+    if a.ndim != 1 or a.size < 2 or not np.issubdtype(a.dtype, np.integer) or np.any(a < 0):
+        raise ValueError(f"{name} must be a 1-D sequence of at least 2 non-negative integer counts")
+    return a.astype(np.int64)
+
+
+def chi2_two_sample(a, b) -> dict:
+    """Two-sample chi-square for equal totals: sum (a - b)^2 / (a + b) over categories with a + b > 0."""
+    a, b = _counts_array("a", a), _counts_array("b", b)
+    if a.shape != b.shape:
+        raise ValueError(f"a and b must have the same number of categories, got {a.size} and {b.size}")
+    if int(a.sum()) != int(b.sum()):
+        raise ValueError(f"chi2_two_sample needs equal totals, got {int(a.sum())} and {int(b.sum())}")
+    used = (a + b) > 0
+    dof = int(used.sum()) - 1
+    if dof < 1:
+        raise ValueError("chi2_two_sample needs at least 2 non-empty categories")
+    d = (a - b)[used].astype(np.float64)
+    value = float(np.sum(d * d / (a + b)[used]))
+    return {"value": value, "dof": dof, "bound": chi2_bound(dof)}
+
+
+def chi2_goodness(counts, probs) -> dict:
+    """Goodness of fit sum (c - S p)^2 / (S p) over categories with p > 0; dof = those - 1."""
+    c = _counts_array("counts", counts)
+    p = np.asarray(probs, dtype=np.float64)
+    if p.shape != c.shape:
+        raise ValueError(f"probs must have {c.size} entries, got {p.size}")
+    if not np.all(np.isfinite(p)) or np.any(p < 0):
+        raise ValueError("probs must be finite and non-negative")
+    if abs(math.fsum(p.tolist()) - 1.0) > 1e-12:
+        raise ValueError(f"probs must sum to 1 within 1e-12, got {math.fsum(p.tolist())!r}")
+    if np.any(c[p == 0] > 0):
+        raise ValueError("a category with probability 0 has counts")
+    n = int(c.sum())
+    if n < 1:
+        raise ValueError("chi2_goodness needs at least one count")
+    used = p > 0
+    dof = int(used.sum()) - 1
+    if dof < 1:
+        raise ValueError("chi2_goodness needs at least 2 categories with p > 0")
+    e = n * p[used]
+    value = float(np.sum((c[used] - e) ** 2 / e))
+    return {"value": value, "dof": dof, "bound": chi2_bound(dof)}
