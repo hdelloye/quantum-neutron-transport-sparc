@@ -90,8 +90,11 @@ def render_scaling(doc):
 
     marker = doc["results"].get("ionq_marker")
     if marker is not None:
+        # One labelled marker, annotated in place (its label is long; the legend stays compact).
         ax.plot([marker["n_A"]], [marker["abs_err"]], marker="X", linestyle="none", color=SECONDARY,
-                markersize=IONQ_MARKER_SIZE, label=textwrap.fill(marker["label"], 70))
+                markersize=IONQ_MARKER_SIZE)
+        ax.text(marker["n_A"] * 1.3, marker["abs_err"], textwrap.fill(marker["label"], 56), fontsize=6.5,
+                color=SECONDARY, va="center", ha="left")
 
     ax.grid(True, which="major", color=GRID, linewidth=0.5)
     ax.set_xlabel("cost: histories N (classical) or applications of A, N_A = sum shots (2k+1) (MLAE)")
