@@ -4,16 +4,16 @@ milestone: v0.0
 current_phase: 05
 current_phase_name: Scaling Study & Figures
 status: executing
-stopped_at: Completed 05-01-PLAN.md
-last_updated: "2026-10-11T08:53:08.102Z"
+stopped_at: Completed 05-02-PLAN.md
+last_updated: "2026-10-11T16:18:01.017Z"
 last_activity: 2026-10-11
 last_activity_desc: Phase 05 execution started
-state_head: 79cea3d95dc58f806552874b939d31dd5868aaeb
+state_head: ed19949abd63c38b26854cce94a221b5d941dabb
 progress:
   total_phases: 6
   completed_phases: 3
   total_plans: 15
-  completed_plans: 13
+  completed_plans: 14
 ---
 
 # Project State
@@ -28,7 +28,7 @@ See: .planning/PROJECT.md (updated 2026-10-10)
 ## Current Position
 
 Phase: 05 (Scaling Study & Figures) — EXECUTING
-Plan: 2 of 3
+Plan: 3 of 3
 Status: Ready to execute
 Last activity: 2026-10-11 — Phase 05 execution started
 
@@ -71,6 +71,7 @@ Progress: [█████░░░░░] 50%
 | Phase 04 P03 | 14min | 3 tasks | 12 files |
 | Phase 04 P04 | 121min | 3 tasks | 7 files |
 | Phase 05 P01 | 10min | 3 tasks | 11 files |
+| Phase 05 P02 | 25 min | 3 tasks | 14 files |
 
 ## Accumulated Context
 
@@ -129,6 +130,10 @@ Recent decisions affecting current work:
 - [Phase 05]: PD-26: seed 2026, SeedSequence spawn(3) per stage, Aer seed_simulator 1818751028 in one memory job; full artifacts from committed code (git_dirty false)
 - [Phase 05]: PD-30: figures render from artifact JSON only, lazy pyplot, no backend selection or show, allowlisted matplotlib calls, dpi 50..200, validated palette
 - [Phase 05]: PD-31: default suite runs no real sweep; micro configs only; suite under 30 s (27.55 s after 05-01)
+- [Phase 05]: PD-27: exit histograms at 1e6 matched samples, chi-square sums over 17 categories only, labelled circuit validation
+- [Phase 05]: PD-28: truncation bias T_full - T1 per wall/model at 2e7 histories; K=1 coverage 99.69% at 10 cm, isotropic_raw 89.9% disclosure only
+- [Phase 05]: PD-29: thickness study walls 6-30 cm, ratio at 1% relative RMSE 1.99->25.84; absolute 1e-3 disclosure 18.1->5.0; underflow guard refuses 50 cm
+- [Phase 05]: 05-02: four-figure DPI-60 render test moved behind slow (suite >28.5 s); label render stays as default smoke
 
 ### Pending Todos
 
@@ -157,6 +162,6 @@ Items acknowledged and deferred at milestone close, most recent first:
 
 ## Session Continuity
 
-Last session: 2026-10-11T08:53:08.069Z
-Stopped at: Completed 05-01-PLAN.md
+Last session: 2026-10-11T16:18:00.986Z
+Stopped at: Completed 05-02-PLAN.md
 Resume file: None
