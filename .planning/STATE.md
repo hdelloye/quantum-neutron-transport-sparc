@@ -3,17 +3,17 @@ gsd_state_version: "1.0"
 milestone: v0.0
 current_phase: 03
 current_phase_name: Classical Baseline
-status: executing
-stopped_at: Completed 03-01-PLAN.md
-last_updated: "2026-10-11T00:52:23.565Z"
+status: verifying
+stopped_at: Completed 03-02-PLAN.md
+last_updated: "2026-10-11T01:25:37.593Z"
 last_activity: 2026-10-10
 last_activity_desc: Phase 03 execution started
-state_head: 6197eb9a2a667cf6182901969eed91fbd0164065
+state_head: cd3bbe72ed20f4dd85b69ee2a497914b42875d64
 progress:
   total_phases: 6
   completed_phases: 1
   total_plans: 8
-  completed_plans: 7
+  completed_plans: 8
 ---
 
 # Project State
@@ -29,7 +29,7 @@ See: .planning/PROJECT.md (updated 2026-10-10)
 
 Phase: 03 (Classical Baseline) — EXECUTING
 Plan: 2 of 2
-Status: Ready to execute
+Status: Phase complete — ready for verification
 Last activity: 2026-10-10 — Phase 03 execution started
 
 Progress: [██░░░░░░░░] 17%
@@ -63,6 +63,7 @@ Progress: [██░░░░░░░░] 17%
 | Phase 02 P01 | 6 min | 3 tasks | 11 files |
 | Phase 02 P02 | 5 min | 2 tasks | 4 files |
 | Phase 03 P01 | 5min | 3 tasks | 5 files |
+| Phase 03 P02 | 27min | 3 tasks | 2 files |
 
 ## Accumulated Context
 
@@ -99,6 +100,9 @@ Recent decisions affecting current work:
 - [Phase 03]: PD-11: continuous validation compares sums only (within(0) vs e^-tau, within(1) vs T1, <=1-collision rows, first-collision columns); never full transmission vs T1 or per-entry kernels (WR-07)
 - [Phase 03]: PD-12: reproducibility = same source state + n + chunk + numpy version + platform; different chunk gives different, equally valid histories
 - [Phase 03]: PD-14: Phase 3 touches no frozen file, main graph or data/; 1e8 checks behind @pytest.mark.slow + NEUTRON_QAE_SLOW=1; absorption split by material deferred to a quick task
+- [Phase 03]: PD-10: lattice engine samples x, a, phi, e sequentially from frozen Kernels tables (never categorical over the enumeration), one flight per history (WR-08), layout constants from exact.py
+- [Phase 03]: PD-13: Phase 5 hooks - checkpoints/prefix_estimates, public shared sample_exit_rows, LatticeResult SEs, classical cost N = histories (LatticeResult.cost)
+- [Phase 03]: sample_exit_rows maps zero-amplitude strings (x > 16, or escaped in a zero-back-mass bin) to -1 without drawing; kernels.py untouched, WR-08 caveat in mc_lattice docstring
 
 ### Pending Todos
 
@@ -125,6 +129,6 @@ Items acknowledged and deferred at milestone close, most recent first:
 
 ## Session Continuity
 
-Last session: 2026-10-11T00:52:23.542Z
-Stopped at: Completed 03-01-PLAN.md
+Last session: 2026-10-11T01:25:37.572Z
+Stopped at: Completed 03-02-PLAN.md
 Resume file: None

@@ -23,8 +23,8 @@ Requirements for the hackathon submission (deadline Oct 11 2026, 7:00 PM ET). Ea
 - [x] **PHYS-04**: Continuous MC passes analytic checks: uncollided transmission equals e^{-τ}, and histories are reproducible from a seed
 - [x] **PHYS-05**: `Kernels` dataclass holds the collision-to-collision probability tables (first-collision column, scatter ratio per column, escape probability per column and direction) derived from ProblemSpec, and is the frozen contract between classical and quantum code
 - [x] **PHYS-06**: Exact lattice solver enumerates every random-bit string of the discrete model and returns the exact "transmission within K collisions" (ground truth for all error plots)
-- [ ] **PHYS-07**: Discrete lattice MC samples exactly the `Kernels` model (matched mode) and its mean converges to the exact value within standard error
-- [ ] **PHYS-08**: Classical engine takes its random source as a parameter (numpy Generator by default) and never owns randomness
+- [x] **PHYS-07**: Discrete lattice MC samples exactly the `Kernels` model (matched mode) and its mean converges to the exact value within standard error
+- [x] **PHYS-08**: Classical engine takes its random source as a parameter (numpy Generator by default) and never owns randomness
 
 ### Quantum Circuit
 
@@ -114,8 +114,8 @@ Which phases cover which requirements. Updated during roadmap creation.
 | PHYS-06 | Phase 2 | Complete |
 | PHYS-03 | Phase 3 | Complete |
 | PHYS-04 | Phase 3 | Complete |
-| PHYS-07 | Phase 3 | Pending |
-| PHYS-08 | Phase 3 | Pending |
+| PHYS-07 | Phase 3 | Complete |
+| PHYS-08 | Phase 3 | Complete |
 | QC-01 | Phase 4 | Pending |
 | QC-02 | Phase 4 | Pending |
 | QC-03 | Phase 4 | Pending |
