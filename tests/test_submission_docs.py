@@ -106,3 +106,80 @@ def test_ionq_estimate_always_has_caveat():
     assert lines, "README never shows the IonQ-only estimate"
     for line in lines:
         assert "6.4 sigma" in line, f"IonQ estimate without its 6.4 sigma caveat: {line[:100]}"
+
+
+@pytest.mark.parametrize("path", [README, RESULTS], ids=["README.md", "RESULTS.md"])
+def test_phase5_review_wording_fixed(path):
+    """Phase 5 review WR-03/WR-04/WR-05: no unmeasured MLAE cost law, no SE reading of the fit scatter."""
+    text = path.read_text(encoding="utf-8")
+    squeezed = re.sub(r"\s+", "", text)
+    for phrase in ("1/(epssqrt(T))", "1/(ε√T)"):
+        assert phrase not in squeezed, f"{path.name} still states the MLAE cost law {phrase}"
+    assert "within one standard error" not in text, f"{path.name} reads the fit scatter as a standard error"
+    assert "fit scatter" in text, f"{path.name} does not label the slope +- values as fit scatter"
+
+
+README_HEADINGS = (
+    "# Quantum Neutron Transport: SPARC First Wall",
+    "## What it does",
+    "## The problem",
+    "## Run it on Qollab",
+    "## Run it locally",
+    "## Replicate the results",
+    "## Results",
+    "## Judging criteria",
+    "### Novelty",
+    "### Technical execution",
+    "### Impact",
+    "### Documentation",
+    "## Limitations",
+    "## Repository layout",
+    "## Rules every module follows",
+    "## Libraries, tools and licenses (disclosure)",
+    "## License",
+)
+GITHUB_URL = "https://github.com/hdelloye/quantum-neutron-transport-sparc"
+IMAGE = re.compile(r"!\[([^\]]*)\]\((data/fig_[^)\s]+\.png)\)")
+
+
+def test_readme_headings_in_order():
+    lines = _readme().splitlines()
+    missing = [h for h in README_HEADINGS if h not in lines]
+    assert not missing, f"README.md is missing headings {missing}"
+    positions = [lines.index(h) for h in README_HEADINGS]
+    assert positions == sorted(positions), "README.md headings are out of order"
+
+
+def test_readme_documents_quick_mode_from_code():
+    defs = [line for line in (ROOT / "main.py").read_text(encoding="utf-8").splitlines()
+            if line.startswith("def main(")]
+    assert len(defs) == 1, "main.py must have exactly one one-line def main(...)"
+    m = re.search(r'\bmode: str = "([a-z]+)"', defs[0])
+    assert m, defs[0]
+    text = _readme()
+    assert f"`mode` (default `{m.group(1)}`)" in text, f"README does not document mode default {m.group(1)!r}"
+    for needle in ("QUICK_REPORT=", "QUICK MODE OK", "CAVEAT", "CR-01", "--figure-dir",
+                   "NEUTRON_QAE_SLOW=1", GITHUB_URL):
+        assert needle in text, f"README.md is missing {needle!r}"
+
+
+def test_readme_figures_have_alt_text():
+    images = IMAGE.findall(_readme())
+    targets = {target for _, target in images}
+    assert len(targets) >= 4, f"README embeds {sorted(targets)}"
+    for alt, target in images:
+        assert len(alt.strip()) >= 15, f"alt text too short for {target}: {alt!r}"
+
+
+def test_wr01_wording_removed():
+    for path in (README, ROOT / "docs" / "QUANTUM.md", ROOT / "docs" / "QOLLAB-RUNTIME.md"):
+        assert "same transpiled circuit" not in path.read_text(encoding="utf-8").lower(), path.name
+    quantum = (ROOT / "docs" / "QUANTUM.md").read_text(encoding="utf-8")
+    assert "one gate per" in quantum or "one extra gate per" in quantum
+
+
+def test_criteria_sections_non_empty():
+    text = _readme()
+    for heading in ("### Novelty", "### Technical execution", "### Impact", "### Documentation"):
+        body = _section(text, heading)
+        assert sum(1 for line in body.splitlines() if line.strip()) >= 2, f"{heading} is too thin"

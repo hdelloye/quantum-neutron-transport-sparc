@@ -24,11 +24,13 @@ IonQ Forte 1 marker (execution proof, not in any fit): N_A = 9,000, |a_hat - T1|
 
 Repetitions per point: 100; seed 2026; 300 shots per Grover power; exact T1 = 0.24300446519524305.
 
+The +- values and the Slope SE column are the residual scatter of a least-squares fit over nested points (fit scatter), not sampling standard errors of the slopes.
+
 Reading notes:
 
 - **The band.** The 16-84 percentile band of |error| shows the spread of single runs, not only their RMSE.
-- **The M = 3 to 4 plateau.** The MLAE curve flattens between M = 3 and M = 4. With T1 = 0.243, theta = asin(sqrt(T1)) is about 0.515 rad, so 3 theta (k = 1) and 9 theta (k = 4) both sit near odd multiples of pi/2. There the flag probability is close to 1 and barely changes with theta, so 300 shots at k = 1 and k = 4 carry little information and adding k = 4 at M = 4 hardly lowers the error. The curve recovers once k = 8 enters at M = 5.
-- **The Aer cross-check.** The Aer series simulates the transpiled Q1 circuits shot by shot. Its RMSE stays within about 0.8 to 1.2 times the analytic runner's at every M, and its slope agrees within one standard error, so the analytic runner is a faithful stand-in for the circuits.
+- **The M = 3 to 4 plateau.** The MLAE curve flattens between M = 3 and M = 4. This is count saturation: with T1 = 0.243 the flag probability at k = 1 is p(k=1) = 0.9994, so 300 shots expect about 0.18 misses and almost always return 300 of 300; at k = 4 it is 0.995 (about 1.6 expected misses). Saturated counts pin theta only to a bracket, so adding k = 4 at M = 4 hardly lowers the error. The curve recovers once k = 8 enters at M = 5.
+- **The Aer cross-check.** The Aer series simulates the transpiled Q1 circuits shot by shot. Its RMSE stays within about 0.8 to 1.2 times the analytic runner's at every M, and its fitted slope (-1.031) is close to the analytic one (-1.015), so the analytic runner is a faithful stand-in for the circuits.
 - **The IonQ marker.** The X marker is the |error| of one IonQ Forte 1 estimate (k = 0, 1, 2, 1000 shots each, ideal noise model, N_A = 9,000). It is an execution proof: the real circuits run on IonQ's service through Qollab. The estimate is 6.4 sigma off T1 and the cause is open (the k = 1 and k = 2 points depart from the exact circuit far beyond shot noise). It is not an RMSE, and it is not in any fit.
 
 ## Exit-position histograms (circuit validation, not speedup evidence)
@@ -81,7 +83,7 @@ The same matched comparison is repeated on five walls (6, 10, 15, 20 and 30 cm).
 | 20 | 0.061310 | 173,706 | 11,176 | 15.54 | 9.57 |
 | 30 | 0.015357 | 594,814 | 23,022 | 25.84 | 5.04 |
 
-- **A relative-error statement.** At a fixed relative RMSE eps, classical Monte Carlo needs about (1 - T) / (T eps^2) histories, while MLAE needs about 1 / (eps sqrt(T)) applications of A. As the transmission T falls, the classical cost grows faster, so the ratio grows from 1.99 at 6 cm to 25.84 at 30 cm.
+- **A relative-error statement.** At a fixed relative RMSE eps, classical Monte Carlo needs about (1 - T) / (T eps^2) histories, so its cost grows quickly as the transmission T falls. The MLAE costs are read off the measured curves only; no closed-form MLAE cost law is assumed. The measured ratio grows from 1.99 at 6 cm to 25.84 at 30 cm.
 - **The absolute-target ratio shrinks.** At a fixed absolute RMSE of 1e-3 the ordering reverses: the ratio falls from 18.10 at 6 cm to 5.04 at 30 cm, because a rarer event has a smaller variance in absolute terms. Both columns come from the same curves; which one matters depends on whether the question is asked in relative or absolute accuracy.
 - **Interpolation, never extrapolation.** Every cost in the table lies between two measured points of its curve.
 - **A parameter sweep, not a design study.** Thicker walls keep the 2 cm tungsten armor and add steel, with the 10 cm lateral extent unchanged. They make transmission rarer; they are not SPARC design variants.
