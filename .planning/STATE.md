@@ -4,16 +4,16 @@ milestone: v0.0
 current_phase: 04
 current_phase_name: Quantum Oracle & Amplitude Estimation
 status: executing
-stopped_at: Completed 04-02-PLAN.md
-last_updated: "2026-10-11T02:52:24.672Z"
+stopped_at: Completed 04-03-PLAN.md
+last_updated: "2026-10-11T04:31:42.283Z"
 last_activity: 2026-10-10
 last_activity_desc: Phase 04 execution started
-state_head: 318fadb8cb0edad90411907363d60a90c78b20b5
+state_head: 7b094c75b1f537dd43efda2f750c8662f0db76b1
 progress:
   total_phases: 6
   completed_phases: 2
   total_plans: 12
-  completed_plans: 10
+  completed_plans: 11
 ---
 
 # Project State
@@ -28,7 +28,7 @@ See: .planning/PROJECT.md (updated 2026-10-10)
 ## Current Position
 
 Phase: 04 (Quantum Oracle & Amplitude Estimation) — EXECUTING
-Plan: 3 of 4
+Plan: 4 of 4
 Status: Ready to execute
 Last activity: 2026-10-10 — Phase 04 execution started
 
@@ -67,6 +67,7 @@ Progress: [███░░░░░░░] 33%
 | Phase 03 P02 | 27min | 3 tasks | 2 files |
 | Phase 04 P01 | 6 min | 3 tasks | 4 files |
 | Phase 04 P02 | 14min | 3 tasks | 5 files |
+| Phase 04 P03 | 14min | 3 tasks | 12 files |
 
 ## Accumulated Context
 
@@ -113,6 +114,10 @@ Recent decisions affecting current work:
 - [Phase 04]: PD-17: vendored numpy MLAE with qiskit-algorithms grid conventions (exact QAE-01 parity), golden-section refinement, Fisher se, cost N_A = sum shots (2k+1) only
 - [Phase 04]: PD-18: one Runner interface run(ks, shots) -> list[PowerResult]; AnalyticRunner, BackendRunner (injected local backend, list jobs), IonQRunner (one bare circuit per run)
 - [Phase 04]: PD-20: IonQ record schema neutron_qae.ionq_record v1 in data/ionq_runs.json, validated on load; noisy runs kept sampled:false and excluded from MLAE
+- [Phase 04]: PD-19: main(mode=qae, k=1, shots=1000, ideal_mode=set_options, model=Q1) one-line Qollab entry; Built-in = live MLAE over k 0,1,2,4 in one list job; IonQ = one bare A.Q^k circuit per run with an IONQ_RECORD= line; mode=smoke keeps Phase 1
+- [Phase 04]: PD-23: form values validated with ValueError before any job (mode, model, k 0..8, shots 2..10000, ideal_mode none|set_options in qae); bools/non-integral rejected, integral floats accepted
+- [Phase 04]: PD-21: IonQ size ladder k=0 (31 KB), k=1 (169 KB), k=2 (306 KB); on 'Circuit size is too large' re-run that k with model=Q1lite
+- [Phase 04]: Phase 1 tracer is now scripts/run_local.py --mode smoke; IonQ records flow paste -> scripts/ingest_ionq_records.py -> data/ionq_runs.json
 
 ### Pending Todos
 
@@ -139,6 +144,6 @@ Items acknowledged and deferred at milestone close, most recent first:
 
 ## Session Continuity
 
-Last session: 2026-10-11T02:52:24.646Z
-Stopped at: Completed 04-02-PLAN.md
+Last session: 2026-10-11T04:31:42.257Z
+Stopped at: Completed 04-03-PLAN.md
 Resume file: None

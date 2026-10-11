@@ -32,7 +32,7 @@ Requirements for the hackathon submission (deadline Oct 11 2026, 7:00 PM ET). Ea
 - [x] **QC-02**: Q1 state-preparation circuit (transmission within one collision, beam at mid-height, ~12 qubits) uses fresh qubits for every random choice, no measurement or reset inside A, and is invertible
 - [x] **QC-03**: Contract test: Q1 flag probability on the Aer statevector equals the exact lattice solver value to 1e-12
 - [x] **QC-04**: Grover operator is built with the `grover_operator()` function; powers Q^k reproduce sin²((2k+1)θ) on a statevector for k up to 64
-- [ ] **QC-05**: Resource table reports qubits, CX count and depth for Q0, Q1 (and Q1-Y if built) after a single full-circuit transpile
+- [x] **QC-05**: Resource table reports qubits, CX count and depth for Q0, Q1 (and Q1-Y if built) after a single full-circuit transpile
 - [ ] **QC-06**: Circuits sent to IonQ are decomposed so no gate has more than 7 controls, and transpiled once as a whole (never A and Q separately)
 
 ### Amplitude Estimation
@@ -120,7 +120,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 | QC-02 | Phase 4 | Complete |
 | QC-03 | Phase 4 | Complete |
 | QC-04 | Phase 4 | Complete |
-| QC-05 | Phase 4 | Pending |
+| QC-05 | Phase 4 | Complete |
 | QC-06 | Phase 4 | Pending |
 | QAE-01 | Phase 4 | Complete |
 | QAE-02 | Phase 4 | Complete |
