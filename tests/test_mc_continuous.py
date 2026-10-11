@@ -22,6 +22,7 @@ from neutron_qae.mc_continuous import (
     run_continuous,
 )
 from neutron_qae.problem import sparc_first_wall
+from random_doubles import HashCounterSource, ScriptedSource
 
 SPEC = sparc_first_wall()
 K = build_kernels(SPEC)
@@ -98,3 +99,60 @@ def test_tallies_and_standard_errors(tracer_run):
         c = int(r.order_counts[:k + 1].sum())
         assert p == c / n and s == pytest.approx(se(c), rel=1e-12)
     assert r.chunk == 1 << 16 and r.iterations >= 1
+
+
+def test_swap_source_without_engine_change():
+    h = HashCounterSource()
+    r = run_continuous(SPEC, 200_000, h)
+    assert abs(_z(r.within(1), T1)) < Z
+    assert h.drawn == 445_741          # pins the documented per-iteration draw order
+
+
+def test_unseeded_default_source_runs():
+    r = run_continuous(SPEC, 1000)
+    assert r.fate_counts.sum() == 1000
+
+
+X_FIRST_SCRIPTED = -math.log1p(-0.1) / SPEC.front.sigma_t   # 0.615 cm, inside WHA
+
+
+@pytest.mark.parametrize("values, fate, ncol, yexit, consumed", [
+    ([0.95], BACK, 0, 5.0, 1),                          # never collides, exits on the beam line
+    ([0.10, 0.01, 0.0, 0.95], BACK, 1, 5.0, 4),         # scatter phi = 0, back exit on the beam line
+    ([0.10, 0.01, 0.25, 0.95], LATERAL, 1, None, 4),    # phi = pi/2, leaves through the top face
+    ([0.10, 0.01, 0.5, 0.95], FRONT, 1, None, 4),       # phi = pi, back out through the plasma face
+    ([0.10, 0.5, 0.95], ABSORBED, 1, None, 2),          # absorbed: no direction uniform drawn
+], ids=["uncollided", "scatter-forward", "lateral", "front", "absorbed"])
+def test_scripted_histories(values, fate, ncol, yexit, consumed):
+    src = ScriptedSource(values)
+    r, h = run_continuous(SPEC, 1, src, histories=True)
+    assert src.pos == consumed
+    assert h.fate.tolist() == [fate] and h.ncol.tolist() == [ncol]
+    assert r.fate_counts[fate] == 1 and r.fate_counts.sum() == 1
+    if yexit is None:
+        assert math.isnan(h.yexit[0])
+    else:
+        assert h.yexit[0] == yexit
+    if ncol == 0:
+        assert math.isnan(h.x_first[0])
+        assert r.row_counts[8] == 1 and r.row_counts_le1[8] == 1
+    else:
+        assert abs(h.x_first[0] - X_FIRST_SCRIPTED) <= 1e-12
+    if fate in (LATERAL, FRONT, ABSORBED):
+        assert r.row_counts.sum() == 0 and r.row_counts_le1.sum() == 0
+
+
+def test_bad_source_output_raises():
+    class Ones:
+        def random(self, size):
+            return np.ones(size)
+
+    class NaNs:
+        def random(self, size):
+            return np.full(size, np.nan)
+
+    for src in (Ones(), NaNs()):
+        with pytest.raises(ValueError):
+            run_continuous(SPEC, 10, src)
+    with pytest.raises(TypeError):
+        run_continuous(SPEC, 10, object())
