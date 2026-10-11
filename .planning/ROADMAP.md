@@ -21,7 +21,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [ ] **Phase 1: Qollab Smoke Test & Compliant Skeleton** - Toy Qiskit program published and running logged-out on Qollab built-in and IonQ simulators, inside a compliant flat-package repo on GitHub
 - [x] **Phase 2: Problem Spec & Kernels Contract** - SPARC slab defined once with ENDF/B-VIII.0 cross sections; frozen `Kernels` contract and exact lattice ground truth (completed 2026-10-10)
 - [x] **Phase 3: Classical Baseline** - Continuous delta-tracking MC (physics reference) and matched discrete lattice MC (baseline), validated and driven by an injected random source (completed 2026-10-10)
-- [ ] **Phase 4: Quantum Oracle & Amplitude Estimation** - Q0/Q1 state preparation matching the exact value, Grover powers, vendored MLAE with analytic/Aer/IonQ runners and N_A cost accounting
+- [x] **Phase 4: Quantum Oracle & Amplitude Estimation** - Q0/Q1 state preparation matching the exact value, Grover powers, vendored MLAE with analytic/Aer/IonQ runners and N_A cost accounting (completed 2026-10-11)
 - [ ] **Phase 5: Scaling Study & Figures** - RMSE-vs-N_A headline plot, exit histograms, truncation-bias and wall-thickness studies, committed as precomputed artifacts
 - [ ] **Phase 6: Submission, Documentation & Handoff** - v0 at ~hour 24, final logged-out-runnable Qollab project, README covering all four judging criteria, demo video, HANDOFF.md
 
@@ -112,7 +112,7 @@ Plans:
   4. The analytic, Aer and IonQ runners share one interface; analytic and Aer agree within statistical error on at least three (k, shots) points, and an IonQ-runner job (decomposed to at most 7 controls per gate, transpiled once as a whole circuit, `backend.run` + `get_counts`, no Sampler) completes on Qollab's IonQ simulator and yields counts the MLAE accepts.
   5. A resource table lists qubits, CX count and depth for Q0 and Q1 after a single full-circuit transpile, all within the 24-qubit budget.
 
-**Plans**: 4/4 plans executed
+**Plans**: 4/4 plans complete
 Plans:
 **Wave 1**
 - [x] 04-01-PLAN.md — Tracer (frozen Kernels -> Q1 A, contract P(flag) = T1 to 1e-12 -> A·Q^1 transpiled once, P = 0.9994), dev-extras install under the Phase 1 approval, Q0/Q1/Q1lite oracle with exact.py's bit layout, Grover powers to k = 64, IonQ-safe transpile-once checks, resource table (QC-01, QC-02, QC-03, QC-04, QC-05, QC-06)
@@ -168,6 +168,6 @@ Plans:
 | 1. Qollab Smoke Test & Compliant Skeleton | 4/4 | In Progress | - |
 | 2. Problem Spec & Kernels Contract | 2/2 | Complete    | 2026-10-10 |
 | 3. Classical Baseline | 2/2 | Complete    | 2026-10-10 |
-| 4. Quantum Oracle & Amplitude Estimation | 4/4 | In Progress | - |
+| 4. Quantum Oracle & Amplitude Estimation | 4/4 | Complete    | 2026-10-11 |
 | 5. Scaling Study & Figures | 0/TBD | Not started | - |
 | 6. Submission, Documentation & Handoff | 0/TBD | Not started | - |
