@@ -611,7 +611,58 @@ def _format_scaling(doc) -> str:
     return "\n\n".join(parts)
 
 
-_FORMATTERS = {"scaling_rmse": _format_scaling}
+_CHI2_ROWS = (("classical_vs_quantum", "Classical vs quantum"), ("classical_vs_exact", "Classical vs exact"),
+              ("quantum_vs_exact", "Quantum vs exact"))
+
+
+def _format_histograms(doc) -> str:
+    r = doc["results"]
+    rows = [[title, f"{r['chi2'][key]['value']:.2f}", str(r["chi2"][key]["dof"]), f"{r['chi2'][key]['bound']:.2f}"]
+            for key, title in _CHI2_ROWS]
+    table = _table(["Comparison", "Chi-square", "dof", "Bound (dof + 5 sqrt(2 dof))"], rows)
+    q = r["quantum"]
+    return (table + f"\n\nSamples: {doc['parameters']['shots']:,} each (matched); "
+            f"zero-amplitude strings: {q['outside_support']:,}; flag mismatches: {q['flag_mismatch']:,}. "
+            f"Label: {r['label']}.")
+
+
+def _format_truncation(doc) -> str:
+    rows = []
+    for c in doc["results"]["cases"]:
+        rows.append([c["model"], f"{c['width_cm']:g}", f"{c['T0']:.5f}", f"{c['T1']:.5f}",
+                     f"{c['T_full']:.5f} +- {c['T_full_se']:.5f}", f"{c['bias']:.2e}", f"{c['bias_z']:.1f}",
+                     f"{100.0 * c['coverage']:.2f}%"])
+    return _table(["Model", "Wall (cm)", "T0 (exact)", "T1 (exact)", "T_full (continuous)", "Bias T_full - T1",
+                   "Bias / SE", "K = 1 coverage"], rows)
+
+
+def _sci(x) -> str:
+    mantissa, exponent = f"{x:.0e}".split("e")
+    return f"{mantissa}e{int(exponent)}"
+
+
+def _cost(v) -> str:
+    return "not bracketed" if v is None else f"{v:,.0f}"
+
+
+def _ratio(v) -> str:
+    return "not bracketed" if v is None else f"{v:.2f}"
+
+
+def _format_thickness(doc) -> str:
+    p = doc["parameters"]
+    rel = f"{100.0 * p['target_rel_rmse']:g}%"
+    rows = []
+    for w in doc["results"]["walls"]:
+        tr, ta = w["target_rel"], w["target_abs"]
+        rows.append([f"{w['width_cm']:g}", f"{w['T1']:#.5g}", _cost(tr["n_classical"]), _cost(tr["n_mlae"]),
+                     _ratio(tr["ratio"]), _ratio(ta["ratio"])])
+    return _table(["Wall (cm)", "T1 (exact)", f"Classical N at {rel} rel. RMSE", f"MLAE N_A at {rel} rel. RMSE",
+                   "Ratio", f"Ratio at {_sci(p['target_abs_rmse'])} abs. RMSE"], rows)
+
+
+_FORMATTERS = {"scaling_rmse": _format_scaling, "exit_histograms": _format_histograms,
+               "truncation_bias": _format_truncation, "thickness_study": _format_thickness}
 
 
 def format_markdown(doc) -> str:

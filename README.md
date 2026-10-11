@@ -21,7 +21,10 @@ Phase 4 added the quantum part (see [docs/QUANTUM.md](docs/QUANTUM.md)):
 - a maximum-likelihood amplitude estimator (MLAE) that reports its cost as applications of A;
 - the QAE mode of `main.py`, which runs all of this on Qollab.
 
-The error-versus-cost figures arrive in Phase 5.
+Phase 5 added the scaling study (see [docs/RESULTS.md](docs/RESULTS.md)):
+- RMSE against cost for matched lattice Monte Carlo and MLAE, with an Aer cross-check of the circuits;
+- exit-position histograms, the truncation bias of the K = 1 estimand and a wall-thickness study;
+- every result committed under `data/` as a validated JSON file plus a figure rendered from it, so nothing has to be rerun.
 
 ## Run it on Qollab
 
@@ -62,6 +65,16 @@ python3.14 -m venv .venv
 .venv/bin/python -m pytest
 ```
 
+Phase 5 sweeps and figures (local only, about 3 minutes in total with seed 2026; see [docs/RESULTS.md](docs/RESULTS.md)):
+
+```bash
+.venv/bin/python scripts/sweep_scaling.py --seed 2026      # data/scaling_rmse.json
+.venv/bin/python scripts/sweep_histograms.py --seed 2026   # data/exit_histograms.json
+.venv/bin/python scripts/sweep_truncation.py --seed 2026   # data/truncation_bias.json
+.venv/bin/python scripts/sweep_thickness.py --seed 2026    # data/thickness_study.json
+.venv/bin/python scripts/render_figures.py --check         # re-render the four PNGs from the JSON and compare
+```
+
 Keep calling tools as `.venv/bin/python -m pip` and `.venv/bin/python -m pytest`: if the checkout path contains spaces, the console-script shebangs inside the venv can break, while `python -m` always works.
 
 `.venv/bin/python -m pip install -e ".[dev]"` adds qiskit-aer, qiskit-algorithms and ruff.
@@ -98,15 +111,25 @@ neutron_qae/       the Python package:
   grover.py        Grover powers A·Q^k, transpiled once to an IonQ-safe basis; resource table
   mlae.py          maximum-likelihood amplitude estimation and the cost N_A
   runners.py       analytic, injected-backend and IonQ one-circuit runners; IonQ record schema
+  artifacts.py     result artifacts: literal data/ paths, schema validation, Markdown tables (stdlib only)
+  analysis.py      RMSE series, log-log fits, cost at a target, chi-square and histogram helpers
+  figures.py       matplotlib figures rendered from the artifact JSON (local only so far)
 data/              small data files loaded by literal path (each at most 2 MB)
   smoke_probe.json Phase 1 literal-path probe
   ionq_runs.json   IonQ records ingested from Qollab console output
+  scaling_rmse.json, fig_scaling_rmse.png          RMSE versus cost (headline)
+  exit_histograms.json, fig_exit_histograms.png    exit-position histograms (circuit validation)
+  truncation_bias.json, fig_truncation_bias.png    K = 1 truncation bias per wall and model
+  thickness_study.json, fig_thickness_ratio.png    wall-thickness cost ratio
 scripts/           local-only tools: run_local.py (injects a simulator like Qollab), qae_local.py
-                   (resource table, local estimates), ingest_ionq_records.py (paste -> data/ionq_runs.json)
+                   (resource table, local estimates), ingest_ionq_records.py (paste -> data/ionq_runs.json),
+                   sweep_scaling.py, sweep_histograms.py, sweep_truncation.py, sweep_thickness.py (Phase 5
+                   sweeps), sweep_common.py (shared sweep helpers), render_figures.py (PNGs from the JSON)
 tests/             pytest suite: compliance gates, smoke test, physics, contract, quantum and docs checks
   golden/          frozen contract values (tests/golden/kernels_v1.json)
 docs/              project records: QOLLAB-RUNTIME.md (Qollab runtime findings), PHYSICS.md (physics, data
-                   sources and the Kernels contract), QUANTUM.md (circuits, resources, MLAE, IonQ protocol)
+                   sources and the Kernels contract), QUANTUM.md (circuits, resources, MLAE, IonQ protocol),
+                   RESULTS.md (Phase 5 results, tables generated from data/)
 ```
 
 ## Quantum oracle and amplitude estimation
@@ -138,6 +161,23 @@ The quantum half estimates the same transmission fraction as the matched classic
   - The full error curve comes from the analytic and Aer runners (Phase 5). The IonQ runs show that the real circuit executes and give a three-power estimate.
   - IonQ noise-model runs are reported, never used for statistics.
 
+## Results
+
+![RMSE versus cost](data/fig_scaling_rmse.png)
+
+The figure plots the root-mean-square error of 100 independent estimates against cost: histories for the classical lattice Monte Carlo, applications of A for MLAE. Both estimate the same K = 1 transmission of the 10 cm wall, and the exact value T1 = 0.24300446519524305 is the truth. Monte Carlo should fall with slope -0.5 on this log-log plot, ideal amplitude estimation with slope -1.
+
+Fitted slopes: -0.50 +- 0.01 (classical lattice MC, 13 points), -1.02 +- 0.03 (MLAE, analytic runner, M = 2..11), -1.03 +- 0.05 (MLAE, Aer circuit simulation, M = 2..9).
+
+- **Aer cross-check.** Simulating the transpiled Q1 circuits on Aer gives the same curve as the analytic runner (RMSE within about 0.8 to 1.2 times at every point, slopes within one standard error).
+- **Exit histograms (circuit validation, not speedup evidence).** 1,000,000 matched samples of the classical engine and of the circuit A agree by chi-square (16.46 on 16 degrees of freedom, bound 44.28): the circuit encodes the same physics. Direct sampling of A converges like classical Monte Carlo, so this figure carries no speedup claim.
+- **Truncation.** The K = 1 quantity both methods estimate covers about 99.7% of the full 10 cm transmission computed with all collision orders, and about 98.9% at 30 cm.
+- **Wall thickness.** At 1% relative RMSE the classical-to-MLAE cost ratio grows from 1.99 (6 cm) to 25.84 (30 cm) as transmission becomes rarer. At a fixed absolute RMSE of 1e-3 the ratio shrinks instead, from 18.10 to 5.04; both are reported.
+- **IonQ.** The IonQ Forte 1 point on the figure is one estimate's error: an execution proof of the real circuits, 6.4 sigma off T1 with the cause open, not in any fit.
+- **What this shows.** Sampling complexity on an ideal simulator only: error against the number of samples. It is not a wall-clock or quantum-advantage claim.
+
+Tables, reading notes, reproduction commands and limits: [docs/RESULTS.md](docs/RESULTS.md).
+
 ## Rules every module follows
 
 - The backend is injected by Qollab (or by `scripts/run_local.py`) and passed into package functions as a parameter. Package code never creates a backend.
@@ -155,7 +195,7 @@ The quantum half estimates the same transmission fraction as the matched classic
 | Qiskit | 2.5.2 | Circuits, transpilation, BasicSimulator | Apache-2.0 |
 | qiskit-ionq | 1.0.2 on Qollab (1.1.1 locally) | IonQ simulator backend provided by Qollab's runtime | Apache-2.0 |
 | NumPy | Pyodide build on Qollab (2.x) | Numerics | BSD-3-Clause (bundled parts: 0BSD, MIT, Zlib, CC0-1.0) |
-| SciPy / Matplotlib | Pyodide builds | Later phases: fitting, figures | BSD-3-Clause / Matplotlib License (PSF-based) |
+| SciPy / Matplotlib | Pyodide builds (Matplotlib 3.11.2 locally) | SciPy: optional numerics; Matplotlib: the figures in data/ | BSD-3-Clause / Matplotlib License (PSF-based) |
 | qiskit-aer, qiskit-algorithms | 0.17.2, 0.4.0 | Local tests and precomputation only; never run on Qollab | Apache-2.0 |
 | pytest, ruff | 9.1.1, 0.16.10 | Testing, linting | MIT |
 | Pyodide | 314.0.7 | Qollab's in-browser Python runtime (not redistributed by us) | MPL-2.0 |
