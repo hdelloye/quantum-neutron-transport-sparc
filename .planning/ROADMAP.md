@@ -90,7 +90,14 @@ Plans:
   3. The discrete lattice MC (matched mode) samples the frozen `Kernels` model, and its mean converges to the exact lattice solver value within standard error as the number of histories grows.
   4. Both engines take their random source as a parameter (numpy Generator by default), and swapping in a different source requires no engine code change.
 
-**Plans**: TBD
+**Plans**: 2 plans
+Plans:
+**Wave 1**
+- [ ] 03-01-PLAN.md — Tracer (seeded source -> Woodcock delta-tracking continuous MC -> within(0) = e^-tau, within(1) = exact T1), RandomSource protocol with swapped/scripted sources and an engine RNG gate, analytic/thickness/marginal-sum/edge checks, slow 1e8 check (PHYS-03, PHYS-04, PHYS-08)
+
+**Wave 2** *(blocked on Wave 1 completion)*
+- [ ] 03-02-PLAN.md — Tracer (frozen Kernels -> matched lattice MC -> converges to exact T1), bit-string/row/RMSE distributions vs the enumeration, hash-source swap with one-flight accounting, Phase 5 hooks (checkpoints, shared sample_exit_rows, cost = histories), slow 1e8 check (PHYS-07, PHYS-08)
+
 **Runs in parallel with**: Phase 4 (both depend only on Phase 2).
 
 ### Phase 4: Quantum Oracle & Amplitude Estimation
@@ -147,7 +154,7 @@ Plans:
 |-------|----------------|--------|-----------|
 | 1. Qollab Smoke Test & Compliant Skeleton | 4/4 | In Progress | - |
 | 2. Problem Spec & Kernels Contract | 2/2 | Complete    | 2026-10-10 |
-| 3. Classical Baseline | 0/TBD | Not started | - |
+| 3. Classical Baseline | 0/2 | Not started | - |
 | 4. Quantum Oracle & Amplitude Estimation | 0/TBD | Not started | - |
 | 5. Scaling Study & Figures | 0/TBD | Not started | - |
 | 6. Submission, Documentation & Handoff | 0/TBD | Not started | - |
