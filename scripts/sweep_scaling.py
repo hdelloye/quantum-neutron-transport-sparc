@@ -72,6 +72,8 @@ def _attach_fit(series, min_M):
 def main(argv=None):
     argv = sys.argv[1:] if argv is None else list(argv)
     ap = sweep_common.base_parser(__doc__.splitlines()[0])
+    ap.add_argument("--no-aer", action="store_true",
+                    help="skip the Aer cross-check (local quick-style runs only; a full artifact requires Aer)")
     args = ap.parse_args(argv)
     os.chdir(sweep_common.ROOT)
     prof = PROFILES[args.profile]
@@ -96,6 +98,16 @@ def main(argv=None):
     _attach_fit(analytic, FIT_MIN_M)
 
     aer = None
+    aer_seed = None
+    if prof["aer_M_max"] is not None and not args.no_aer:
+        from qiskit_aer import AerSimulator  # local only; never reachable from main.py
+
+        aer_seed = int(ss_aer.generate_state(1, dtype=np.uint32)[0])
+        t = time.perf_counter()
+        aer = analysis.backend_rmse_series(AerSimulator(method="statevector"), problem, t1, prof["aer_M_max"],
+                                           SHOTS_PER_POWER, reps, aer_seed)
+        timings["mlae_aer"] = time.perf_counter() - t
+        _attach_fit(aer, FIT_MIN_M)
     parameters = {
         "model": "Q1",
         "width_x_cm": float(problem.kernels.spec.width_x),
@@ -105,11 +117,15 @@ def main(argv=None):
         "schedule": "exponential",
         "classical_N": list(prof["classical_N"]),
         "mlae_M_max": prof["mlae_M_max"],
-        "aer_M_max": None,
+        "aer_M_max": None if aer is None else prof["aer_M_max"],
         "fit_min_M": FIT_MIN_M,
         "seeding": "root = SeedSequence(seed); classical, analytic, aer = root.spawn(3); "
                    "repetition r uses <stage>.spawn(R)[r]",
     }
+    if aer is not None:
+        parameters["aer_seed_simulator"] = aer_seed
+        parameters["aer_method"] = ("one AerSimulator(method=statevector) job per sweep, R x 300 shots per circuit "
+                                    "with memory=True, repetition r = shots [300 r, 300 (r + 1))")
     marker = _ionq_marker(t1)
     timings["total"] = time.perf_counter() - t_all
     doc = {
