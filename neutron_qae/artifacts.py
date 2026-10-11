@@ -37,14 +37,20 @@ SCALING_FILE = "data/scaling_rmse.json"
 SCALING_FIGURE = "data/fig_scaling_rmse.png"
 HISTOGRAM_FILE = "data/exit_histograms.json"
 HISTOGRAM_FIGURE = "data/fig_exit_histograms.png"
+TRUNCATION_FILE = "data/truncation_bias.json"
+TRUNCATION_FIGURE = "data/fig_truncation_bias.png"
 
 # kind -> (JSON path, PNG path); only implemented kinds are registered.
 ARTIFACTS = {
     "scaling_rmse": (SCALING_FILE, SCALING_FIGURE),
     "exit_histograms": (HISTOGRAM_FILE, HISTOGRAM_FIGURE),
+    "truncation_bias": (TRUNCATION_FILE, TRUNCATION_FIGURE),
 }
 HISTOGRAM_LABEL = "circuit validation, not speedup evidence"
 MIN_FULL_HISTOGRAM_SHOTS = 1_000_000
+MIN_FULL_TRUNCATION_HISTORIES = 10_000_000
+# problem.MODELS written as literals: this module stays stdlib-only (a test pins the equality).
+CROSS_SECTION_MODELS = ("transport_corrected", "isotropic_raw")
 
 _PNG_SIGNATURE = b"\x89PNG\r\n\x1a\n"
 _HEX = set("0123456789abcdef")
@@ -365,7 +371,63 @@ def _validate_histograms(doc):
         _fail("results.label", f"must be exactly {HISTOGRAM_LABEL!r}, got {r['label']!r}")
 
 
-_VALIDATORS = {"scaling_rmse": _validate_scaling, "exit_histograms": _validate_histograms}
+# ---------------------------------------------------------------- kind: truncation_bias
+
+_TRUNCATION_NUMS = ("T0", "T1", "T_full", "T_full_se", "within0", "within0_se", "within1", "within1_se",
+                    "bias", "bias_se", "bias_z", "coverage")
+
+
+def _validate_case_id(c, field):
+    _dict(c, field)
+    model = _get(c, "model", field)
+    if model not in CROSS_SECTION_MODELS:
+        _fail(f"{field}.model", f"must be one of {CROSS_SECTION_MODELS}, got {model!r}")
+    width = _num(_get(c, "width_cm", field), f"{field}.width_cm")
+    if not width > 2.0:
+        _fail(f"{field}.width_cm", f"must be > 2.0 (the W layer), got {width!r}")
+    return model, width
+
+
+def _validate_truncation(doc):
+    p = doc["parameters"]
+    full = doc["profile"] == "full"
+    _int(_get(p, "histories_per_case", "parameters"), "parameters.histories_per_case",
+         MIN_FULL_TRUNCATION_HISTORIES if full else 1)
+    cases = _get(p, "cases", "parameters")
+    if not isinstance(cases, list) or not cases:
+        _fail("parameters.cases", "must be a non-empty list")
+    ids = [_validate_case_id(c, f"parameters.cases[{i}]") for i, c in enumerate(cases)]
+    res = _get(doc["results"], "cases", "results")
+    if not isinstance(res, list) or len(res) != len(ids):
+        _fail("results.cases", f"must be a list of {len(ids)} cases (same order as parameters.cases)")
+    for i, c in enumerate(res):
+        f = f"results.cases[{i}]"
+        if _validate_case_id(c, f) != ids[i]:
+            _fail(f, f"model/width_cm must match parameters.cases[{i}] {ids[i]}")
+        v = {key: _num(_get(c, key, f), f"{f}.{key}") for key in _TRUNCATION_NUMS}
+        for key in ("T0", "T1", "T_full", "within0", "within1"):
+            if not 0.0 <= v[key] <= 1.0:
+                _fail(f"{f}.{key}", f"must lie in [0, 1], got {v[key]!r}")
+        if not v["T_full"] > 0:
+            _fail(f"{f}.T_full", "must be > 0")
+        for key in ("T_full_se", "within0_se", "within1_se", "bias_se"):
+            if not v[key] > 0:
+                _fail(f"{f}.{key}", f"must be > 0, got {v[key]!r}")
+        if abs(v["bias"] - (v["T_full"] - v["T1"])) > 1e-15:
+            _fail(f"{f}.bias", "must equal T_full - T1 within 1e-15")
+        if abs(v["coverage"] - v["T1"] / v["T_full"]) > 1e-12:
+            _fail(f"{f}.coverage", "must equal T1 / T_full within 1e-12")
+        if abs(v["bias_z"] - v["bias"] / v["bias_se"]) > 1e-9 * max(1.0, abs(v["bias_z"])):
+            _fail(f"{f}.bias_z", "must equal bias / bias_se")
+        orders = _get(c, "order_fractions", f)
+        if not isinstance(orders, list) or not orders:
+            _fail(f"{f}.order_fractions", "must be a non-empty list of numbers")
+        for j, x in enumerate(orders):
+            _num(x, f"{f}.order_fractions[{j}]", 0)
+
+
+_VALIDATORS = {"scaling_rmse": _validate_scaling, "exit_histograms": _validate_histograms,
+               "truncation_bias": _validate_truncation}
 
 
 # ---------------------------------------------------------------- I/O

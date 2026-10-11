@@ -108,8 +108,11 @@ def render_scaling(doc):
 
 def _sample_text(n) -> str:
     """'1e6' for an exact power of ten, else the comma-grouped integer."""
-    e = round(math.log10(n))
-    return f"1e{e}" if 10 ** e == n else f"{n:,}"
+    e = math.floor(math.log10(n))
+    m = n / 10 ** e
+    if m == int(m) and m < 10:
+        return f"{int(m)}e{e}" if m > 1 else f"1e{e}"
+    return f"{n:,}"
 
 
 def render_exit_histograms(doc):
@@ -157,7 +160,58 @@ def render_exit_histograms(doc):
     return fig
 
 
-RENDERERS = {"scaling_rmse": render_scaling, "exit_histograms": render_exit_histograms}
+def render_truncation_bias(doc):
+    """Two panels from a ``truncation_bias`` artifact dict: transmissions vs wall; K = 1 coverage vs wall."""
+    import matplotlib.pyplot as plt
+
+    cases = doc["results"]["cases"]
+    tc = [c for c in cases if c["model"] == "transport_corrected"]
+    other = [c for c in cases if c["model"] != "transport_corrected"]
+    n = doc["parameters"]["histories_per_case"]
+    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=FIGSIZE_TWO, facecolor=SURFACE,
+                                   subplot_kw={"facecolor": SURFACE})
+    w = [c["width_cm"] for c in tc]
+    ax1.set_yscale("log")
+    ax1.plot(w, [c["T0"] for c in tc], linestyle=":", marker="o", markersize=3, color=SECONDARY,
+             linewidth=LINE_WIDTH, label="T0 exact (uncollided)")
+    ax1.plot(w, [c["T1"] for c in tc], linestyle="-", marker="o", markersize=MARKER_SIZE, color=CLASSICAL,
+             linewidth=LINE_WIDTH, label="T1 exact (K = 1, the estimand)")
+    ax1.errorbar(w, [c["T_full"] for c in tc], yerr=[c["T_full_se"] for c in tc], marker="s", linestyle="none",
+                 color=MLAE_ANALYTIC, markersize=MARKER_SIZE - 1, capsize=2,
+                 label="T_full continuous MC (all orders)")
+    ax1.grid(True, which="major", color=GRID, linewidth=0.5)
+    ax1.set_xlabel("wall thickness, cm (2.0 cm W + steel)")
+    ax1.set_ylabel("transmission (transport-corrected)")
+    ax1.legend(fontsize=7, loc="lower left")
+
+    ax2.errorbar(w, [100 * c["coverage"] for c in tc],
+                 yerr=[100 * c["T1"] * c["T_full_se"] / c["T_full"] ** 2 for c in tc], marker="o",
+                 linestyle="-", color=CLASSICAL, linewidth=LINE_WIDTH, markersize=MARKER_SIZE, capsize=2,
+                 label="transport_corrected")
+    for c in other:
+        y = 100 * c["coverage"]
+        ax2.errorbar([c["width_cm"]], [y], yerr=[100 * c["T1"] * c["T_full_se"] / c["T_full"] ** 2],
+                     marker="X", linestyle="none", color=SECONDARY, markersize=IONQ_MARKER_SIZE - 1, capsize=2)
+        ax2.text(c["width_cm"] + 0.8, y, f"{c['model']} (not used by the circuit): {y:.1f}%", fontsize=7,
+                 color=SECONDARY, va="center", ha="left")
+    for c in tc:
+        ax2.text(c["width_cm"], 100 * c["coverage"] + 0.6, f"{100 * c['coverage']:.2f}%", fontsize=6.5,
+                 color=SECONDARY, ha="center", va="bottom")
+    ys = [100 * c["coverage"] for c in cases]
+    ax2.set_ylim(min(ys) - 2.0, 101.5)
+    ax2.set_xlim(min(c["width_cm"] for c in cases) - 2.0, max(c["width_cm"] for c in cases) + 2.5)
+    ax2.grid(True, which="major", color=GRID, linewidth=0.5)
+    ax2.set_xlabel("wall thickness, cm")
+    ax2.set_ylabel("K = 1 coverage, % of full transmission")
+    ax2.legend(fontsize=7, loc="lower right")
+    fig.suptitle("Truncation: transmission within K collisions vs full continuous transmission "
+                 f"({_sample_text(n)} histories per case)", fontsize=10)
+    fig.tight_layout()
+    return fig
+
+
+RENDERERS = {"scaling_rmse": render_scaling, "exit_histograms": render_exit_histograms,
+             "truncation_bias": render_truncation_bias}
 
 
 def render_file(kind, json_path, png_path, dpi=DEFAULT_DPI) -> dict:
