@@ -39,12 +39,15 @@ HISTOGRAM_FILE = "data/exit_histograms.json"
 HISTOGRAM_FIGURE = "data/fig_exit_histograms.png"
 TRUNCATION_FILE = "data/truncation_bias.json"
 TRUNCATION_FIGURE = "data/fig_truncation_bias.png"
+THICKNESS_FILE = "data/thickness_study.json"
+THICKNESS_FIGURE = "data/fig_thickness_ratio.png"
 
 # kind -> (JSON path, PNG path); only implemented kinds are registered.
 ARTIFACTS = {
     "scaling_rmse": (SCALING_FILE, SCALING_FIGURE),
     "exit_histograms": (HISTOGRAM_FILE, HISTOGRAM_FIGURE),
     "truncation_bias": (TRUNCATION_FILE, TRUNCATION_FIGURE),
+    "thickness_study": (THICKNESS_FILE, THICKNESS_FIGURE),
 }
 HISTOGRAM_LABEL = "circuit validation, not speedup evidence"
 MIN_FULL_HISTOGRAM_SHOTS = 1_000_000
@@ -426,8 +429,91 @@ def _validate_truncation(doc):
             _num(x, f"{f}.order_fractions[{j}]", 0)
 
 
+# ---------------------------------------------------------------- kind: thickness_study
+
+def _validate_target(t, field, rmse_expected, full, require_bracketed):
+    _dict(t, field)
+    rmse = _num(_get(t, "rmse", field), f"{field}.rmse", positive=True)
+    if rmse_expected is not None and abs(rmse - rmse_expected) > 1e-15 * rmse_expected:
+        _fail(f"{field}.rmse", f"must equal {rmse_expected!r} within 1e-15 relative, got {rmse!r}")
+    bracketed = _get(t, "bracketed", field)
+    if not isinstance(bracketed, bool):
+        _fail(f"{field}.bracketed", f"must be a bool, got {bracketed!r}")
+    if require_bracketed and full and not bracketed:
+        _fail(f"{field}.bracketed", "must be true in the full profile (costs are never extrapolated)")
+    for key in ("n_classical", "n_mlae", "ratio"):
+        v = _get(t, key, field)
+        if v is None and not bracketed:
+            continue
+        _num(v, f"{field}.{key}", positive=True)
+    if bracketed and abs(t["ratio"] - t["n_classical"] / t["n_mlae"]) > 1e-12 * t["ratio"]:
+        _fail(f"{field}.ratio", "must equal n_classical / n_mlae")
+
+
+def _validate_thickness(doc):
+    p = doc["parameters"]
+    full = doc["profile"] == "full"
+    widths = _get(p, "widths_cm", "parameters")
+    if not isinstance(widths, list) or not widths:
+        _fail("parameters.widths_cm", "must be a non-empty list of numbers")
+    for i, w in enumerate(widths):
+        if not _num(w, f"parameters.widths_cm[{i}]") > 2.0:
+            _fail(f"parameters.widths_cm[{i}]", f"must be > 2.0 (the W layer), got {w!r}")
+        if i and not w > widths[i - 1]:
+            _fail("parameters.widths_cm", "must be strictly ascending")
+    t_rel = _num(_get(p, "target_rel_rmse", "parameters"), "parameters.target_rel_rmse", positive=True)
+    if not t_rel < 1.0:
+        _fail("parameters.target_rel_rmse", f"must lie in (0, 1), got {t_rel!r}")
+    _num(_get(p, "target_abs_rmse", "parameters"), "parameters.target_abs_rmse", positive=True)
+    reps = _int(_get(p, "repetitions", "parameters"), "parameters.repetitions", MIN_FULL_REPETITIONS if full else 2)
+    classical_n = _ascending_ints(_get(p, "classical_N", "parameters"), "parameters.classical_N")
+    m_max = _int(_get(p, "mlae_M_max", "parameters"), "parameters.mlae_M_max", 2)
+    _int(_get(p, "shots_per_power", "parameters"), "parameters.shots_per_power", 1)
+    _int(_get(p, "min_expected_events", "parameters"), "parameters.min_expected_events", 1)
+    if not _is_int(_get(p, "fit_min_M", "parameters")) or p["fit_min_M"] != 2:
+        _fail("parameters.fit_min_M", f"must be 2, got {p['fit_min_M']!r}")
+    series_params = {"repetitions": reps, "fit_min_M": 2}
+
+    r = doc["results"]
+    walls = _get(r, "walls", "results")
+    if not isinstance(walls, list) or len(walls) != len(widths):
+        _fail("results.walls", f"must be a list of {len(widths)} walls (same order as parameters.widths_cm)")
+    for i, w in enumerate(walls):
+        f = f"results.walls[{i}]"
+        _dict(w, f)
+        if _num(_get(w, "width_cm", f), f"{f}.width_cm") != float(widths[i]):
+            _fail(f"{f}.width_cm", f"must equal parameters.widths_cm[{i}] {widths[i]!r}")
+        t0 = _num(_get(w, "T0", f), f"{f}.T0", positive=True)
+        t1 = _num(_get(w, "T1", f), f"{f}.T1", positive=True)
+        if not t0 <= t1 < 1.0:
+            _fail(f"{f}.T1", f"must satisfy T0 <= T1 < 1, got T0 {t0!r}, T1 {t1!r}")
+        if not _num(_get(w, "contract_abs_diff", f), f"{f}.contract_abs_diff", 0) <= 1e-12:
+            _fail(f"{f}.contract_abs_diff", "must be <= 1e-12 (the oracle contract)")
+        series = _dict(_get(w, "series", f), f"{f}.series")
+        for name in ("classical_lattice", "mlae_analytic"):
+            try:
+                _validate_series(name, _get(series, name, f"{f}.series"), series_params)
+            except ValueError as exc:
+                raise ValueError(f"{f}: {exc}") from None
+        if series["classical_lattice"]["cost"] != classical_n:
+            _fail(f"{f}.series.classical_lattice.cost", "must equal parameters.classical_N")
+        if len(series["mlae_analytic"]["cost"]) != m_max:
+            _fail(f"{f}.series.mlae_analytic.M", f"must run to parameters.mlae_M_max {m_max}")
+        tr = _get(w, "target_rel", f)
+        _validate_target(tr, f"{f}.target_rel", t_rel * t1, full, True)
+        _num(_get(tr, "n_classical_theory", f"{f}.target_rel"), f"{f}.target_rel.n_classical_theory", positive=True)
+        _validate_target(_get(w, "target_abs", f), f"{f}.target_abs", p["target_abs_rmse"], full, False)
+    trend = _dict(_get(r, "trend", "results"), "results.trend")
+    if not isinstance(_get(trend, "ratio_increases_as_T1_falls", "results.trend"), bool):
+        _fail("results.trend.ratio_increases_as_T1_falls", "must be a bool")
+    for key in ("ratio_span", "loglog_slope_ratio_vs_T1"):
+        v = _get(trend, key, "results.trend")
+        if v is not None:
+            _num(v, f"results.trend.{key}")
+
+
 _VALIDATORS = {"scaling_rmse": _validate_scaling, "exit_histograms": _validate_histograms,
-               "truncation_bias": _validate_truncation}
+               "truncation_bias": _validate_truncation, "thickness_study": _validate_thickness}
 
 
 # ---------------------------------------------------------------- I/O

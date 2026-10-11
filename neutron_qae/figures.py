@@ -210,8 +210,69 @@ def render_truncation_bias(doc):
     return fig
 
 
+def _rmse_text(x) -> str:
+    """'1e-3' for an exact power of ten, else the general format."""
+    e = round(math.log10(x))
+    return f"1e{e}" if math.isclose(10.0 ** e, x, rel_tol=1e-12) else f"{x:g}"
+
+
+def render_thickness_study(doc):
+    """Two log-log panels from a ``thickness_study`` artifact dict: cost at 1% relative RMSE vs T1; ratio vs T1."""
+    import matplotlib.pyplot as plt
+
+    walls = doc["results"]["walls"]
+    eps = doc["parameters"]["target_rel_rmse"]
+    t_abs = doc["parameters"]["target_abs_rmse"]
+    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=FIGSIZE_TWO, facecolor=SURFACE,
+                                   subplot_kw={"facecolor": SURFACE})
+    rel = [w for w in walls if w["target_rel"]["bracketed"]]
+    t1 = [w["T1"] for w in rel]
+    ax1.set_xscale("log")
+    ax1.set_yscale("log")
+    ax1.plot(t1, [w["target_rel"]["n_classical"] for w in rel], marker="o", linestyle="none", color=CLASSICAL,
+             markersize=MARKER_SIZE, label="classical lattice MC (measured), histories")
+    t_all = [w["T1"] for w in walls]
+    ax1.plot(t_all, [w["target_rel"]["n_classical_theory"] for w in walls], linestyle=":", color=CLASSICAL,
+             linewidth=LINE_WIDTH, label=f"classical theory (1 - T1) / (T1 {eps:g}^2)")
+    ax1.plot(t1, [w["target_rel"]["n_mlae"] for w in rel], marker="s", linestyle="none", color=MLAE_ANALYTIC,
+             markersize=MARKER_SIZE, label="MLAE analytic (measured), applications of A")
+    for w in rel:
+        for key in ("n_classical", "n_mlae"):
+            ax1.text(w["T1"] * 1.06, w["target_rel"][key], f"{w['width_cm']:g} cm", fontsize=7, color=SECONDARY,
+                     va="center", ha="left")
+    ax1.grid(True, which="major", color=GRID, linewidth=0.5)
+    ax1.set_xlabel("exact transmission T1 (thicker wall to the left)")
+    ax1.set_ylabel(f"cost to reach {100 * eps:g}% relative RMSE")
+    ax1.legend(fontsize=7, loc="best")
+
+    ax2.set_xscale("log")
+    ax2.set_yscale("log")
+    ax2.plot(t1, [w["target_rel"]["ratio"] for w in rel], marker="o", linestyle="-", color=CLASSICAL,
+             linewidth=LINE_WIDTH, markersize=MARKER_SIZE, label=f"{100 * eps:g}% relative RMSE: ratio grows")
+    ab = [w for w in walls if w["target_abs"]["bracketed"]]
+    ax2.plot([w["T1"] for w in ab], [w["target_abs"]["ratio"] for w in ab], marker="X", linestyle="--",
+             color=SECONDARY, linewidth=1.0, markersize=MARKER_SIZE + 1,
+             label=f"fixed absolute RMSE {_rmse_text(t_abs)} (disclosure): ratio shrinks")
+    for w in rel:
+        ax2.text(w["T1"] * 1.06, w["target_rel"]["ratio"], f"{w['target_rel']['ratio']:.3g} ({w['width_cm']:g} cm)",
+                 fontsize=7, color=SECONDARY, va="center", ha="left")
+    ax2.grid(True, which="major", color=GRID, linewidth=0.5)
+    ax2.set_xlabel("exact transmission T1 (thicker wall to the left)")
+    ax2.set_ylabel("classical histories / MLAE applications of A")
+    ax2.legend(fontsize=7, loc="best")
+    for ax in (ax1, ax2):
+        ax.set_xlim(min(t_all) / 1.6, max(t_all) * 2.2)
+        ax.set_xticks([], minor=True)
+        ax.set_xticks(t_all, [f"{t:.3g}" for t in t_all])
+    ws = [w["width_cm"] for w in walls]
+    fig.suptitle(f"Rare-event study: walls {min(ws):g}-{max(ws):g} cm (2 cm W + steel), {100 * eps:g}% relative "
+                 "RMSE, analytic MLAE", fontsize=10)
+    fig.tight_layout()
+    return fig
+
+
 RENDERERS = {"scaling_rmse": render_scaling, "exit_histograms": render_exit_histograms,
-             "truncation_bias": render_truncation_bias}
+             "truncation_bias": render_truncation_bias, "thickness_study": render_thickness_study}
 
 
 def render_file(kind, json_path, png_path, dpi=DEFAULT_DPI) -> dict:

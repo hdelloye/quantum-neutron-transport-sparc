@@ -326,3 +326,23 @@ def chi2_goodness(counts, probs) -> dict:
     e = n * p[used]
     value = float(np.sum((c[used] - e) ** 2 / e))
     return {"value": value, "dof": dof, "bound": chi2_bound(dof)}
+
+
+# ---------------------------------------------------------------- thickness study (PD-29, ANLY-04)
+
+def check_transmission(T1, n_max, min_events=1000) -> float:
+    """Underflow guard for a rare-event wall: return T1 or raise ValueError.
+
+    The classical grid must observe at least ``min_events`` transmitted histories at its largest
+    N (expected count ``T1 * n_max``, inclusive) or its RMSE curve cannot reach a 1% relative
+    target; T1 must be a finite number in (0, 1).
+    """
+    if isinstance(T1, bool) or not isinstance(T1, numbers.Real) or not math.isfinite(T1) or not 0.0 < T1 < 1.0:
+        raise ValueError(f"T1 must be a finite number in (0, 1), got {T1!r}")
+    if isinstance(n_max, bool) or not isinstance(n_max, numbers.Real) or not math.isfinite(n_max) or n_max <= 0:
+        raise ValueError(f"n_max must be a finite positive number, got {n_max!r}")
+    expected = float(T1) * float(n_max)
+    if not expected >= min_events:
+        raise ValueError(f"expected {expected:.1f} transmitted histories at N = {n_max:g} (T1 = {float(T1):.3e}), "
+                         f"below the {min_events}-event limit: the classical curve cannot reach the target")
+    return float(T1)
