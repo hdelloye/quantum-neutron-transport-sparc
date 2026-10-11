@@ -4,6 +4,7 @@ Aer cross-check, the honest cost axis, the IonQ marker's exclusion and re-render
 These tests read the committed data/ files only; they never run a sweep.
 """
 import ast
+import os
 import re
 import time
 from pathlib import Path
@@ -111,6 +112,12 @@ def test_notes_state_sampling_complexity_only():
                 assert "no " in before or "not " in before, (kind, n)
 
 
+# Moved behind `slow` in 05-02 (default suite > 28.5 s with four figures; orchestrator rule): the
+# four-figure re-render runs under NEUTRON_QAE_SLOW=1 and as `scripts/render_figures.py --check`;
+# tests/test_studies.py::test_exit_histogram_is_labelled_validation stays as the fast smoke render.
+@pytest.mark.slow
+@pytest.mark.skipif(os.environ.get("NEUTRON_QAE_SLOW") != "1",
+                    reason="four-figure DPI-60 re-render; run with NEUTRON_QAE_SLOW=1 -m slow")
 def test_figures_render_from_committed_json(tmp_path):
     t0 = time.perf_counter()
     for kind, (json_rel, png_rel) in artifacts.ARTIFACTS.items():

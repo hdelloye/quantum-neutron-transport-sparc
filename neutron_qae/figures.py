@@ -259,7 +259,10 @@ def render_thickness_study(doc):
     ax2.grid(True, which="major", color=GRID, linewidth=0.5)
     ax2.set_xlabel("exact transmission T1 (thicker wall to the left)")
     ax2.set_ylabel("classical histories / MLAE applications of A")
-    ax2.legend(fontsize=7, loc="best")
+    shown = [w["target_rel"]["ratio"] for w in rel] + [w["target_abs"]["ratio"] for w in ab]
+    if shown:
+        ax2.set_ylim(min(shown) / 2.5, max(shown) * 1.6)      # room for the legend below the data
+    ax2.legend(fontsize=7, loc="lower left")
     for ax in (ax1, ax2):
         ax.set_xlim(min(t_all) / 1.6, max(t_all) * 2.2)
         ax.set_xticks([], minor=True)

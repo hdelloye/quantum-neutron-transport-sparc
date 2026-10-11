@@ -5,6 +5,7 @@ judged by chi-square sums only (never per-row z-scores), labelled circuit valida
 
 These tests read the committed data/ files only; they never run a sweep.
 """
+import itertools
 import math
 from pathlib import Path
 
@@ -169,3 +170,73 @@ def test_artifact_model_literals_match_problem():
     from neutron_qae.problem import MODELS
 
     assert artifacts.CROSS_SECTION_MODELS == tuple(MODELS)
+
+
+# ---------------------------------------------------------------- wall thickness (ANLY-04)
+
+@pytest.fixture(scope="module")
+def thickness():
+    return _load("thickness_study")
+
+
+def test_thickness_ratio_grows_as_transmission_falls(thickness):
+    d = thickness
+    assert d["profile"] == "full"
+    walls = d["results"]["walls"]
+    assert [w["width_cm"] for w in walls] == [6.0, 10.0, 15.0, 20.0, 30.0]
+    t1 = [w["T1"] for w in walls]
+    assert all(b < a for a, b in itertools.pairwise(t1)), t1
+    eps = d["parameters"]["target_rel_rmse"]
+    assert eps == 0.01
+    ratios = []
+    for w in walls:
+        tr = w["target_rel"]
+        assert tr["bracketed"] is True, w["width_cm"]
+        assert w["contract_abs_diff"] <= 1e-12
+        assert tr["rmse"] == pytest.approx(eps * w["T1"], rel=1e-15)
+        theory = (1 - w["T1"]) / (w["T1"] * eps ** 2)
+        assert tr["n_classical_theory"] == pytest.approx(theory, rel=1e-12)
+        assert theory / 1.5 <= tr["n_classical"] <= 1.5 * theory, (w["width_cm"], tr)
+        c, m = w["series"]["classical_lattice"], w["series"]["mlae_analytic"]
+        assert analysis.cost_at_target(c["cost"], c["rmse"], tr["rmse"]) == pytest.approx(tr["n_classical"], rel=1e-12)
+        assert analysis.cost_at_target(m["cost"], m["rmse"], tr["rmse"]) == pytest.approx(tr["n_mlae"], rel=1e-12)
+        ratios.append(tr["ratio"])
+    assert all(b > a for a, b in itertools.pairwise(ratios)), ratios
+    assert ratios[-1] / ratios[0] >= 4, ratios
+    assert d["results"]["trend"]["ratio_increases_as_T1_falls"] is True
+
+
+def test_thickness_absolute_target_disclosed(thickness):
+    walls = thickness["results"]["walls"]
+    ab = [w["target_abs"] for w in walls]
+    assert all(t["bracketed"] for t in ab), ab
+    assert all(t["rmse"] == thickness["parameters"]["target_abs_rmse"] == 1e-3 for t in ab)
+    assert ab[-1]["ratio"] < ab[0]["ratio"], [t["ratio"] for t in ab]
+    notes = " ".join(thickness["notes"]).lower()
+    assert "relative" in notes and "absolute" in notes
+
+
+def test_check_transmission_boundary():
+    from neutron_qae.exact import transmission_within
+
+    assert analysis.check_transmission(1e-3, 1_000_000) == 1e-3          # 1000 events exactly: accepted
+    for t1, n in ((0.999999e-3, 1_000_000), (0.0, 1e6), (float("nan"), 1e6), (-0.1, 1e6), (1.0, 1e6)):
+        with pytest.raises(ValueError):
+            analysis.check_transmission(t1, n)
+    t50 = transmission_within(_kernels("transport_corrected", 50.0), 1)
+    t40 = transmission_within(_kernels("transport_corrected", 40.0), 1)
+    with pytest.raises(ValueError, match="1000"):
+        analysis.check_transmission(t50, 1_000_000)
+    assert analysis.check_transmission(t40, 1_000_000) == t40
+
+
+def test_thickness_script_refuses_underflow_wall(tmp_path, monkeypatch, capsys):
+    monkeypatch.syspath_prepend(str(ROOT / "scripts"))
+    monkeypatch.chdir(ROOT)
+    import sweep_thickness
+
+    rc = sweep_thickness.main(["--profile", "quick", "--widths", "10", "50", "--out-dir", str(tmp_path)])
+    out = capsys.readouterr()
+    assert rc == 2
+    assert "50 cm" in out.err + out.out
+    assert list(tmp_path.iterdir()) == []
