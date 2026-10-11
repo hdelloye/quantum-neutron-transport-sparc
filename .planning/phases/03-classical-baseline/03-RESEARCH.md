@@ -460,7 +460,7 @@ Keep the default (non-slow) suite to ≲ 3 s of Phase 3 tests in total. The 1e8 
 | A2 | Vectorized numpy in Pyodide is 2–5× slower than native, so 1e5 histories take ≲ 0.1 s in the browser | Pitfall 8 | Low. Phase 6 measures it before choosing the live N |
 | A3 | libm differences between macOS and Pyodide may change rare histories in the last ulp | Pitfall 3 | Low. No cross-platform byte-equality test is planned |
 
-## Open Questions
+## Open Questions (RESOLVED — Q1: kernels.py untouched, WR-08 caveat in mc_lattice docstring (PD-14); Q2: absorption split by material deferred to a quick task (PD-14))
 
 1. **Should Phase 3 also apply the WR-07/WR-08 docstring fixes in `kernels.py`?**
    - What we know: both are open in 02-REVIEW-DISPOSITION.md. Neither changes a table value.
