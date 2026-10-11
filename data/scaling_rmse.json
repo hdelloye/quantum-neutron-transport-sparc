@@ -1,0 +1,185 @@
+{
+ "kind": "scaling_rmse",
+ "notes": [
+  "cost: classical lattice MC = histories N (LatticeResult.cost); MLAE = applications of A, N_A = sum over the schedule of shots (2k + 1) (MLAEResult.n_A); never shots or circuits",
+  "MLAE series use the analytic runner (exact theta, Binomial draws); the Aer series simulates the transpiled Q1 circuits",
+  "nested repetitions: each repetition is one experiment observed at increasing cost (classical checkpoints within one run; MLAE on the first M records of one schedule run)",
+  "RMSE = sqrt(mean(err^2)) against the exact lattice T1; band = 16th-84th percentile of |err|",
+  "fits: OLS of log10 RMSE on log10 cost, slope SE sqrt(SSR / (n - 2) / Sxx); classical over all points, MLAE over M >= 2 (at least one Grover power)",
+  "the IonQ marker is a single estimate's |error|, not an RMSE, and is not in any fit",
+  "sampling complexity only: no wall-clock or quantum-advantage claim"
+ ],
+ "parameters": {
+  "aer_M_max": null,
+  "classical_N": [
+   100,
+   1000,
+   10000,
+   100000
+  ],
+  "fit_min_M": 2,
+  "mlae_M_max": 6,
+  "model": "Q1",
+  "reference_T1": 0.24300446519524305,
+  "repetitions": 20,
+  "schedule": "exponential",
+  "seeding": "root = SeedSequence(seed); classical, analytic, aer = root.spawn(3); repetition r uses <stage>.spawn(R)[r]",
+  "shots_per_power": 300,
+  "width_x_cm": 10.0
+ },
+ "profile": "quick",
+ "provenance": {
+  "argv": [
+   "--profile",
+   "quick",
+   "--seed",
+   "2026"
+  ],
+  "created_utc": "2026-10-11T08:46:20Z",
+  "git_dirty": true,
+  "git_head": "c8e3c8acf6c59b331125da217faa740d59fb8f59",
+  "platform": "macOS-14.4-arm64-arm-64bit-Mach-O",
+  "script": "scripts/sweep_scaling.py",
+  "seed": 2026,
+  "timings_s": {
+   "classical": 0.12,
+   "make_problem": 0.05,
+   "mlae_analytic": 0.21,
+   "total": 0.38
+  },
+  "versions": {
+   "matplotlib": "3.11.2",
+   "numpy": "2.5.3",
+   "python": "3.14.8",
+   "qiskit": "2.5.2",
+   "qiskit_aer": "0.17.2"
+  }
+ },
+ "results": {
+  "ionq_marker": {
+   "a_hat": 0.22867119417457568,
+   "abs_err": 0.014333271020667365,
+   "in_fit": false,
+   "ks": [
+    0,
+    1,
+    2
+   ],
+   "label": "IonQ Forte 1, ideal noise model, k = 0, 1, 2 x 1000 shots: |error| of one estimate; execution proof, 6.4 sigma off T1, cause open; not in any fit",
+   "n_A": 9000,
+   "se": 0.002244871482986111,
+   "z": -6.384896030485165
+  },
+  "series": {
+   "classical_lattice": {
+    "abs_err_q16": [
+     0.016995534804756962,
+     0.004084107979623612,
+     0.000599892020376408,
+     0.00030090797962359475
+    ],
+    "abs_err_q84": [
+     0.06683589202037639,
+     0.015004465195243039,
+     0.0055875348047569415,
+     0.0014039348047569422
+    ],
+    "cost": [
+     100,
+     1000,
+     10000,
+     100000
+    ],
+    "cost_unit": "histories",
+    "fit": {
+     "cost_max": 100000,
+     "cost_min": 100,
+     "intercept": -0.3544147257871937,
+     "points": 4,
+     "slope": -0.509396535222326,
+     "slope_se": 0.019312239455757173
+    },
+    "mean_error": [
+     0.0029955348047569566,
+     -0.0020544651952430436,
+     0.0008205348047569533,
+     0.0004940348047569529
+    ],
+    "repetitions": 20,
+    "rmse": [
+     0.042461432250531894,
+     0.012327543438920223,
+     0.004543913771829029,
+     0.001187102833924356
+    ],
+    "runner": "lattice"
+   },
+   "mlae_aer": null,
+   "mlae_analytic": {
+    "M": [
+     1,
+     2,
+     3,
+     4,
+     5,
+     6
+    ],
+    "abs_err_q16": [
+     0.003004463446026312,
+     0.0027676781459149836,
+     0.00024698602959875805,
+     0.0008351796294880954,
+     0.00013506886430177833,
+     8.841793232348239e-05
+    ],
+    "abs_err_q84": [
+     0.022871130323273217,
+     0.009806076989748645,
+     0.006440851054962874,
+     0.00661461283474305,
+     0.001220952299393867,
+     0.0008332521814940973
+    ],
+    "cost": [
+     300,
+     1200,
+     2700,
+     5400,
+     10500,
+     20400
+    ],
+    "cost_unit": "applications of A",
+    "fit": {
+     "cost_max": 20400,
+     "cost_min": 1200,
+     "intercept": 0.9174350870910595,
+     "points": 5,
+     "slope": -0.9366777527394603,
+     "slope_se": 0.2598673227641908
+    },
+    "mean_error": [
+     -0.005171129653356632,
+     0.0021833100732410126,
+     0.0014689707139353262,
+     0.0017956566588392855,
+     -8.964256081439443e-05,
+     -6.629096028869103e-05
+    ],
+    "repetitions": 20,
+    "rmse": [
+     0.01910036535740004,
+     0.007272119710365849,
+     0.005786385142956298,
+     0.005949543660508272,
+     0.0009916092254808615,
+     0.0006232420387820732
+    ],
+    "runner": "analytic",
+    "schedule": "exponential",
+    "shots_per_power": 300
+   }
+  }
+ },
+ "schema": "neutron_qae.artifact",
+ "schema_version": 1
+}

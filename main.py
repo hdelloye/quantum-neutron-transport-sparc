@@ -18,7 +18,7 @@ import json
 import numbers
 import time
 
-from neutron_qae import mlae, oracle, runners
+from neutron_qae import artifacts, mlae, oracle, runners  # noqa: F401 - data/ paths
 from neutron_qae.exact import transmission_within
 from neutron_qae.smoke import (
     IDEAL_MODES,
