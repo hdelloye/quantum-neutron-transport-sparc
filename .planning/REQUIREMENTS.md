@@ -52,7 +52,7 @@ Requirements for the hackathon submission (deadline Oct 11 2026, 7:00 PM ET). Ea
 
 ### Qollab Submission & Documentation
 
-- [ ] **DOCS-01**: `main.py` exposes a typed `main(...)` quick mode (small live MLAE run on the injected backend plus rendering of precomputed figures) that completes in the judge's browser
+- [x] **DOCS-01**: `main.py` exposes a typed `main(...)` quick mode (small live MLAE run on the injected backend plus rendering of precomputed figures) that completes in the judge's browser
 - [ ] **DOCS-02**: A v0 is published on Qollab by roughly hour 24 and the final version before the deadline; final check from a logged-out browser
 - [ ] **DOCS-03**: README covers what it does, the problem, how to run (locally and on Qollab), replication steps, and a section per judging criterion (novelty, technical execution, impact, documentation)
 - [ ] **DOCS-04**: Prior-art section cites Olivier & Nowak (arXiv:2410.19489), Lee/Lee/Kim (PRD 111, 116001), Miao/Jin/Sone (arXiv:2607.10772) and states the narrowed novelty claim
@@ -131,7 +131,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 | ANLY-03 | Phase 5 | Complete |
 | ANLY-04 | Phase 5 | Complete |
 | ANLY-05 | Phase 5 | Complete |
-| DOCS-01 | Phase 6 | Pending |
+| DOCS-01 | Phase 6 | Complete |
 | DOCS-02 | Phase 6 | Pending |
 | DOCS-03 | Phase 6 | Pending |
 | DOCS-04 | Phase 6 | Pending |

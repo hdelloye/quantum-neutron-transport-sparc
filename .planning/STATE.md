@@ -4,16 +4,16 @@ milestone: v0.0
 current_phase: 6
 current_phase_name: Submission, Documentation & Handoff
 status: executing
-stopped_at: Phase 05 complete, ready to plan Phase 1
-last_updated: "2026-10-11T17:39:43.060Z"
+stopped_at: Completed 06-01-PLAN.md
+last_updated: "2026-10-11T17:49:55.783Z"
 last_activity: 2026-10-11
-last_activity_desc: Phase 05 complete, transitioned to Phase 1
-state_head: f13bd0ebc30604bbf635156284ab5ad37c547464
+last_activity_desc: Completed 06-01-PLAN.md
+state_head: f98982419a2f658d1ed1b413aee21791cd510e93
 progress:
   total_phases: 6
   completed_phases: 4
   total_plans: 18
-  completed_plans: 15
+  completed_plans: 16
 ---
 
 # Project State
@@ -27,10 +27,11 @@ See: .planning/PROJECT.md (updated 2026-10-10)
 
 ## Current Position
 
-Phase: 6 (Submission, Documentation & Handoff) — READY TO EXECUTE
-Plan: Not started
-Status: Ready to execute
-Last activity: 2026-10-11 — Phase 05 complete, transitioned to Phase 1
+Phase: 6 (Submission, Documentation & Handoff) — EXECUTING
+Current Plan: 2
+Total Plans in Phase: 3
+Status: Executing — 06-01 complete (quick mode default, IonQ caveat, WR-02, CR-01); next 06-02 README/HANDOFF
+Last activity: 2026-10-11 — Completed 06-01-PLAN.md
 
 Progress: [███████░░░] 67%
 
@@ -74,6 +75,7 @@ Progress: [███████░░░] 67%
 | Phase 05 P01 | 10min | 3 tasks | 11 files |
 | Phase 05 P02 | 25 min | 3 tasks | 14 files |
 | Phase 05 P03 | 22min | 2 tasks | 4 files |
+| Phase 06 P01 | 15min | 3 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -137,6 +139,9 @@ Recent decisions affecting current work:
 - [Phase 05]: PD-29: thickness study walls 6-30 cm, ratio at 1% relative RMSE 1.99->25.84; absolute 1e-3 disclosure 18.1->5.0; underflow guard refuses 50 cm
 - [Phase 05]: 05-02: four-figure DPI-60 render test moved behind slow (suite >28.5 s); label render stays as default smoke
 - [Phase 05]: PD-32 (docs from data): RESULTS.md tables and the README headline sentence are artifacts.format_markdown / headline_sentence output on the committed JSON, embedded verbatim and drift-tested
+- [Phase 06]: PD-33 (costly): quick mode is main()'s default (contract, live MLAE k=0,1,2, four figures, QUICK MODE OK)
+- [Phase 06]: PD-34: CR-01 closed in main.py by refusing ideal_mode 'none' in quick and qae modes; noisy IonQ runs are a HANDOFF item
+- [Phase 06]: PD-35: quick figures shown via plt.savefig(FIGURE_DIR/name); FIGURE_DIR '' on Qollab; main.py never selects a matplotlib backend
 
 ### Pending Todos
 
@@ -166,6 +171,6 @@ Items acknowledged and deferred at milestone close, most recent first:
 
 ## Session Continuity
 
-Last session: 2026-10-11T17:07:59.140Z
-Stopped at: Phase 05 complete, ready to plan Phase 1
+Last session: 2026-10-11T17:49:55.744Z
+Stopped at: Completed 06-01-PLAN.md
 Resume file: None
