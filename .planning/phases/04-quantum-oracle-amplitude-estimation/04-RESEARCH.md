@@ -568,7 +568,7 @@ Their qubit counts per run are not stated explicitly in the fetched text, so do 
 | A5 | Forte-1 noise drives Q1 A·Q¹ toward P ≈ 0.5 | IonQ Path | Narrative only; report whatever is measured |
 | A6 | Lee/Lee/Kim details (as fetched from arXiv HTML v1; the published PRD may differ slightly) | Prior art | Wording in README; cite arXiv version |
 
-## Open Questions
+## Open Questions (RESOLVED — Q1 size ladder PD-21; Q2 Phase 4 owns the interim QAE main.py PD-19; Q3 noisy records kept as sampled:false PD-20; Q4 one late human checkpoint PD-22)
 
 1. **Qollab request-body limit.**
    - What we know: oversized bodies get "Circuit size is too large". Bodies are 31 KB, 168 KB and 305 KB for k = 0, 1, 2.
