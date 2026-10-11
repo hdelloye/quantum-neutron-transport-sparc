@@ -19,7 +19,7 @@ from neutron_qae.oracle import make_problem
 from neutron_qae.runners import IonQRunner, validate_ionq_record
 
 ROOT = Path(__file__).resolve().parents[1]
-SIGNATURE = 'def main(mode: str = "qae", k: int = 1, shots: int = 1000, ideal_mode: str = "set_options", model: str = "Q1"):'
+SIGNATURE = 'def main(mode: str = "quick", k: int = 1, shots: int = 1000, ideal_mode: str = "set_options", model: str = "Q1"):'
 
 
 def _entry(monkeypatch, be):
@@ -45,7 +45,7 @@ def test_main_qae_builtin_seeded(monkeypatch, capsys):
     be = BasicSimulator()
     be.set_options(seed_simulator=2026)
     entry = _entry(monkeypatch, be)
-    report = entry.main()
+    report = entry.main(mode="qae")
     qae = report["qae"]
     assert report["mode"] == "qae"
     assert report["backend"]["is_ionq"] is False
@@ -196,7 +196,7 @@ def test_builtin_prints_ionq_estimate_when_records_exist(monkeypatch, capsys, tm
     be = BasicSimulator()
     be.set_options(seed_simulator=1)
     entry = _entry(monkeypatch, be)
-    report = entry.main(shots=200, model="Q0")     # 5-qubit Built-in run: fast; IonQ error still vs T1
+    report = entry.main(mode="qae", shots=200, model="Q0")     # 5-qubit Built-in run: fast; IonQ error still vs T1
     ionq = report["qae"]["ionq_records"]
     assert ionq["n_A"] == 9000 and ionq["ks"] == [0, 1, 2] and ionq["models"] == ["Q1"]
     assert abs(ionq["abs_err"] - abs(ionq["a_hat"] - make_problem("Q1").reference)) < 1e-15
@@ -212,7 +212,7 @@ def test_builtin_survives_corrupt_records_file(monkeypatch, capsys, tmp_path):
     be = BasicSimulator()
     be.set_options(seed_simulator=1)
     entry = _entry(monkeypatch, be)
-    report = entry.main(shots=100, model="Q0")
+    report = entry.main(mode="qae", shots=100, model="Q0")
     assert "error" in report["qae"]["ionq_records"]
     out = capsys.readouterr().out
     assert "IonQ records: invalid (" in out
