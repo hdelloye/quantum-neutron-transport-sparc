@@ -3,6 +3,7 @@ Aer cross-check, the honest cost axis, the IonQ marker's exclusion and re-render
 
 These tests read the committed data/ files only; they never run a sweep.
 """
+import ast
 import re
 import time
 from pathlib import Path
@@ -120,3 +121,52 @@ def test_figures_render_from_committed_json(tmp_path):
         assert (info["width"], info["height"]) == (w, h)
         assert (w, h) == (round(cw * 60 / figures.DEFAULT_DPI), round(ch * 60 / figures.DEFAULT_DPI)), (kind, w, h)
     assert time.perf_counter() - t0 < 5.0
+
+
+STDLIB_ALLOWED = {"__future__", "json", "math", "numbers", "os", "struct", "tempfile"}
+MPL_ALLOWED = {"subplots", "close", "loglog", "plot", "errorbar", "fill_between", "step", "bar", "set_xscale",
+               "set_yscale", "set_xlabel", "set_ylabel", "set_title", "legend", "grid", "text", "axhline",
+               "set_xticks", "set_xlim", "set_ylim", "tight_layout", "suptitle", "savefig"}
+
+
+def _tree(rel):
+    return ast.parse((ROOT / rel).read_text(encoding="utf-8"), filename=rel)
+
+
+def test_artifacts_module_is_stdlib_only():
+    tops = set()
+    for node in ast.walk(_tree("neutron_qae/artifacts.py")):
+        if isinstance(node, ast.Import):
+            tops.update(a.name.split(".")[0] for a in node.names)
+        elif isinstance(node, ast.ImportFrom):
+            assert node.level == 0, "artifacts.py must not use relative imports"
+            tops.add(node.module.split(".")[0])
+    assert tops <= STDLIB_ALLOWED, tops - STDLIB_ALLOWED
+
+
+def test_figures_use_only_long_standing_matplotlib_api():
+    tree = _tree("neutron_qae/figures.py")
+    receiver = re.compile(r"(plt|fig|ax)[A-Za-z0-9]*")
+    bad = []
+    for node in ast.walk(tree):
+        if isinstance(node, ast.Call) and isinstance(node.func, ast.Attribute):
+            owner = node.func.value
+            if isinstance(owner, ast.Name) and receiver.fullmatch(owner.id) and node.func.attr not in MPL_ALLOWED:
+                bad.append(f"{owner.id}.{node.func.attr} (line {node.lineno})")
+        if isinstance(node, ast.Call):
+            name = node.func.attr if isinstance(node.func, ast.Attribute) else getattr(node.func, "id", "")
+            if name in {"use", "show"}:
+                bad.append(f"{name}() call (line {node.lineno})")
+    for node in tree.body:
+        if isinstance(node, ast.Import) and any(a.name.split(".")[0] == "matplotlib" for a in node.names):
+            bad.append(f"module-level import matplotlib (line {node.lineno})")
+        if isinstance(node, ast.ImportFrom) and (node.module or "").split(".")[0] == "matplotlib":
+            bad.append(f"module-level from matplotlib import (line {node.lineno})")
+    assert not bad, bad
+
+
+def test_package_constructs_no_backend_for_sweeps():
+    import compliance_checks
+
+    assert (ROOT / "neutron_qae" / "analysis.py").is_file()
+    assert compliance_checks.backend_constructions(ROOT) == []
