@@ -164,7 +164,16 @@ Plans:
   4. The README's prior-art section cites Olivier & Nowak (arXiv:2410.19489), Lee/Lee/Kim (PRD 111, 116001) and Miao/Jin/Sone (arXiv:2607.10772) and states only the narrowed novelty claim; its limitations section states one-group physics, K-collision truncation, ideal-simulator scaling plot, IonQ simulator noise, no wall-clock speedup claim, sampling-complexity argument only.
   5. The Qollab project has the demo video, repo link and Quantum Impact theme tag attached, and a teammate following HANDOFF.md can find module owners, run the tests, read the frozen `Kernels` contract and pick up a remaining task.
 
-**Plans**: TBD
+**Plans**: 3 plans
+Plans:
+**Wave 1**
+- [ ] 06-01-PLAN.md — Quick mode as the new main() default (contract check, live MLAE k = 0, 1, 2, four figures from data/*.json, QUICK MODE OK), IonQ caveat line, WR-02 catch, CR-01 refusal (DOCS-01)
+
+**Wave 2** *(blocked on Wave 1 completion)*
+- [ ] 06-02-PLAN.md — Judge-facing README (run, replicate, results with four figures, one section per criterion, prior art + narrowed claim, seven limitations), WR-01/CR-01 doc fixes, HANDOFF.md, docs gates, BUNDLE OK 30 + public-repo audit (DOCS-03, DOCS-04, DOCS-05, DOCS-08)
+
+**Wave 3** *(blocked on Wave 2 completion; human-action)*
+- [ ] 06-03-PLAN.md — Push + audited qollab-final.zip, then Hippolyte: repo public, fresh Qollab project v1.0-final, hackathon submission (Quantum Impact), logged-out quick run, demo video; evidence recorded in docs/QOLLAB-RUNTIME.md (DOCS-02, DOCS-07)
 **Time-triggered checkpoint**: the v0 publish (DOCS-02) does not wait for Phases 3-5; it ships whatever is green at ~hour 24. The README skeleton and HANDOFF.md can be drafted as soon as Phase 2 freezes `Kernels`.
 
 ## Progress
