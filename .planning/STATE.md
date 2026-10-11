@@ -1,19 +1,19 @@
 ---
 gsd_state_version: "1.0"
 milestone: v0.0
-current_phase: 3
+current_phase: 03
 current_phase_name: Classical Baseline
 status: executing
-stopped_at: Phase 02 complete, ready to plan Phase 1
-last_updated: "2026-10-11T00:46:08.313Z"
+stopped_at: Completed 03-01-PLAN.md
+last_updated: "2026-10-11T00:52:23.565Z"
 last_activity: 2026-10-10
-last_activity_desc: Phase 02 complete; next Phases 3 and 4 (Phase 1 gaps are human actions)
-state_head: 9d6b8f382e90fa1cc70f0894ee7b9f2a6bc8d892
+last_activity_desc: Phase 03 execution started
+state_head: 6197eb9a2a667cf6182901969eed91fbd0164065
 progress:
   total_phases: 6
   completed_phases: 1
   total_plans: 8
-  completed_plans: 6
+  completed_plans: 7
 ---
 
 # Project State
@@ -23,14 +23,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-10-10)
 
 **Core value:** Show, on a real fusion-relevant transport problem, that quantum amplitude estimation reaches a target accuracy with fewer samples than classical Monte Carlo, with an honest classical baseline sitting next to it.
-**Current focus:** Phases 3 (Classical Baseline) and 4 (Quantum Oracle & AE) — both depend only on the frozen Phase 2 contract and can be planned/executed in parallel; Phase 1 has two human-dependent gaps (logged-out IonQ refused by Qollab; teammates not yet invited)
+**Current focus:** Phase 03 — Classical Baseline
 
 ## Current Position
 
-Phase: 3 (Classical Baseline) — READY TO EXECUTE
-Plan: Not started
+Phase: 03 (Classical Baseline) — EXECUTING
+Plan: 2 of 2
 Status: Ready to execute
-Last activity: 2026-10-10 — Phase 02 complete, transitioned to Phase 1
+Last activity: 2026-10-10 — Phase 03 execution started
 
 Progress: [██░░░░░░░░] 17%
 
@@ -62,6 +62,7 @@ Progress: [██░░░░░░░░] 17%
 | Phase 01 P04 | 3 min | 3 tasks | 0 files |
 | Phase 02 P01 | 6 min | 3 tasks | 11 files |
 | Phase 02 P02 | 5 min | 2 tasks | 4 files |
+| Phase 03 P01 | 5min | 3 tasks | 5 files |
 
 ## Accumulated Context
 
@@ -93,6 +94,11 @@ Recent decisions affecting current work:
 - [Phase 02]: PD-05: x depth (0 = plasma face); 0-based column 3 = ROADMAP column 4 holds the 2.0 cm interface; material_at half-open; exit row = floor(y/dy) clipped; bin b from +x toward +y; beam at y=5.0
 - [Phase 02]: PD-06: Kernels contract v1 frozen in tests/golden/kernels_v1.json (T1=0.24300446519524305) at rtol 1e-12 + spec fingerprint; changes go through scripts/freeze_kernels.py --write --force with a version bump; main.py unchanged
 - [Phase 02]: PD-07: scripts/derive_cross_sections.py committed as optional, local-only replication of MICRO_14MEV (stdlib + numpy, network only with --download, AST-tested)
+- [Phase 03]: PD-08 (costly): RandomSource protocol is one method random(size) -> float64 (size,) in [0,1); numpy Generator satisfies it unwrapped; as_source is the only Generator constructor; draw validates shape and range
+- [Phase 03]: PD-09: continuous engine = vectorized Woodcock delta tracking, chunk 2^16, majorant max(front,back sigma_t), cross sections from spec (never Kernels), int64 tallies with binomial SEs
+- [Phase 03]: PD-11: continuous validation compares sums only (within(0) vs e^-tau, within(1) vs T1, <=1-collision rows, first-collision columns); never full transmission vs T1 or per-entry kernels (WR-07)
+- [Phase 03]: PD-12: reproducibility = same source state + n + chunk + numpy version + platform; different chunk gives different, equally valid histories
+- [Phase 03]: PD-14: Phase 3 touches no frozen file, main graph or data/; 1e8 checks behind @pytest.mark.slow + NEUTRON_QAE_SLOW=1; absorption split by material deferred to a quick task
 
 ### Pending Todos
 
@@ -119,6 +125,6 @@ Items acknowledged and deferred at milestone close, most recent first:
 
 ## Session Continuity
 
-Last session: 2026-10-10T22:28:08.099Z
-Stopped at: Phase 2 complete and verified (4/4); Phase 1 executed with 2 human gaps; next: plan Phases 3 and 4
+Last session: 2026-10-11T00:52:23.542Z
+Stopped at: Completed 03-01-PLAN.md
 Resume file: None
