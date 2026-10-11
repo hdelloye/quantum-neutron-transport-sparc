@@ -20,7 +20,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 
 - [ ] **Phase 1: Qollab Smoke Test & Compliant Skeleton** - Toy Qiskit program published and running logged-out on Qollab built-in and IonQ simulators, inside a compliant flat-package repo on GitHub
 - [x] **Phase 2: Problem Spec & Kernels Contract** - SPARC slab defined once with ENDF/B-VIII.0 cross sections; frozen `Kernels` contract and exact lattice ground truth (completed 2026-10-10)
-- [ ] **Phase 3: Classical Baseline** - Continuous delta-tracking MC (physics reference) and matched discrete lattice MC (baseline), validated and driven by an injected random source
+- [x] **Phase 3: Classical Baseline** - Continuous delta-tracking MC (physics reference) and matched discrete lattice MC (baseline), validated and driven by an injected random source (completed 2026-10-10)
 - [ ] **Phase 4: Quantum Oracle & Amplitude Estimation** - Q0/Q1 state preparation matching the exact value, Grover powers, vendored MLAE with analytic/Aer/IonQ runners and N_A cost accounting
 - [ ] **Phase 5: Scaling Study & Figures** - RMSE-vs-N_A headline plot, exit histograms, truncation-bias and wall-thickness studies, committed as precomputed artifacts
 - [ ] **Phase 6: Submission, Documentation & Handoff** - v0 at ~hour 24, final logged-out-runnable Qollab project, README covering all four judging criteria, demo video, HANDOFF.md
@@ -90,7 +90,7 @@ Plans:
   3. The discrete lattice MC (matched mode) samples the frozen `Kernels` model, and its mean converges to the exact lattice solver value within standard error as the number of histories grows.
   4. Both engines take their random source as a parameter (numpy Generator by default), and swapping in a different source requires no engine code change.
 
-**Plans**: 2/2 plans executed
+**Plans**: 2/2 plans complete
 Plans:
 **Wave 1**
 - [x] 03-01-PLAN.md — Tracer (seeded source -> Woodcock delta-tracking continuous MC -> within(0) = e^-tau, within(1) = exact T1), RandomSource protocol with swapped/scripted sources and an engine RNG gate, analytic/thickness/marginal-sum/edge checks, slow 1e8 check (PHYS-03, PHYS-04, PHYS-08)
@@ -154,7 +154,7 @@ Plans:
 |-------|----------------|--------|-----------|
 | 1. Qollab Smoke Test & Compliant Skeleton | 4/4 | In Progress | - |
 | 2. Problem Spec & Kernels Contract | 2/2 | Complete    | 2026-10-10 |
-| 3. Classical Baseline | 2/2 | In Progress | - |
+| 3. Classical Baseline | 2/2 | Complete    | 2026-10-10 |
 | 4. Quantum Oracle & Amplitude Estimation | 0/TBD | Not started | - |
 | 5. Scaling Study & Figures | 0/TBD | Not started | - |
 | 6. Submission, Documentation & Handoff | 0/TBD | Not started | - |
