@@ -189,7 +189,7 @@ def test_builtin_prints_ionq_estimate_when_records_exist(monkeypatch, capsys, tm
     be = BasicSimulator()
     be.set_options(seed_simulator=1)
     entry = _entry(monkeypatch, be)
-    report = entry.main(shots=200)
+    report = entry.main(shots=200, model="Q0")     # 5-qubit Built-in run: fast; IonQ error still vs T1
     ionq = report["qae"]["ionq_records"]
     assert ionq["n_A"] == 9000 and ionq["ks"] == [0, 1, 2] and ionq["models"] == ["Q1"]
     assert abs(ionq["abs_err"] - abs(ionq["a_hat"] - make_problem("Q1").reference)) < 1e-15
@@ -205,7 +205,7 @@ def test_builtin_survives_corrupt_records_file(monkeypatch, capsys, tmp_path):
     be = BasicSimulator()
     be.set_options(seed_simulator=1)
     entry = _entry(monkeypatch, be)
-    report = entry.main(shots=100)
+    report = entry.main(shots=100, model="Q0")
     assert "error" in report["qae"]["ionq_records"]
     out = capsys.readouterr().out
     assert "IonQ records: invalid (" in out
