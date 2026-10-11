@@ -109,3 +109,63 @@ def test_histogram_validator_rejects_bad_label_and_unmatched_shots(histograms):
     bad["results"]["quantum"]["shots"] = 999_999
     with pytest.raises(ValueError, match="results.quantum.shots"):
         artifacts.validate_artifact(bad)
+
+
+# ---------------------------------------------------------------- truncation bias (ANLY-03)
+
+@pytest.fixture(scope="module")
+def truncation():
+    return _load("truncation_bias")
+
+
+def test_truncation_bias_disclosed(truncation):
+    from neutron_qae.exact import transmission_within
+
+    d = truncation
+    assert d["profile"] == "full"
+    assert d["parameters"]["histories_per_case"] == 20_000_000
+    cases = d["results"]["cases"]
+    assert [(c["model"], c["width_cm"]) for c in cases] == [
+        ("transport_corrected", 6.0), ("transport_corrected", 10.0), ("transport_corrected", 15.0),
+        ("transport_corrected", 20.0), ("transport_corrected", 30.0), ("isotropic_raw", 10.0)]
+    for c in cases:
+        k = _kernels(c["model"], c["width_cm"])
+        assert abs(c["T0"] - transmission_within(k, 0)) <= 1e-15, c
+        assert abs(c["T1"] - transmission_within(k, 1)) <= 1e-15, c
+        assert abs(c["within0"] - c["T0"]) / c["within0_se"] < 4, c
+        assert abs(c["within1"] - c["T1"]) / c["within1_se"] < 4, c
+    tc = [c for c in cases if c["model"] == "transport_corrected"]
+    widths = [c["width_cm"] for c in tc]
+    assert widths == sorted(widths) and len(set(widths)) == len(widths)
+    for c in tc:
+        assert c["bias_z"] >= 3, c
+        assert c["coverage"] >= 0.98, c
+    c10 = next(c for c in tc if c["width_cm"] == 10.0)
+    assert 0.995 <= c10["coverage"] <= 0.999, c10
+    iso = [c for c in cases if c["model"] == "isotropic_raw"]
+    assert len(iso) == 1 and 0.88 <= iso[0]["coverage"] <= 0.92, iso
+
+
+def test_truncation_never_equates_full_with_T1(truncation):
+    import copy
+
+    for c in truncation["results"]["cases"]:
+        if c["model"] != "transport_corrected":
+            continue
+        assert c["bias"] == c["T_full"] - c["T1"]
+        assert c["bias"] > 0 and c["T_full"] != c["T1"], c
+        assert c["coverage"] < 1.0, c
+    bad = copy.deepcopy(truncation)
+    bad["results"]["cases"][1]["bias"] = 0.0          # pretending T_full == T1 is rejected
+    with pytest.raises(ValueError, match="bias"):
+        artifacts.validate_artifact(bad)
+    bad = copy.deepcopy(truncation)
+    bad["results"]["cases"][1]["coverage"] = 1.0
+    with pytest.raises(ValueError, match="coverage"):
+        artifacts.validate_artifact(bad)
+
+
+def test_artifact_model_literals_match_problem():
+    from neutron_qae.problem import MODELS
+
+    assert artifacts.CROSS_SECTION_MODELS == tuple(MODELS)

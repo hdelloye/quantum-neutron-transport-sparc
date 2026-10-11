@@ -1,0 +1,245 @@
+{
+ "kind": "truncation_bias",
+ "notes": [
+  "within(0) and within(1) are checked against T0 and T1; the full transmission includes all collision orders, so T_full - T1 is the truncation bias of the K = 1 estimand that both the lattice MC and the circuit compute",
+  "under the transport-corrected model K = 1 covers about 99.7% of the 10 cm transmission; isotropic_raw is shown only to disclose model dependence",
+  "one-group physics: the remaining model error against ENDF angular distributions is a separate limitation",
+  "bias_se = T_full_se (T1 is exact); coverage = T1 / T_full; thicker walls keep 2.0 cm W and add steel with the 10 cm lateral extent unchanged",
+  "sampling complexity only: this table quantifies an approximation and makes no speedup claim"
+ ],
+ "parameters": {
+  "cases": [
+   {
+    "model": "transport_corrected",
+    "width_cm": 6.0
+   },
+   {
+    "model": "transport_corrected",
+    "width_cm": 10.0
+   },
+   {
+    "model": "transport_corrected",
+    "width_cm": 15.0
+   },
+   {
+    "model": "transport_corrected",
+    "width_cm": 20.0
+   },
+   {
+    "model": "transport_corrected",
+    "width_cm": 30.0
+   },
+   {
+    "model": "isotropic_raw",
+    "width_cm": 10.0
+   }
+  ],
+  "engine": "mc_continuous.run_continuous (Woodcock delta tracking, all collision orders, max_order 8)",
+  "histories_per_case": 20000000,
+  "reference": "exact.transmission_within(build_kernels(spec), K) for K = 0, 1",
+  "seeding": "children = SeedSequence(seed).spawn(6) in case order; run_continuous(spec, n, children[i])"
+ },
+ "profile": "full",
+ "provenance": {
+  "argv": [
+   "--seed",
+   "2026"
+  ],
+  "created_utc": "2026-10-11T15:51:38Z",
+  "git_dirty": false,
+  "git_head": "30e60a933cb7ebceec91e85282567a94debe11d2",
+  "platform": "macOS-14.4-arm64-arm-64bit-Mach-O",
+  "script": "scripts/sweep_truncation.py",
+  "seed": 2026,
+  "timings_s": {
+   "isotropic_raw_10cm": 2.81,
+   "total": 11.45,
+   "transport_corrected_10cm": 1.8,
+   "transport_corrected_15cm": 1.68,
+   "transport_corrected_20cm": 1.58,
+   "transport_corrected_30cm": 1.49,
+   "transport_corrected_6cm": 1.96
+  },
+  "versions": {
+   "matplotlib": "3.11.2",
+   "numpy": "2.5.3",
+   "python": "3.14.8",
+   "qiskit": "2.5.2",
+   "qiskit_aer": "0.17.2"
+  }
+ },
+ "results": {
+  "cases": [
+   {
+    "T0": 0.4063402314890775,
+    "T1": 0.4193933249935947,
+    "T_full": 0.4198737,
+    "T_full_se": 0.00011035845596244765,
+    "bias": 0.00048037500640529807,
+    "bias_se": 0.00011035845596244765,
+    "bias_z": 4.352860886063485,
+    "coverage": 0.998855905939321,
+    "model": "transport_corrected",
+    "order_fractions": [
+     0.40617225,
+     0.01303825,
+     0.0006313,
+     3.01e-05,
+     1.7e-06,
+     5e-08,
+     5e-08,
+     0.0,
+     0.0,
+     0.0
+    ],
+    "width_cm": 6.0,
+    "within0": 0.40617225,
+    "within0_se": 0.00010981720114124598,
+    "within1": 0.4192105,
+    "within1_se": 0.00011033427769504589
+   },
+   {
+    "T0": 0.23256718303628812,
+    "T1": 0.24300446519524305,
+    "T_full": 0.24376765,
+    "T_full_se": 9.600650572057017e-05,
+    "bias": 0.0007631848047569556,
+    "bias_se": 9.600650572057017e-05,
+    "bias_z": 7.949303008467238,
+    "coverage": 0.9968692121175351,
+    "model": "transport_corrected",
+    "order_fractions": [
+     0.2326381,
+     0.01042955,
+     0.0006573,
+     3.97e-05,
+     2.95e-06,
+     5e-08,
+     0.0,
+     0.0,
+     0.0,
+     0.0
+    ],
+    "width_cm": 10.0,
+    "within0": 0.2326381,
+    "within0_se": 9.4476879295516e-05,
+    "within1": 0.24306765,
+    "within1_se": 9.59129207988886e-05
+   },
+   {
+    "T0": 0.11577684047429372,
+    "T1": 0.12223504133419823,
+    "T_full": 0.1227673,
+    "T_full_se": 7.33810227683936e-05,
+    "bias": 0.0005322586658017686,
+    "bias_se": 7.33810227683936e-05,
+    "bias_z": 7.253355782212143,
+    "coverage": 0.9956644915559618,
+    "model": "transport_corrected",
+    "order_fractions": [
+     0.11580655,
+     0.0064339,
+     0.0004894,
+     3.44e-05,
+     2.85e-06,
+     1.5e-07,
+     5e-08,
+     0.0,
+     0.0,
+     0.0
+    ],
+    "width_cm": 15.0,
+    "within0": 0.11580655,
+    "within0_se": 7.15525656343284e-05,
+    "within1": 0.12224045,
+    "within1_se": 7.324538292063107e-05
+   },
+   {
+    "T0": 0.0576361488977512,
+    "T1": 0.061309742321433956,
+    "T_full": 0.0616134,
+    "T_full_se": 5.376671318782653e-05,
+    "bias": 0.0003036576785660425,
+    "bias_se": 5.376671318782653e-05,
+    "bias_z": 5.647689073074946,
+    "coverage": 0.995071564325844,
+    "model": "transport_corrected",
+    "order_fractions": [
+     0.0575786,
+     0.00369535,
+     0.00031205,
+     2.54e-05,
+     1.65e-06,
+     2.5e-07,
+     1e-07,
+     0.0,
+     0.0,
+     0.0
+    ],
+    "width_cm": 20.0,
+    "within0": 0.0575786,
+    "within0_se": 5.2088052767424504e-05,
+    "within1": 0.06127395,
+    "within1_se": 5.362809573879978e-05
+   },
+   {
+    "T0": 0.014283724884974052,
+    "T1": 0.015357009927624477,
+    "T_full": 0.01552645,
+    "T_full_se": 2.7645414945698953e-05,
+    "bias": 0.00016944007237552385,
+    "bias_se": 2.7645414945698953e-05,
+    "bias_z": 6.12904789847928,
+    "coverage": 0.9890870049254321,
+    "model": "transport_corrected",
+    "order_fractions": [
+     0.0143496,
+     0.0010641,
+     0.0001019,
+     1.035e-05,
+     4.5e-07,
+     5e-08,
+     0.0,
+     0.0,
+     0.0,
+     0.0
+    ],
+    "width_cm": 30.0,
+    "within0": 0.0143496,
+    "within0_se": 2.6592939833572368e-05,
+    "within1": 0.0154137,
+    "within1_se": 2.7546431576803195e-05
+   },
+   {
+    "T0": 0.08674615049972412,
+    "T1": 0.11006367028977174,
+    "T_full": 0.12246925,
+    "T_full_se": 7.33043425741059e-05,
+    "bias": 0.012405579710228265,
+    "bias_se": 7.33043425741059e-05,
+    "bias_z": 169.23389903793264,
+    "coverage": 0.898704534320017,
+    "model": "isotropic_raw",
+    "order_fractions": [
+     0.08676145,
+     0.02338735,
+     0.00826375,
+     0.0027629,
+     0.00089065,
+     0.0002801,
+     8.41e-05,
+     2.795e-05,
+     7.15e-06,
+     3.85e-06
+    ],
+    "width_cm": 10.0,
+    "within0": 0.08676145,
+    "within0_se": 6.294199742377799e-05,
+    "within1": 0.1101488,
+    "within1_se": 7.000572900076107e-05
+   }
+  ]
+ },
+ "schema": "neutron_qae.artifact",
+ "schema_version": 1
+}
