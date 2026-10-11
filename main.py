@@ -82,7 +82,11 @@ def _check_inputs(mode, k, shots, ideal_mode, model):
     if mode in ("quick", "qae"):
         if ideal_mode == "kwarg":
             raise ValueError("ideal_mode 'kwarg' gives round(p shots) counts on IonQ, never samples; "
-                             "use 'set_options' or 'none'")
+                             "use 'set_options'")
+        if ideal_mode == "none":
+            raise ValueError("ideal_mode 'none' is refused in quick and qae modes (Phase 4 review CR-01): IonQ "
+                             "noise-model counts are round(p shots) values that do not sum to shots, so the "
+                             "run's record would be lost; use 'set_options'")
         ideal_mode = _as_choice("ideal_mode", ideal_mode, runners.IONQ_IDEAL_MODES)
     else:
         ideal_mode = _as_choice("ideal_mode", ideal_mode, IDEAL_MODES)
@@ -128,26 +132,35 @@ def _contract(problem):
 def _ionq_summary(t1):
     """IonQ-only MLAE estimate from data/ionq_runs.json: a dict, None, or {"error": ...}."""
     models = ("Q1", "Q1lite")                       # both have flag probability T1
-    try:
+    try:                                            # WR-02: hand-pasted, untrusted JSON on the judged path
         records = runners.load_ionq_records()
         res = runners.ionq_estimate(records, models)
-    except (ValueError, OSError) as exc:
-        return {"error": str(exc)}
-    if res is None:
-        return None
-    used = sorted({rec["model"] for rec in records if rec["sampled"] and rec["model"] in models})
+        if res is None:
+            return None
+        used = sorted({rec["model"] for rec in records if rec["sampled"] and rec["model"] in models})
+    except (ValueError, OSError, OverflowError, RecursionError, TypeError, KeyError) as exc:
+        return {"error": f"{type(exc).__name__}: {exc}"}
+    z = (res.a_hat - t1) / res.se if res.se > 0 else None
+    if z is None:
+        caveat = "CAVEAT: execution proof only, not in any fit or claim; se unavailable"
+    else:
+        caveat = f"CAVEAT: execution proof only, not in any fit or claim; {abs(z):.1f} sigma from exact T1"
+        if abs(z) > 3:
+            caveat += "; the k >= 1 records deviate beyond shot noise, cause open (docs/QUANTUM.md)"
     return {"a_hat": res.a_hat, "abs_err": abs(res.a_hat - t1), "se": res.se, "n_A": res.n_A,
-            "ks": list(res.ks), "shots": list(res.shots), "hits": list(res.hits), "models": used}
+            "ks": list(res.ks), "shots": list(res.shots), "hits": list(res.hits), "models": used,
+            "z": z, "caveat": caveat}
 
 
 def _ionq_line(ionq):
-    """The single printed line for the IonQ records: none yet, invalid, or the estimate."""
+    """The single printed line for the IonQ records: none yet, invalid, or the estimate with its CAVEAT."""
     if ionq is None:
         return "IonQ records: none yet (data/ionq_runs.json has no sampled k = 0 record)"
     if "error" in ionq:
         return f"IonQ records: invalid ({ionq['error']})"
     return (f"IonQ Forte 1 records (ideal, sampled): k={ionq['ks']} -> a_hat={ionq['a_hat']:.6f}, "
-            f"|a_hat - T1|={ionq['abs_err']:.2e}, se={ionq['se']:.2e}, N_A={ionq['n_A']}")
+            f"|a_hat - T1|={ionq['abs_err']:.2e}, se={ionq['se']:.2e}, "
+            f"z={'n/a' if ionq['z'] is None else format(ionq['z'], '+.2f')}, N_A={ionq['n_A']}. {ionq['caveat']}")
 
 
 def _run_qae_builtin(be, model, shots):
@@ -264,17 +277,22 @@ def _run_quick(be, model, k, shots, ideal_mode):
     t0 = time.perf_counter()
     name = _backend_name(be)
     print(f"=== Neutron transport QAE quick mode (Phase 6) model={model} backend={name} ===", flush=True)
-    problem = oracle.make_problem(model)            # contract gate: raises unless |p - T_K| <= 1e-12
-    contract = _contract(problem)
-    records = runners.BackendRunner(be, problem).run(list(QUICK_SCHEDULE), shots)
-    res = mlae.estimate(records)
-    abs_err = abs(res.a_hat - problem.reference)
-    print(f"QUICK MLAE a_hat={res.a_hat:.6f} |a_hat - T{problem.K}|={abs_err:.2e} se={res.se:.2e} "
-          f"N_A={res.n_A} schedule={list(QUICK_SCHEDULE)} shots/power={shots} (live, {name})", flush=True)
-    live = {"model": model, "backend": name, "contract": contract, "schedule": list(QUICK_SCHEDULE),
-            "shots_per_power": shots, "hits": [r.hits for r in records], "a_hat": res.a_hat, "se": res.se,
-            "abs_err": abs_err, "reference": problem.reference, "n_A": res.n_A}
-    live_ok = True
+    if is_ionq(be):                                 # one bare circuit, one job (never raises on submission)
+        live = _run_qae_ionq(be, model, k, shots, ideal_mode)
+        live_ok = bool(live["accepted"])
+        problem = oracle.make_problem(model)
+    else:
+        problem = oracle.make_problem(model)        # contract gate: raises unless |p - T_K| <= 1e-12
+        contract = _contract(problem)
+        records = runners.BackendRunner(be, problem).run(list(QUICK_SCHEDULE), shots)
+        res = mlae.estimate(records)
+        abs_err = abs(res.a_hat - problem.reference)
+        print(f"QUICK MLAE a_hat={res.a_hat:.6f} |a_hat - T{problem.K}|={abs_err:.2e} se={res.se:.2e} "
+              f"N_A={res.n_A} schedule={list(QUICK_SCHEDULE)} shots/power={shots} (live, {name})", flush=True)
+        live = {"model": model, "backend": name, "contract": contract, "schedule": list(QUICK_SCHEDULE),
+                "shots_per_power": shots, "hits": [r.hits for r in records], "a_hat": res.a_hat, "se": res.se,
+                "abs_err": abs_err, "reference": problem.reference, "n_A": res.n_A}
+        live_ok = True
     t1 = problem.reference if problem.K == 1 else transmission_within(problem.kernels, 1)
     ionq = _ionq_summary(t1)
     print(_ionq_line(ionq), flush=True)

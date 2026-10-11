@@ -67,6 +67,10 @@ def test_main_qae_builtin_seeded(monkeypatch, capsys):
     assert lines[-1] == "QAE RUN COMPLETED"
     assert ("IonQ records: none yet" in out) == (committed is None)
     assert ("IonQ Forte 1 records (ideal, sampled): k=" in out) == (committed is not None)
+    if committed is not None:                     # the caveat is on the same printed line as the estimate
+        ion = [ln for ln in lines if ln.startswith("IonQ Forte 1 records")]
+        assert len(ion) == 1 and "CAVEAT:" in ion[0] and "6.4 sigma" in ion[0] and "z=-6.38" in ion[0], ion
+        assert "z" in qae["ionq_records"] and "caveat" in qae["ionq_records"]
 
 
 def test_main_qae_ionq_sends_one_bare_circuit(monkeypatch, capsys):
@@ -97,18 +101,14 @@ def _record_line(lines):
     return validate_ionq_record(json.loads(rec_lines[0].split("=", 1)[1]))
 
 
-def test_ionq_noisy_record_is_unsampled(monkeypatch, capsys):
+@pytest.mark.parametrize("mode", ["qae", "quick"])
+def test_noisy_ideal_mode_is_refused_before_any_job(monkeypatch, mode):
+    """CR-01 (PD-34): noise-model counts are round(p shots) values that do not sum to shots."""
     fake = FakeIonQSimulator()
-    fake.set_options(seed_simulator=5)
     entry = _entry(monkeypatch, fake)
-    report = entry.main("qae", 0, 300, "none", "Q1")          # Qollab passes form values positionally
-    out, lines, _ = _lines(capsys, "")
-    rec = _record_line(lines)
-    assert len(fake.calls) == 1
-    assert rec["sampled"] is False and rec["noise_model"] == "forte-1" and rec["ideal_mode"] == "none"
-    assert report["ionq"]["accepted"] is True
-    assert not any(ln.startswith("MLAE") for ln in lines), out
-    assert lines[-1] == "IONQ RUN ACCEPTED"
+    with pytest.raises(ValueError, match="CR-01"):
+        entry.main(mode, 0, 300, "none", "Q1")              # Qollab passes form values positionally
+    assert fake.calls == []
 
 
 def test_ionq_k0_prints_single_record_estimate(monkeypatch, capsys):
@@ -142,6 +142,7 @@ def test_ionq_q1lite_record(monkeypatch, capsys):
     {"k": -1}, {"k": 9}, {"k": True}, {"k": 1.5}, {"k": "1"}, {"k": None},
     {"shots": 1}, {"shots": 10_001}, {"shots": False}, {"shots": 100.5},
     {"ideal_mode": "kwarg"}, {"ideal_mode": "bogus"}, {"ideal_mode": None},
+    {"ideal_mode": "none"}, {"mode": "qae", "ideal_mode": "none"},
     {"mode": "smoke", "ideal_mode": "bogus"}, {"mode": "smoke", "shots": 0},
 ], ids=lambda kw: ",".join(f"{k}={v!r}" for k, v in kw.items()))
 def test_invalid_form_values_send_no_job(monkeypatch, kwargs):
@@ -202,6 +203,11 @@ def test_builtin_prints_ionq_estimate_when_records_exist(monkeypatch, capsys, tm
     assert abs(ionq["abs_err"] - abs(ionq["a_hat"] - make_problem("Q1").reference)) < 1e-15
     out = capsys.readouterr().out
     assert "IonQ Forte 1 records (ideal, sampled): k=[0, 1, 2] -> a_hat=" in out and "N_A=9000" in out
+    res = runners.ionq_estimate(runners.load_ionq_records(runs))
+    z = (res.a_hat - make_problem("Q1").reference) / res.se
+    ion = [ln for ln in out.splitlines() if ln.startswith("IonQ Forte 1 records")]
+    assert len(ion) == 1 and "CAVEAT:" in ion[0] and f"{abs(z):.1f} sigma" in ion[0], ion
+    assert ("beyond shot noise" in ion[0]) == (abs(z) > 3), ion
     assert out.splitlines()[-1] == "QAE RUN COMPLETED"
 
 
@@ -217,3 +223,23 @@ def test_builtin_survives_corrupt_records_file(monkeypatch, capsys, tmp_path):
     out = capsys.readouterr().out
     assert "IonQ records: invalid (" in out
     assert out.splitlines()[-1] == "QAE RUN COMPLETED"
+
+
+@pytest.mark.parametrize("exc", [OverflowError("int too large"), RecursionError("maximum recursion depth"),
+                                 TypeError("bad type"), KeyError("hits"), "deep-file"],
+                         ids=["overflow", "recursion", "type", "key", "deep-file"])
+def test_ionq_summary_survives_malformed_records(monkeypatch, tmp_path, exc):
+    """WR-02: a malformed data/ionq_runs.json never crashes the judged path."""
+    monkeypatch.chdir(ROOT)
+    import main as entry
+    if exc == "deep-file":
+        runs = tmp_path / "ionq_runs.json"
+        runs.write_text("[" * 200_000 + "]" * 200_000, encoding="utf-8")
+        monkeypatch.setattr(runners, "IONQ_RUNS_FILE", str(runs))
+    else:
+        def boom(path=None):
+            raise exc
+        monkeypatch.setattr(runners, "load_ionq_records", boom)
+    out = entry._ionq_summary(make_problem("Q1").reference)
+    assert isinstance(out, dict) and "error" in out, out
+    assert entry._ionq_line(out).startswith("IonQ records: invalid (")
