@@ -1,0 +1,141 @@
+{
+ "kind": "exit_histograms",
+ "notes": [
+  "the quantum histogram samples A directly (k = 0); like the classical one it converges as 1/sqrt(N): it validates that the circuit encodes the same physics and is not speedup evidence",
+  "agreement is judged by chi-square sums over 17 categories; per-row z-scores are not used",
+  "both samples go through the same mc_lattice.sample_exit_rows: the lattice engine's 11-bit strings and the Q1 count keys (int(key, 2) & 0x7FF, key character 0 = flag qubit 11)",
+  "outside_support counts shots on zero-amplitude strings and flag_mismatch shots whose flag disagrees with the string's transmitted predicate; both are 0 for an ideal simulator",
+  "chi-square: two-sample sum (c - q)^2 / (c + q) for equal totals; goodness of fit sum (c - S p)^2 / (S p) against exact.exit_row_distribution_k1; acceptance bound dof + 5 sqrt(2 dof)",
+  "sampling complexity only: this figure makes no speedup or wall-clock claim"
+ ],
+ "parameters": {
+  "aer_seed_simulator": 1818751028,
+  "backend": "AerSimulator(method=statevector)",
+  "categories": "16 back-face rows + no back-face exit (17)",
+  "k": 0,
+  "model": "Q1",
+  "rows": 16,
+  "seeding": "root = SeedSequence(seed); classical, rows, aer = root.spawn(3); classical = run_lattice(kernels, S, classical); quantum rows = sample_exit_rows(kernels, strings, rows) with the Aer count keys sorted ascending and expanded by np.repeat; seed_simulator = aer.generate_state(1, uint32)[0]",
+  "shots": 1000000,
+  "width_x_cm": 10.0
+ },
+ "profile": "full",
+ "provenance": {
+  "argv": [
+   "--seed",
+   "2026"
+  ],
+  "created_utc": "2026-10-11T09:06:35Z",
+  "git_dirty": false,
+  "git_head": "e89456685d309b4d35b7cda1ebdc764ad5e532eb",
+  "platform": "macOS-14.4-arm64-arm-64bit-Mach-O",
+  "script": "scripts/sweep_histograms.py",
+  "seed": 2026,
+  "timings_s": {
+   "classical": 0.05,
+   "make_problem": 0.05,
+   "quantum": 1.12,
+   "total": 1.25
+  },
+  "versions": {
+   "matplotlib": "3.11.2",
+   "numpy": "2.5.3",
+   "python": "3.14.8",
+   "qiskit": "2.5.2",
+   "qiskit_aer": "0.17.2"
+  }
+ },
+ "results": {
+  "chi2": {
+   "classical_vs_exact": {
+    "bound": 44.2842712474619,
+    "dof": 16,
+    "value": 17.008913069763647
+   },
+   "classical_vs_quantum": {
+    "bound": 44.2842712474619,
+    "dof": 16,
+    "value": 16.458128692783248
+   },
+   "quantum_vs_exact": {
+    "bound": 44.2842712474619,
+    "dof": 16,
+    "value": 13.142579459139656
+   }
+  },
+  "classical": {
+   "no_back_exit": 756877,
+   "row_counts": [
+    263,
+    322,
+    391,
+    447,
+    611,
+    712,
+    944,
+    1501,
+    234235,
+    1015,
+    737,
+    530,
+    458,
+    354,
+    318,
+    285
+   ],
+   "shots": 1000000,
+   "transmitted": 243123
+  },
+  "exact": {
+   "T1": 0.24300446519524305,
+   "no_back_exit_probability": 0.756995534804757,
+   "row_probabilities": [
+    0.00026223540158584876,
+    0.00031581172218764225,
+    0.00038169911974747923,
+    0.00046497540494492,
+    0.0005727574995308835,
+    0.0007231585838618596,
+    0.0009517343111842207,
+    0.0015462690364346162,
+    0.23411345207272274,
+    0.0009517343111842208,
+    0.0007231585838618597,
+    0.0005727574995308836,
+    0.00046497540494492006,
+    0.00038169911974747934,
+    0.00031581172218764225,
+    0.00026223540158584887
+   ]
+  },
+  "label": "circuit validation, not speedup evidence",
+  "quantum": {
+   "distinct_strings": 727,
+   "flag_hits": 242507,
+   "flag_mismatch": 0,
+   "no_back_exit": 757493,
+   "outside_support": 0,
+   "row_counts": [
+    267,
+    295,
+    382,
+    446,
+    573,
+    756,
+    931,
+    1599,
+    233567,
+    976,
+    709,
+    564,
+    488,
+    375,
+    338,
+    241
+   ],
+   "shots": 1000000
+  }
+ },
+ "schema": "neutron_qae.artifact",
+ "schema_version": 1
+}
