@@ -3,17 +3,17 @@ gsd_state_version: "1.0"
 milestone: v0.0
 current_phase: 04
 current_phase_name: Quantum Oracle & Amplitude Estimation
-status: executing
-stopped_at: Completed 04-03-PLAN.md
-last_updated: "2026-10-11T04:31:42.283Z"
+status: verifying
+stopped_at: Completed 04-04-PLAN.md
+last_updated: "2026-10-11T06:34:40.400Z"
 last_activity: 2026-10-10
 last_activity_desc: Phase 04 execution started
-state_head: 7b094c75b1f537dd43efda2f750c8662f0db76b1
+state_head: 8350ae9e27a8b440d845b167001e8e8988aa2604
 progress:
   total_phases: 6
   completed_phases: 2
   total_plans: 12
-  completed_plans: 11
+  completed_plans: 12
 ---
 
 # Project State
@@ -29,7 +29,7 @@ See: .planning/PROJECT.md (updated 2026-10-10)
 
 Phase: 04 (Quantum Oracle & Amplitude Estimation) — EXECUTING
 Plan: 4 of 4
-Status: Ready to execute
+Status: Phase complete — ready for verification
 Last activity: 2026-10-10 — Phase 04 execution started
 
 Progress: [███░░░░░░░] 33%
@@ -68,6 +68,7 @@ Progress: [███░░░░░░░] 33%
 | Phase 04 P01 | 6 min | 3 tasks | 4 files |
 | Phase 04 P02 | 14min | 3 tasks | 5 files |
 | Phase 04 P03 | 14min | 3 tasks | 12 files |
+| Phase 04 P04 | 121min | 3 tasks | 7 files |
 
 ## Accumulated Context
 
@@ -118,6 +119,9 @@ Recent decisions affecting current work:
 - [Phase 04]: PD-23: form values validated with ValueError before any job (mode, model, k 0..8, shots 2..10000, ideal_mode none|set_options in qae); bools/non-integral rejected, integral floats accepted
 - [Phase 04]: PD-21: IonQ size ladder k=0 (31 KB), k=1 (169 KB), k=2 (306 KB); on 'Circuit size is too large' re-run that k with model=Q1lite
 - [Phase 04]: Phase 1 tracer is now scripts/run_local.py --mode smoke; IonQ records flow paste -> scripts/ingest_ionq_records.py -> data/ionq_runs.json
+- [Phase 04]: IonQ execution proof accepted with a documented discrepancy (Hippolyte: accept (a)): Q1 A·Q^k runs on Qollab IonQ Forte 1 and mlae.estimate accepts the counts (SC4 Qollab half met); the IonQ-only estimate misses 4 sigma (a=0.228671, z=-6.38, N_A=9000), cause open; strict xfail keyed to KNOWN_4SIGMA_MISS, tolerance unchanged
+- [Phase 04]: One circuit per Run IonQ protocol validated end to end on Qollab (R1-R3 k=0,1,2 accepted, records ingested verbatim); A-P1 confirmed: Pyodide runs the Q1 QAE in the browser (R0 a_hat 0.242072, N_A 18000, 1.412 s)
+- [Phase 04]: Qollab IonQ request-body limit is above 307 KB (306,656 B Q1 k=2 accepted; only a lower bound); Q1lite fallback never needed
 
 ### Pending Todos
 
@@ -133,6 +137,7 @@ Recent decisions affecting current work:
 - [Deadline]: v0 publish target (~Oct 10 7:00 PM ET) PASSED without a v0 publish of the real project (the Phase 1 smoke test v1.0 is what is live on Qollab, possibly unpublished); flip the repo public and publish v0 as soon as Phase 3/4 have something green; IonQ cloud runs before ~hour 36 (Oct 11 ~7:00 AM ET); final by Oct 11 7:00 PM ET.
 - [Phase 4]: Qollab IonQ runs carry exactly ONE circuit (ionq.circuit.v1 only + one job per Run). MLAE as one multi-circuit job is impossible on Qollab IonQ; redesign the IonQ path (one Run per Grover power, or a single A Q^k execution proof with the MLAE curve from local/Built-in runs). See docs/QOLLAB-RUNTIME.md
 - [Phase 1]: Anonymous (logged-out) IonQ jobs are refused by Qollab ('credits apply, sign in') despite anon_enabled true; logged-out judges can run only the Built-in simulator path
+- [Phase 6]: IonQ-only estimate is 6.4 sigma off T1 (z=-6.38; k=1,2 deviate from the exact circuit beyond shot noise) - a caveat is required wherever it is displayed (main.py Built-in path, README, docs); cause open. Re-upload the 8350ae9 bundle and publish (project still Draft).
 
 ## Deferred Items
 
@@ -144,6 +149,6 @@ Items acknowledged and deferred at milestone close, most recent first:
 
 ## Session Continuity
 
-Last session: 2026-10-11T04:31:42.257Z
-Stopped at: Completed 04-03-PLAN.md
+Last session: 2026-10-11T06:34:34.701Z
+Stopped at: Completed 04-04-PLAN.md
 Resume file: None
