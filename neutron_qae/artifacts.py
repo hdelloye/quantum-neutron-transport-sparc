@@ -572,3 +572,70 @@ def png_dimensions(path) -> tuple[int, int]:
         raise ValueError(f"{path} is not a PNG file with an IHDR chunk")
     width, height = struct.unpack(">II", head[16:24])
     return int(width), int(height)
+
+
+# ---------------------------------------------------------------- Markdown formatters (PD-32)
+#
+# Docs are generated from data: docs/RESULTS.md and README.md embed the exact text these functions
+# return for the committed JSON, and tests/test_results_doc.py fails on any drift. Stdlib only and
+# matplotlib-free, so main.py can print the same tables on Qollab. No trailing newline.
+
+_SERIES_TITLE = {"classical_lattice": "Classical lattice MC", "mlae_analytic": "MLAE, analytic runner",
+                 "mlae_aer": "MLAE, Aer circuit simulation"}
+
+
+def _table(header, rows) -> str:
+    lines = ["| " + " | ".join(header) + " |", "|" + "|".join("---" for _ in header) + "|"]
+    lines += ["| " + " | ".join(row) + " |" for row in rows]
+    return "\n".join(lines)
+
+
+def _format_scaling(doc) -> str:
+    p, r = doc["parameters"], doc["results"]
+    rows = []
+    for name in ("classical_lattice", "mlae_analytic", "mlae_aer"):
+        s = r["series"].get(name)
+        if s is None:
+            continue
+        fit = s["fit"]
+        rows.append([_SERIES_TITLE[name], s["cost_unit"], str(fit["points"]),
+                     f"{fit['cost_min']:,} to {fit['cost_max']:,}", f"{fit['slope']:.3f}", f"{fit['slope_se']:.3f}"])
+    parts = [_table(["Series", "Cost unit", "Points fitted", "Cost range fitted", "Fitted slope", "Slope SE"], rows)]
+    m = r["ionq_marker"]
+    if m is not None:
+        source = m["label"].split(",")[0]
+        parts.append(f"{source} marker (execution proof, not in any fit): N_A = {m['n_A']:,}, "
+                     f"|a_hat - T1| = {m['abs_err']:.2e}, z = {m['z']:.2f}")
+    parts.append(f"Repetitions per point: {p['repetitions']}; seed {doc['provenance']['seed']}; "
+                 f"{p['shots_per_power']} shots per Grover power; exact T1 = {p['reference_T1']!r}.")
+    return "\n\n".join(parts)
+
+
+_FORMATTERS = {"scaling_rmse": _format_scaling}
+
+
+def format_markdown(doc) -> str:
+    """Markdown table(s) for a validated artifact; the text docs/RESULTS.md embeds verbatim."""
+    validate_artifact(doc)
+    kind = doc["kind"]
+    if kind not in _FORMATTERS:
+        raise ValueError(f"kind: no Markdown formatter for {kind!r}")
+    return _FORMATTERS[kind](doc)
+
+
+def headline_sentence(doc) -> str:
+    """One sentence with the fitted slopes (+- SE) of the scaling_rmse series, built from the JSON."""
+    validate_artifact(doc)
+    if doc["kind"] != "scaling_rmse":
+        raise ValueError(f"kind: headline_sentence needs 'scaling_rmse', got {doc['kind']!r}")
+    p, series = doc["parameters"], doc["results"]["series"]
+    parts = []
+    c = series["classical_lattice"]["fit"]
+    parts.append(f"{c['slope']:.2f} +- {c['slope_se']:.2f} (classical lattice MC, {c['points']} points)")
+    for name, m_max in (("mlae_analytic", p["mlae_M_max"]), ("mlae_aer", p["aer_M_max"])):
+        s = series.get(name)
+        if s is None:
+            continue
+        f = s["fit"]
+        parts.append(f"{f['slope']:.2f} +- {f['slope_se']:.2f} ({_SERIES_TITLE[name]}, M = {p['fit_min_M']}..{m_max})")
+    return "Fitted slopes: " + ", ".join(parts) + "."
