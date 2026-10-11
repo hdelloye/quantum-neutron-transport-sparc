@@ -23,16 +23,20 @@ import numbers
 from qiskit import ClassicalRegister, QuantumCircuit, transpile
 from qiskit.circuit.library import grover_operator
 
-from neutron_qae.oracle import MAX_QUBITS
+from neutron_qae.oracle import MAX_QUBITS, MODELS, make_problem
 
 __all__ = [
     "ALLOWED_OPS",
     "BASIS",
     "MAX_CONTROLS",
     "TRANSPILE_SEED",
+    "check_ionq_safe",
+    "format_resource_table",
     "grover",
     "max_controls",
     "power_circuit",
+    "resource_table",
+    "resources",
     "transpile_once",
 ]
 
@@ -90,3 +94,48 @@ def transpile_once(c: QuantumCircuit, seed: int = TRANSPILE_SEED) -> QuantumCirc
 def max_controls(c: QuantumCircuit) -> int:
     """Largest num_ctrl_qubits over the circuit's instructions (0 for an empty circuit)."""
     return max((int(getattr(i.operation, "num_ctrl_qubits", 0) or 0) for i in c.data), default=0)
+
+
+def check_ionq_safe(tc: QuantumCircuit) -> QuantumCircuit:
+    """Raise ValueError unless tc fits 24 qubits, has at most 7 controls per gate and only ALLOWED_OPS."""
+    problems = []
+    if tc.num_qubits > MAX_QUBITS:
+        problems.append(f"{tc.num_qubits} qubits exceed the {MAX_QUBITS}-qubit budget")
+    mc = max_controls(tc)
+    if mc > MAX_CONTROLS:
+        problems.append(f"a gate has {mc} controls (IonQ allows at most {MAX_CONTROLS})")
+    bad = sorted(set(tc.count_ops()) - ALLOWED_OPS)
+    if bad:
+        problems.append(f"ops outside the transpile-once basis: {', '.join(bad)}")
+    if problems:
+        raise ValueError(f"{tc.name} is not IonQ-safe: " + "; ".join(problems))
+    return tc
+
+
+def resources(tc: QuantumCircuit) -> dict:
+    """Qubits, CX count, depth, size and max controls of a transpiled circuit."""
+    ops = tc.count_ops()
+    return {"qubits": tc.num_qubits, "cx": int(ops.get("cx", 0)), "depth": tc.depth(), "size": tc.size(),
+            "max_controls": max_controls(tc)}
+
+
+def resource_table(kernels=None, models=MODELS, ks=(0, 1, 2), seed: int = TRANSPILE_SEED) -> list[dict]:
+    """One row per (model, k): resources of transpile_once(power_circuit(A, flag, k, measure="none"))."""
+    rows = []
+    for model in models:
+        pr = make_problem(model, kernels)
+        for k in ks:
+            tc = transpile_once(power_circuit(pr.A, pr.flag, k, measure="none"), seed)
+            rows.append({"model": model, "k": int(k), **resources(tc)})
+    return rows
+
+
+def format_resource_table(rows: list[dict]) -> str:
+    """Markdown table of resource_table rows (plain integers, no thousands separators)."""
+    lines = ["| Model | Circuit | Qubits | CX | Depth | Size | Max controls |",
+             "|---|---|---|---|---|---|---|"]
+    for r in rows:
+        circuit = "A" if r["k"] == 0 else f"A·Q^{r['k']}"
+        lines.append(f"| {r['model']} | {circuit} | {r['qubits']} | {r['cx']} | {r['depth']} | {r['size']} "
+                     f"| {r['max_controls']} |")
+    return "\n".join(lines)

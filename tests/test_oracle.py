@@ -7,12 +7,12 @@ from pathlib import Path
 import numpy as np
 import pytest
 from qiskit.quantum_info import Operator, Statevector, state_fidelity
+from random_doubles import foreign_imports
 
 from neutron_qae.exact import bitstring_probabilities_k1, transmission_within
 from neutron_qae.kernels import BACK, build_kernels
 from neutron_qae.oracle import MODELS, ContractError, check_contract, make_problem
 from neutron_qae.problem import sparc_first_wall
-from random_doubles import foreign_imports
 
 ROOT = Path(__file__).resolve().parents[1]
 K = build_kernels(sparc_first_wall())
@@ -66,7 +66,7 @@ def test_q1_bitstring_probabilities_match_enumeration(q1, q1_probs):
     assert mismatches == 0
     # x = 16 (uncollided) takes column 0's rotations and is always flagged
     s16 = 16 | (3 << 6)
-    p16 = dict((s, p) for s, p, _ in ent)[s16]
+    p16 = {s: p for s, p, _ in ent}[s16]
     assert p16 > 0
     assert abs(q1_probs[s16 | on] - p16) <= 1e-13
     assert q1_probs[s16] <= 1e-14
