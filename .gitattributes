@@ -5,6 +5,7 @@
 tests/ export-ignore
 scripts/ export-ignore
 docs/ export-ignore
+HANDOFF.md export-ignore
 pyproject.toml export-ignore
 .gitignore export-ignore
 .gitattributes export-ignore

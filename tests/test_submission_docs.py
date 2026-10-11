@@ -183,3 +183,43 @@ def test_criteria_sections_non_empty():
     for heading in ("### Novelty", "### Technical execution", "### Impact", "### Documentation"):
         body = _section(text, heading)
         assert sum(1 for line in body.splitlines() if line.strip()) >= 2, f"{heading} is too thin"
+
+
+HANDOFF_SECTIONS = ("## Module owners", "## Run the tests", "## The frozen Kernels contract",
+                    "## Qollab rules", "## What is left")
+
+
+def _handoff() -> str:
+    assert HANDOFF.is_file(), "HANDOFF.md is missing"
+    return HANDOFF.read_text(encoding="utf-8")
+
+
+def test_handoff_sections_and_owners():
+    text = _handoff()
+    for heading in HANDOFF_SECTIONS:
+        _section(text, heading, "HANDOFF.md")
+    owners = _section(text, "## Module owners", "HANDOFF.md")
+    modules = ["main.py"] + [f"neutron_qae/{p.name}" for p in sorted((ROOT / "neutron_qae").glob("*.py"))
+                             if p.name != "__init__.py"]
+    missing = [m for m in modules if m not in owners]
+    assert not missing, f"HANDOFF.md names no owner for {missing}"
+
+
+def test_handoff_commands_and_contract():
+    text = _handoff()
+    for needle in ("NEUTRON_QAE_SLOW=1", "scripts/freeze_kernels.py", "--write --force", "KERNELS_CONTRACT_VERSION",
+                   "tests/golden/kernels_v1.json", "render_figures.py --check"):
+        assert needle in text, f"HANDOFF.md is missing {needle!r}"
+
+
+def test_handoff_what_is_left():
+    body = _section(_handoff(), "## What is left", "HANDOFF.md")
+    for needle in ("collaborator", "discrepancy", "CR-01", "WR-02", "K = 2", "front end"):
+        assert needle in body, f"## What is left is missing {needle!r}"
+
+
+def test_handoff_not_shipped():
+    import compliance_checks as cc
+    attrs = (ROOT / ".gitattributes").read_text(encoding="utf-8").splitlines()
+    assert "HANDOFF.md export-ignore" in attrs
+    assert "HANDOFF.md" not in cc.qollab_upload_files(ROOT)
