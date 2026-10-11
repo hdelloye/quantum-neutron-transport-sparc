@@ -3,17 +3,18 @@ gsd_state_version: "1.0"
 milestone: v0.0
 current_phase: 6
 current_phase_name: Submission, Documentation & Handoff
+current_plan: 3
 status: executing
-stopped_at: Completed 06-01-PLAN.md
-last_updated: "2026-10-11T17:49:55.783Z"
+stopped_at: Completed 06-02-PLAN.md
+last_updated: "2026-10-11T18:01:15.501Z"
 last_activity: 2026-10-11
 last_activity_desc: Completed 06-01-PLAN.md
-state_head: f98982419a2f658d1ed1b413aee21791cd510e93
+state_head: c528b846e80729079ea6301e3a88fc7a22408ea5
 progress:
   total_phases: 6
   completed_phases: 4
   total_plans: 18
-  completed_plans: 16
+  completed_plans: 17
 ---
 
 # Project State
@@ -28,7 +29,7 @@ See: .planning/PROJECT.md (updated 2026-10-10)
 ## Current Position
 
 Phase: 6 (Submission, Documentation & Handoff) — EXECUTING
-Current Plan: 2
+Current Plan: 3
 Total Plans in Phase: 3
 Status: Executing — 06-01 complete (quick mode default, IonQ caveat, WR-02, CR-01); next 06-02 README/HANDOFF
 Last activity: 2026-10-11 — Completed 06-01-PLAN.md
@@ -76,6 +77,7 @@ Progress: [███████░░░] 67%
 | Phase 05 P02 | 25 min | 3 tasks | 14 files |
 | Phase 05 P03 | 22min | 2 tasks | 4 files |
 | Phase 06 P01 | 15min | 3 tasks | 4 files |
+| Phase 06 P02 | 12min | 3 tasks | 7 files |
 
 ## Accumulated Context
 
@@ -142,6 +144,8 @@ Recent decisions affecting current work:
 - [Phase 06]: PD-33 (costly): quick mode is main()'s default (contract, live MLAE k=0,1,2, four figures, QUICK MODE OK)
 - [Phase 06]: PD-34: CR-01 closed in main.py by refusing ideal_mode 'none' in quick and qae modes; noisy IonQ runs are a HANDOFF item
 - [Phase 06]: PD-35: quick figures shown via plt.savefig(FIGURE_DIR/name); FIGURE_DIR '' on Qollab; main.py never selects a matplotlib backend
+- [Phase 06]: PD-36: HANDOFF.md export-ignored (GitHub only); Qollab bundle stays the 30-file manifest; README docs/ and HANDOFF.md links stay relative, GitHub URL named once at the top
+- [Phase 06]: 06-02: WR-03 fixed by labelling the verbatim generated slope +- values as fit scatter in a following sentence (formatter untouched); WR-04 MLAE cost law removed; WR-05 plateau = count saturation
 
 ### Pending Todos
 
@@ -171,6 +175,6 @@ Items acknowledged and deferred at milestone close, most recent first:
 
 ## Session Continuity
 
-Last session: 2026-10-11T17:49:55.744Z
-Stopped at: Completed 06-01-PLAN.md
+Last session: 2026-10-11T18:01:15.465Z
+Stopped at: Completed 06-02-PLAN.md
 Resume file: None

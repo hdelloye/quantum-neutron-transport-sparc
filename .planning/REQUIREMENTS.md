@@ -54,12 +54,12 @@ Requirements for the hackathon submission (deadline Oct 11 2026, 7:00 PM ET). Ea
 
 - [x] **DOCS-01**: `main.py` exposes a typed `main(...)` quick mode (small live MLAE run on the injected backend plus rendering of precomputed figures) that completes in the judge's browser
 - [ ] **DOCS-02**: A v0 is published on Qollab by roughly hour 24 and the final version before the deadline; final check from a logged-out browser
-- [ ] **DOCS-03**: README covers what it does, the problem, how to run (locally and on Qollab), replication steps, and a section per judging criterion (novelty, technical execution, impact, documentation)
-- [ ] **DOCS-04**: Prior-art section cites Olivier & Nowak (arXiv:2410.19489), Lee/Lee/Kim (PRD 111, 116001), Miao/Jin/Sone (arXiv:2607.10772) and states the narrowed novelty claim
-- [ ] **DOCS-05**: Limitations section states: one-group physics, K-collision truncation, ideal-simulator scaling plot, noise on IonQ simulators, no wall-clock speedup claim, sampling-complexity argument only
+- [x] **DOCS-03**: README covers what it does, the problem, how to run (locally and on Qollab), replication steps, and a section per judging criterion (novelty, technical execution, impact, documentation)
+- [x] **DOCS-04**: Prior-art section cites Olivier & Nowak (arXiv:2410.19489), Lee/Lee/Kim (PRD 111, 116001), Miao/Jin/Sone (arXiv:2607.10772) and states the narrowed novelty claim
+- [x] **DOCS-05**: Limitations section states: one-group physics, K-collision truncation, ideal-simulator scaling plot, noise on IonQ simulators, no wall-clock speedup claim, sampling-complexity argument only
 - [x] **DOCS-06**: Disclosure of all external libraries and AI tools used, with licenses, and confirmation the team may use them
 - [ ] **DOCS-07**: Short demo video and repo link attached to the Qollab project page, theme tag Quantum Impact
-- [ ] **DOCS-08**: HANDOFF.md describes module ownership, how to run tests, the frozen `Kernels` contract, and what is left to do, so teammates can continue from GitHub
+- [x] **DOCS-08**: HANDOFF.md describes module ownership, how to run tests, the frozen `Kernels` contract, and what is left to do, so teammates can continue from GitHub
 
 ## v2 Requirements
 
@@ -133,11 +133,11 @@ Which phases cover which requirements. Updated during roadmap creation.
 | ANLY-05 | Phase 5 | Complete |
 | DOCS-01 | Phase 6 | Complete |
 | DOCS-02 | Phase 6 | Pending |
-| DOCS-03 | Phase 6 | Pending |
-| DOCS-04 | Phase 6 | Pending |
-| DOCS-05 | Phase 6 | Pending |
+| DOCS-03 | Phase 6 | Complete |
+| DOCS-04 | Phase 6 | Complete |
+| DOCS-05 | Phase 6 | Complete |
 | DOCS-07 | Phase 6 | Pending |
-| DOCS-08 | Phase 6 | Pending |
+| DOCS-08 | Phase 6 | Complete |
 
 **Coverage:**
 - v1 requirements: 35 total
