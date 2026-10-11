@@ -141,7 +141,7 @@ Plans:
   4. Repeating the comparison for at least three slab thicknesses shows the classical-to-MLAE sample-count ratio growing as transmission falls.
   5. Sweep results and figures are committed as JSON/PNG files of at most 2 MB each, and the figures re-render from those files without rerunning the sweep.
 
-**Plans**: 2/3 plans executed
+**Plans**: 3/3 plans executed
 Plans:
 **Wave 1**
 - [x] 05-01-PLAN.md — Tracer (quick sweep -> validated data/scaling_rmse.json -> PNG rendered from the JSON -> literal paths reachable from main.py via one changed import line), full headline sweep (matched lattice MC vs analytic MLAE, Aer cross-check, R = 100, IonQ as one labelled marker never fitted), artifacts/analysis/figures modules, re-render script, edge gates (ANLY-01, ANLY-05)
@@ -150,7 +150,7 @@ Plans:
 - [x] 05-02-PLAN.md — Tracer exit-histogram slice (1e6 matched samples, classical vs Q1 k = 0 on Aer through one row sampler, chi-square, labelled circuit validation), truncation bias per wall and model (2e7 continuous histories per case), five-wall thickness study with the cost ratio at 1% relative RMSE (ANLY-02, ANLY-03, ANLY-04, ANLY-05)
 
 **Wave 3** *(blocked on Wave 2 completion)*
-- [ ] 05-03-PLAN.md — Tracer results doc (stdlib Markdown formatters from the committed JSON, drift-tested), docs/RESULTS.md and README Results section with honest caveats, claims and link gates, 30-file bundle audit (ANLY-05)
+- [x] 05-03-PLAN.md — Tracer results doc (stdlib Markdown formatters from the committed JSON, drift-tested), docs/RESULTS.md and README Results section with honest caveats, claims and link gates, 30-file bundle audit (ANLY-05)
 
 ### Phase 6: Submission, Documentation & Handoff
 
@@ -178,5 +178,5 @@ Plans:
 | 2. Problem Spec & Kernels Contract | 2/2 | Complete    | 2026-10-10 |
 | 3. Classical Baseline | 2/2 | Complete    | 2026-10-10 |
 | 4. Quantum Oracle & Amplitude Estimation | 4/4 | Complete    | 2026-10-11 |
-| 5. Scaling Study & Figures | 2/3 | In Progress | - |
+| 5. Scaling Study & Figures | 3/3 | In Progress | - |
 | 6. Submission, Documentation & Handoff | 0/TBD | Not started | - |

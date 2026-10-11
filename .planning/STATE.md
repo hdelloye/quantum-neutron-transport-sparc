@@ -3,17 +3,17 @@ gsd_state_version: "1.0"
 milestone: v0.0
 current_phase: 05
 current_phase_name: Scaling Study & Figures
-status: executing
-stopped_at: Completed 05-02-PLAN.md
-last_updated: "2026-10-11T16:18:01.017Z"
+status: verifying
+stopped_at: Completed 05-03-PLAN.md
+last_updated: "2026-10-11T17:07:59.172Z"
 last_activity: 2026-10-11
 last_activity_desc: Phase 05 execution started
-state_head: ed19949abd63c38b26854cce94a221b5d941dabb
+state_head: f4bb14a86ef94685fcba1154d5d6e58f2af2487b
 progress:
   total_phases: 6
   completed_phases: 3
   total_plans: 15
-  completed_plans: 14
+  completed_plans: 15
 ---
 
 # Project State
@@ -29,7 +29,7 @@ See: .planning/PROJECT.md (updated 2026-10-10)
 
 Phase: 05 (Scaling Study & Figures) — EXECUTING
 Plan: 3 of 3
-Status: Ready to execute
+Status: Phase complete — ready for verification
 Last activity: 2026-10-11 — Phase 05 execution started
 
 Progress: [█████░░░░░] 50%
@@ -72,6 +72,7 @@ Progress: [█████░░░░░] 50%
 | Phase 04 P04 | 121min | 3 tasks | 7 files |
 | Phase 05 P01 | 10min | 3 tasks | 11 files |
 | Phase 05 P02 | 25 min | 3 tasks | 14 files |
+| Phase 05 P03 | 22min | 2 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -134,6 +135,7 @@ Recent decisions affecting current work:
 - [Phase 05]: PD-28: truncation bias T_full - T1 per wall/model at 2e7 histories; K=1 coverage 99.69% at 10 cm, isotropic_raw 89.9% disclosure only
 - [Phase 05]: PD-29: thickness study walls 6-30 cm, ratio at 1% relative RMSE 1.99->25.84; absolute 1e-3 disclosure 18.1->5.0; underflow guard refuses 50 cm
 - [Phase 05]: 05-02: four-figure DPI-60 render test moved behind slow (suite >28.5 s); label render stays as default smoke
+- [Phase 05]: PD-32 (docs from data): RESULTS.md tables and the README headline sentence are artifacts.format_markdown / headline_sentence output on the committed JSON, embedded verbatim and drift-tested
 
 ### Pending Todos
 
@@ -162,6 +164,6 @@ Items acknowledged and deferred at milestone close, most recent first:
 
 ## Session Continuity
 
-Last session: 2026-10-11T16:18:00.986Z
-Stopped at: Completed 05-02-PLAN.md
+Last session: 2026-10-11T17:07:59.140Z
+Stopped at: Completed 05-03-PLAN.md
 Resume file: None
