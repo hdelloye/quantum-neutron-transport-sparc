@@ -90,6 +90,83 @@ Other local tools:
 - `scripts/qae_local.py aer-mlae` and `scripts/qae_local.py analytic` run local estimates.
 - `.venv/bin/python scripts/ingest_ionq_records.py PASTE` turns a pasted Qollab console output into validated records in `data/ionq_runs.json`.
 
+## Quantum oracle and amplitude estimation
+
+The quantum half estimates the same transmission fraction as the matched classical Monte Carlo. Details and measurements are in [docs/QUANTUM.md](docs/QUANTUM.md).
+
+- **Q1** prepares the K = 1 lattice model on 12 qubits.
+  - Each random choice (first-collision column, scatter or absorb, direction bin, escape) gets its own register; one flag qubit marks transmission.
+  - Before any job, its flag probability is checked against the exact lattice answer T1 = 0.24300446519524305 to within 1e-12.
+- **Circuit sizes.** After one full transpile to a basis with at most one control per gate, the Q1 circuits are:
+
+  | Circuit | Qubits | CX |
+  |---|---|---|
+  | A | 12 | 313 |
+  | A·Q^1 | 12 | 1,503 |
+  | A·Q^2 | 12 | 2,693 |
+
+  All stay within 24 qubits.
+- **MLAE** combines the counts of several Grover powers k into one estimate with a Fisher standard error. Its cost is N_A = sum of shots (2k + 1), the number of applications of A. One application of A is the same unit as one classical history.
+- **IonQ protocol.** Qollab's IonQ path carries one circuit per run, so the IonQ estimate is built from separate runs at k = 0, 1 and 2 with `ideal_mode = set_options`. Each run prints an `IONQ_RECORD=` line. Records are ingested into `data/ionq_runs.json`, and the Built-in run shows the resulting IonQ-only estimate to every visitor.
+- **IonQ results (2026-10-11, execution proof plus a three-power IonQ-only estimate).**
+  - Three IonQ Forte 1 runs on Qollab (k = 0, 1, 2; 1000 shots each; ideal, sampled) were all accepted, with request bodies up to 307 KB. They gave P(flag) = 0.267, 0.988 and 0.349, against the exact 0.2430, 0.9994 and 0.2859.
+  - The IonQ-only MLAE estimate is a_hat = 0.228671 (se 2.24e-03, N_A = 9,000). That is 6.4 sigma below T1, because the k = 1 and k = 2 points depart from the exact circuit far beyond shot noise. It is reported as found; see [docs/QUANTUM.md](docs/QUANTUM.md).
+  - The Built-in run of the same upload ran the full QAE in the browser: a_hat = 0.242072, se = 1.26e-03, N_A = 18,000.
+  - No speedup is claimed from these runs.
+- **Honest framing.**
+  - The comparison is sampling complexity only: estimation error against N_A, roughly 1/N_A for MLAE against 1/sqrt(N) for classical Monte Carlo.
+  - It is not a wall-clock or quantum-advantage claim.
+  - The full error curve comes from the analytic and Aer runners (Phase 5). The IonQ runs show that the real circuit executes and give a three-power estimate.
+
+## Results
+
+![RMSE versus cost](data/fig_scaling_rmse.png)
+
+The figure plots the root-mean-square error of 100 independent estimates against cost: histories for the classical lattice Monte Carlo, applications of A for MLAE. Both estimate the same K = 1 transmission of the 10 cm wall, and the exact value T1 = 0.24300446519524305 is the truth. Monte Carlo should fall with slope -0.5 on this log-log plot, ideal amplitude estimation with slope -1.
+
+Fitted slopes: -0.50 +- 0.01 (classical lattice MC, 13 points), -1.02 +- 0.03 (MLAE, analytic runner, M = 2..11), -1.03 +- 0.05 (MLAE, Aer circuit simulation, M = 2..9).
+
+- **Aer cross-check.** Simulating the transpiled Q1 circuits on Aer gives the same curve as the analytic runner (RMSE within about 0.8 to 1.2 times at every point, slopes within one standard error).
+- **Exit histograms (circuit validation, not speedup evidence).** 1,000,000 matched samples of the classical engine and of the circuit A agree by chi-square (16.46 on 16 degrees of freedom, bound 44.28): the circuit encodes the same physics. Direct sampling of A converges like classical Monte Carlo, so this figure carries no speedup claim.
+- **Truncation.** The K = 1 quantity both methods estimate covers about 99.7% of the full 10 cm transmission computed with all collision orders, and about 98.9% at 30 cm.
+- **Wall thickness.** At 1% relative RMSE the classical-to-MLAE cost ratio grows from 1.99 (6 cm) to 25.84 (30 cm) as transmission becomes rarer. At a fixed absolute RMSE of 1e-3 the ratio shrinks instead, from 18.10 to 5.04; both are reported.
+- **IonQ.** The IonQ Forte 1 point on the figure is one estimate's error: an execution proof of the real circuits, 6.4 sigma off T1 with the cause open, not in any fit.
+- **What this shows.** Sampling complexity on an ideal simulator only: error against the number of samples. It is not a wall-clock or quantum-advantage claim.
+
+Tables, reading notes, reproduction commands and limits: [docs/RESULTS.md](docs/RESULTS.md).
+
+## Judging criteria
+
+### Novelty
+
+Prior art. Olivier & Nowak (arXiv:2410.19489, 2024) model particle transport through 2D shielding with a quantum walk, in emulation only and without amplitude estimation. Lee, Lee & Kim (Phys. Rev. D 111, 116001, 2025; arXiv:2502.14374) combine a quantum walk with QAE for 10 MeV photon transport on the Qiskit simulator. Miao, Jin & Sone (arXiv:2607.10772, 2026) apply QAE to two nuclear-engineering expectation values, with no transport.
+
+To our knowledge, this is the first end-to-end QAE estimate of a neutron transport tally through a two-material fusion first wall, with measured error-versus-oracle-query scaling against a matched classical baseline.
+
+The comparison behind that claim is sampling complexity on an ideal simulator: estimation error against the number of samples each method draws, nothing more.
+
+### Technical execution
+
+See the sections above; the details follow in the full write-up.
+
+### Impact
+
+See the Results section.
+
+### Documentation
+
+See README, docs/ and the tests.
+
+## Limitations
+
+- **One-group physics.** One 14.1 MeV energy group with transport-corrected cross sections; (n,2n) is counted as removal, and there is no energy spectrum and no secondary particles. See [docs/PHYSICS.md](docs/PHYSICS.md).
+- **K-collision truncation.** The estimand is the transmission within K = 1 collision. Under the transport-corrected model it covers about 99.7% of the full 10 cm transmission (89.9% under `isotropic_raw`, a model-dependence disclosure only).
+- **Ideal-simulator scaling plot.** The RMSE-versus-cost curves come from the analytic runner and from Aer simulation of the transpiled circuits, not from hardware or a noisy simulator.
+- **Noise on IonQ simulators.** Qollab's IonQ simulators apply a noise model by default. With about 1.5k two-qubit gates at k = 1, noise is expected to wash out the amplification. `main.py` refuses noise-model runs (`ideal_mode = none`, Phase 4 review CR-01), and none was ever used for statistics.
+- **Open IonQ ideal-simulator discrepancy.** The three ideal, sampled IonQ Forte 1 runs give a_hat = 0.228671, 6.4 sigma below T1; the k = 1 and k = 2 points deviate beyond shot noise. The circuits Qollab's browser transpiled and sent differ from the local transpile by one gate per application of A, and they were not simulated locally. The cause is open.
+- **No wall-clock speedup claim.** There is no wall-clock speedup claim: a lattice history costs well under a microsecond here, while one application of A costs a full circuit execution.
+- **Sampling-complexity argument only.** The comparison is error against applications of A: about 1/N_A for MLAE against 1/sqrt(N) for classical Monte Carlo. Transpilation, circuit depth and the gate cost of state preparation are not part of it.
+
 ## Repository layout
 
 ```text
@@ -131,52 +208,6 @@ docs/              project records: QOLLAB-RUNTIME.md (Qollab runtime findings),
                    sources and the Kernels contract), QUANTUM.md (circuits, resources, MLAE, IonQ protocol),
                    RESULTS.md (Phase 5 results, tables generated from data/)
 ```
-
-## Quantum oracle and amplitude estimation
-
-The quantum half estimates the same transmission fraction as the matched classical Monte Carlo. Details and measurements are in [docs/QUANTUM.md](docs/QUANTUM.md).
-
-- **Q1** prepares the K = 1 lattice model on 12 qubits.
-  - Each random choice (first-collision column, scatter or absorb, direction bin, escape) gets its own register; one flag qubit marks transmission.
-  - Before any job, its flag probability is checked against the exact lattice answer T1 = 0.24300446519524305 to within 1e-12.
-- **Circuit sizes.** After one full transpile to a basis with at most one control per gate, the Q1 circuits are:
-
-  | Circuit | Qubits | CX |
-  |---|---|---|
-  | A | 12 | 313 |
-  | A·Q^1 | 12 | 1,503 |
-  | A·Q^2 | 12 | 2,693 |
-
-  All stay within 24 qubits.
-- **MLAE** combines the counts of several Grover powers k into one estimate with a Fisher standard error. Its cost is N_A = sum of shots (2k + 1), the number of applications of A. One application of A is the same unit as one classical history.
-- **IonQ protocol.** Qollab's IonQ path carries one circuit per run, so the IonQ estimate is built from separate runs at k = 0, 1 and 2 with `ideal_mode = set_options`. Each run prints an `IONQ_RECORD=` line. Records are ingested into `data/ionq_runs.json`, and the Built-in run shows the resulting IonQ-only estimate to every visitor.
-- **IonQ results (2026-10-11, execution proof plus a three-power IonQ-only estimate).**
-  - Three IonQ Forte 1 runs on Qollab (k = 0, 1, 2; 1000 shots each; ideal, sampled) were all accepted, with request bodies up to 307 KB. They gave P(flag) = 0.267, 0.988 and 0.349, against the exact 0.2430, 0.9994 and 0.2859.
-  - The IonQ-only MLAE estimate is a_hat = 0.228671 (se 2.24e-03, N_A = 9,000). That is 6.4 sigma below T1, because the k = 1 and k = 2 points depart from the exact circuit far beyond shot noise. It is reported as found; see [docs/QUANTUM.md](docs/QUANTUM.md).
-  - The Built-in run of the same upload ran the full QAE in the browser: a_hat = 0.242072, se = 1.26e-03, N_A = 18,000.
-  - No speedup is claimed from these runs.
-- **Honest framing.**
-  - The comparison is sampling complexity only: estimation error against N_A, roughly 1/N_A for MLAE against 1/sqrt(N) for classical Monte Carlo.
-  - It is not a wall-clock or quantum-advantage claim.
-  - The full error curve comes from the analytic and Aer runners (Phase 5). The IonQ runs show that the real circuit executes and give a three-power estimate.
-  - IonQ noise-model runs are reported, never used for statistics.
-
-## Results
-
-![RMSE versus cost](data/fig_scaling_rmse.png)
-
-The figure plots the root-mean-square error of 100 independent estimates against cost: histories for the classical lattice Monte Carlo, applications of A for MLAE. Both estimate the same K = 1 transmission of the 10 cm wall, and the exact value T1 = 0.24300446519524305 is the truth. Monte Carlo should fall with slope -0.5 on this log-log plot, ideal amplitude estimation with slope -1.
-
-Fitted slopes: -0.50 +- 0.01 (classical lattice MC, 13 points), -1.02 +- 0.03 (MLAE, analytic runner, M = 2..11), -1.03 +- 0.05 (MLAE, Aer circuit simulation, M = 2..9).
-
-- **Aer cross-check.** Simulating the transpiled Q1 circuits on Aer gives the same curve as the analytic runner (RMSE within about 0.8 to 1.2 times at every point, slopes within one standard error).
-- **Exit histograms (circuit validation, not speedup evidence).** 1,000,000 matched samples of the classical engine and of the circuit A agree by chi-square (16.46 on 16 degrees of freedom, bound 44.28): the circuit encodes the same physics. Direct sampling of A converges like classical Monte Carlo, so this figure carries no speedup claim.
-- **Truncation.** The K = 1 quantity both methods estimate covers about 99.7% of the full 10 cm transmission computed with all collision orders, and about 98.9% at 30 cm.
-- **Wall thickness.** At 1% relative RMSE the classical-to-MLAE cost ratio grows from 1.99 (6 cm) to 25.84 (30 cm) as transmission becomes rarer. At a fixed absolute RMSE of 1e-3 the ratio shrinks instead, from 18.10 to 5.04; both are reported.
-- **IonQ.** The IonQ Forte 1 point on the figure is one estimate's error: an execution proof of the real circuits, 6.4 sigma off T1 with the cause open, not in any fit.
-- **What this shows.** Sampling complexity on an ideal simulator only: error against the number of samples. It is not a wall-clock or quantum-advantage claim.
-
-Tables, reading notes, reproduction commands and limits: [docs/RESULTS.md](docs/RESULTS.md).
 
 ## Rules every module follows
 
