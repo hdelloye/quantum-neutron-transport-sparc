@@ -1,19 +1,19 @@
 ---
 gsd_state_version: "1.0"
 milestone: v0.0
-current_phase: 4
+current_phase: 04
 current_phase_name: Quantum Oracle & Amplitude Estimation
 status: executing
-stopped_at: Phase 03 complete, ready to plan Phase 1
-last_updated: "2026-10-11T02:25:32.361Z"
+stopped_at: Completed 04-01-PLAN.md
+last_updated: "2026-10-11T02:34:21.435Z"
 last_activity: 2026-10-10
-last_activity_desc: Phase 03 complete, transitioned to Phase 1
-state_head: af47faae6fb625f136a799d1179ac04729366dbe
+last_activity_desc: Phase 04 execution started
+state_head: bf09447c917909d57645f2215c70daa8d9a39c0f
 progress:
   total_phases: 6
   completed_phases: 2
   total_plans: 12
-  completed_plans: 8
+  completed_plans: 9
 ---
 
 # Project State
@@ -23,14 +23,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-10-10)
 
 **Core value:** Show, on a real fusion-relevant transport problem, that quantum amplitude estimation reaches a target accuracy with fewer samples than classical Monte Carlo, with an honest classical baseline sitting next to it.
-**Current focus:** Phase 03 — Classical Baseline
+**Current focus:** Phase 04 — Quantum Oracle & Amplitude Estimation
 
 ## Current Position
 
-Phase: 4 (Quantum Oracle & Amplitude Estimation) — READY TO EXECUTE
-Plan: Not started
+Phase: 04 (Quantum Oracle & Amplitude Estimation) — EXECUTING
+Plan: 2 of 4
 Status: Ready to execute
-Last activity: 2026-10-10 — Phase 03 complete, transitioned to Phase 1
+Last activity: 2026-10-10 — Phase 04 execution started
 
 Progress: [███░░░░░░░] 33%
 
@@ -65,6 +65,7 @@ Progress: [███░░░░░░░] 33%
 | Phase 02 P02 | 5 min | 2 tasks | 4 files |
 | Phase 03 P01 | 5min | 3 tasks | 5 files |
 | Phase 03 P02 | 27min | 3 tasks | 2 files |
+| Phase 04 P01 | 6 min | 3 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -104,6 +105,10 @@ Recent decisions affecting current work:
 - [Phase 03]: PD-10: lattice engine samples x, a, phi, e sequentially from frozen Kernels tables (never categorical over the enumeration), one flight per history (WR-08), layout constants from exact.py
 - [Phase 03]: PD-13: Phase 5 hooks - checkpoints/prefix_estimates, public shared sample_exit_rows, LatticeResult SEs, classical cost N = histories (LatticeResult.cost)
 - [Phase 03]: sample_exit_rows maps zero-amplitude strings (x > 16, or escaped in a zero-back-mass bin) to -1 without drawing; kernels.py untouched, WR-08 caveat in mc_lattice docstring
+- [Phase 04]: PD-15: Q1 keeps the direction register (12 qubits, x(5) a(1) phi(4) e(1) T(1), qubit i = bit i of exact.py's s, flag = top qubit); Q0 = 5 qubits flag 4; Q1lite (8 qubits) is only the IonQ size-ladder fallback
+- [Phase 04]: PD-16: Grover operator via grover_operator() (Z on flag); compose logical A·Q^k then ONE transpile to BASIS [cx,rz,ry,rx,h,x,sx], opt 1, seed 1; never stitch A and Q (0.958 vs 0.9994), never transpile(c, backend)
+- [Phase 04]: Contract gate: make_problem raises ContractError unless Statevector P(flag) equals exact T_K within 1e-12; runners and main.py take circuits only from make_problem
+- [Phase 04]: Dev extras (qiskit-aer 0.17.2, qiskit-algorithms 0.4.0, ruff 0.16.10, matplotlib) installed in .venv under the Phase 1 dependency approval; qiskit-ionq not installed
 
 ### Pending Todos
 
@@ -130,6 +135,6 @@ Items acknowledged and deferred at milestone close, most recent first:
 
 ## Session Continuity
 
-Last session: 2026-10-11T01:25:37.572Z
-Stopped at: Phase 03 complete, ready to plan Phase 1
+Last session: 2026-10-11T02:34:21.410Z
+Stopped at: Completed 04-01-PLAN.md
 Resume file: None
