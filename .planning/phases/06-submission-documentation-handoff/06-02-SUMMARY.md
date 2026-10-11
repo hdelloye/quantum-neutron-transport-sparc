@@ -102,7 +102,7 @@ status: complete
 
 # Phase 6 Plan 02: Submission Docs and Handoff Summary
 
-**The README is now the judge-facing write-up: what it does, the problem, running it on Qollab (quick mode is the default) and locally, how to replicate the results, Results with all four figures, one section per judging criterion (the novelty section cites the three prior-art papers and makes only the narrowed claim), seven ordered limitations, then layout, rules and disclosure. HANDOFF.md is added and export-ignored. The WR-01, CR-01, WR-03, WR-04 and WR-05 wording is fixed, and 20 string tests guard all of it. Suite: 415 passed in 28.3 s. Audits print `BUNDLE OK 30` and `PUBLIC AUDIT OK`.**
+**The README is now the judge-facing write-up: what it does, the problem, running it on Qollab (quick mode is the default) and locally, how to replicate the results, Results with all four figures, one section per judging criterion (the novelty section cites the three prior-art papers and makes only the narrowed claim), seven ordered limitations, then layout, rules and disclosure. HANDOFF.md is added and export-ignored. The WR-01, CR-01, WR-03, WR-04 and WR-05 wording is fixed, and 17 string tests guard all of it. Suite: 415 passed in 28.3 s. Audits print `BUNDLE OK 30` and `PUBLIC AUDIT OK`.**
 
 ## Performance
 
