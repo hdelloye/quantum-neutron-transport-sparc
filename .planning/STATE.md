@@ -4,16 +4,16 @@ milestone: v0.0
 current_phase: 04
 current_phase_name: Quantum Oracle & Amplitude Estimation
 status: executing
-stopped_at: Completed 04-01-PLAN.md
-last_updated: "2026-10-11T02:34:21.435Z"
+stopped_at: Completed 04-02-PLAN.md
+last_updated: "2026-10-11T02:52:24.672Z"
 last_activity: 2026-10-10
 last_activity_desc: Phase 04 execution started
-state_head: bf09447c917909d57645f2215c70daa8d9a39c0f
+state_head: 318fadb8cb0edad90411907363d60a90c78b20b5
 progress:
   total_phases: 6
   completed_phases: 2
   total_plans: 12
-  completed_plans: 9
+  completed_plans: 10
 ---
 
 # Project State
@@ -28,7 +28,7 @@ See: .planning/PROJECT.md (updated 2026-10-10)
 ## Current Position
 
 Phase: 04 (Quantum Oracle & Amplitude Estimation) — EXECUTING
-Plan: 2 of 4
+Plan: 3 of 4
 Status: Ready to execute
 Last activity: 2026-10-10 — Phase 04 execution started
 
@@ -66,6 +66,7 @@ Progress: [███░░░░░░░] 33%
 | Phase 03 P01 | 5min | 3 tasks | 5 files |
 | Phase 03 P02 | 27min | 3 tasks | 2 files |
 | Phase 04 P01 | 6 min | 3 tasks | 4 files |
+| Phase 04 P02 | 14min | 3 tasks | 5 files |
 
 ## Accumulated Context
 
@@ -109,6 +110,9 @@ Recent decisions affecting current work:
 - [Phase 04]: PD-16: Grover operator via grover_operator() (Z on flag); compose logical A·Q^k then ONE transpile to BASIS [cx,rz,ry,rx,h,x,sx], opt 1, seed 1; never stitch A and Q (0.958 vs 0.9994), never transpile(c, backend)
 - [Phase 04]: Contract gate: make_problem raises ContractError unless Statevector P(flag) equals exact T_K within 1e-12; runners and main.py take circuits only from make_problem
 - [Phase 04]: Dev extras (qiskit-aer 0.17.2, qiskit-algorithms 0.4.0, ruff 0.16.10, matplotlib) installed in .venv under the Phase 1 dependency approval; qiskit-ionq not installed
+- [Phase 04]: PD-17: vendored numpy MLAE with qiskit-algorithms grid conventions (exact QAE-01 parity), golden-section refinement, Fisher se, cost N_A = sum shots (2k+1) only
+- [Phase 04]: PD-18: one Runner interface run(ks, shots) -> list[PowerResult]; AnalyticRunner, BackendRunner (injected local backend, list jobs), IonQRunner (one bare circuit per run)
+- [Phase 04]: PD-20: IonQ record schema neutron_qae.ionq_record v1 in data/ionq_runs.json, validated on load; noisy runs kept sampled:false and excluded from MLAE
 
 ### Pending Todos
 
@@ -135,6 +139,6 @@ Items acknowledged and deferred at milestone close, most recent first:
 
 ## Session Continuity
 
-Last session: 2026-10-11T02:34:21.410Z
-Stopped at: Completed 04-01-PLAN.md
+Last session: 2026-10-11T02:52:24.646Z
+Stopped at: Completed 04-02-PLAN.md
 Resume file: None

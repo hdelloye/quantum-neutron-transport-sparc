@@ -37,10 +37,10 @@ Requirements for the hackathon submission (deadline Oct 11 2026, 7:00 PM ET). Ea
 
 ### Amplitude Estimation
 
-- [ ] **QAE-01**: Vendored numpy maximum-likelihood amplitude estimation takes counts from a list of A Q^k circuits run as one `backend.run([...])` job and returns the estimate, matching qiskit-algorithms MLAE on the same counts in tests
-- [ ] **QAE-02**: Three runners share one interface: analytic (Binomial draws from the exact θ), Aer shot-based, IonQ via injected backend using `backend.run` + `get_counts` (never a Sampler)
-- [ ] **QAE-03**: Cost is reported as applications of A, N_A = Σ shots·(2k+1), never raw shots or Qiskit's `num_oracle_queries`
-- [ ] **QAE-04**: Analytic runner agrees with the Aer shot-based runner at matched (k, shots) within statistical error on at least three points
+- [x] **QAE-01**: Vendored numpy maximum-likelihood amplitude estimation takes counts from a list of A Q^k circuits run as one `backend.run([...])` job and returns the estimate, matching qiskit-algorithms MLAE on the same counts in tests
+- [x] **QAE-02**: Three runners share one interface: analytic (Binomial draws from the exact θ), Aer shot-based, IonQ via injected backend using `backend.run` + `get_counts` (never a Sampler)
+- [x] **QAE-03**: Cost is reported as applications of A, N_A = Σ shots·(2k+1), never raw shots or Qiskit's `num_oracle_queries`
+- [x] **QAE-04**: Analytic runner agrees with the Aer shot-based runner at matched (k, shots) within statistical error on at least three points
 
 ### Scaling Study & Figures
 
@@ -122,10 +122,10 @@ Which phases cover which requirements. Updated during roadmap creation.
 | QC-04 | Phase 4 | Complete |
 | QC-05 | Phase 4 | Pending |
 | QC-06 | Phase 4 | Pending |
-| QAE-01 | Phase 4 | Pending |
-| QAE-02 | Phase 4 | Pending |
-| QAE-03 | Phase 4 | Pending |
-| QAE-04 | Phase 4 | Pending |
+| QAE-01 | Phase 4 | Complete |
+| QAE-02 | Phase 4 | Complete |
+| QAE-03 | Phase 4 | Complete |
+| QAE-04 | Phase 4 | Complete |
 | ANLY-01 | Phase 5 | Pending |
 | ANLY-02 | Phase 5 | Pending |
 | ANLY-03 | Phase 5 | Pending |

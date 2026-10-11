@@ -112,13 +112,13 @@ Plans:
   4. The analytic, Aer and IonQ runners share one interface; analytic and Aer agree within statistical error on at least three (k, shots) points, and an IonQ-runner job (decomposed to at most 7 controls per gate, transpiled once as a whole circuit, `backend.run` + `get_counts`, no Sampler) completes on Qollab's IonQ simulator and yields counts the MLAE accepts.
   5. A resource table lists qubits, CX count and depth for Q0 and Q1 after a single full-circuit transpile, all within the 24-qubit budget.
 
-**Plans**: 1/4 plans executed
+**Plans**: 2/4 plans executed
 Plans:
 **Wave 1**
 - [x] 04-01-PLAN.md — Tracer (frozen Kernels -> Q1 A, contract P(flag) = T1 to 1e-12 -> A·Q^1 transpiled once, P = 0.9994), dev-extras install under the Phase 1 approval, Q0/Q1/Q1lite oracle with exact.py's bit layout, Grover powers to k = 64, IonQ-safe transpile-once checks, resource table (QC-01, QC-02, QC-03, QC-04, QC-05, QC-06)
 
 **Wave 2** *(blocked on Wave 1 completion)*
-- [ ] 04-02-PLAN.md — Tracer (Built-in-style list job -> flag hits -> vendored MLAE -> a_hat, se, N_A), qiskit-algorithms parity, N_A vs num_oracle_queries, analytic/backend/IonQ runners with one interface, analytic vs Aer agreement, IonQ record schema, loader and IonQ-only estimate (QAE-01, QAE-02, QAE-03, QAE-04)
+- [x] 04-02-PLAN.md — Tracer (Built-in-style list job -> flag hits -> vendored MLAE -> a_hat, se, N_A), qiskit-algorithms parity, N_A vs num_oracle_queries, analytic/backend/IonQ runners with one interface, analytic vs Aer agreement, IonQ record schema, loader and IonQ-only estimate (QAE-01, QAE-02, QAE-03, QAE-04)
 
 **Wave 3** *(blocked on Wave 2 completion)*
 - [ ] 04-03-PLAN.md — Tracer (injected Built-in backend -> main() QAE mode -> QAE_REPORT=), IonQ one circuit per Run with IONQ_RECORD=, smoke mode kept, input validation, data/ionq_runs.json and verbatim ingest script, README and docs/QUANTUM.md with the resource table, 19-file bundle audit (QAE-02, QC-05, QC-06)
@@ -168,6 +168,6 @@ Plans:
 | 1. Qollab Smoke Test & Compliant Skeleton | 4/4 | In Progress | - |
 | 2. Problem Spec & Kernels Contract | 2/2 | Complete    | 2026-10-10 |
 | 3. Classical Baseline | 2/2 | Complete    | 2026-10-10 |
-| 4. Quantum Oracle & Amplitude Estimation | 1/4 | In Progress | - |
+| 4. Quantum Oracle & Amplitude Estimation | 2/4 | In Progress | - |
 | 5. Scaling Study & Figures | 0/TBD | Not started | - |
 | 6. Submission, Documentation & Handoff | 0/TBD | Not started | - |
