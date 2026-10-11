@@ -132,6 +132,7 @@ Recent decisions affecting current work:
 
 ### Blockers/Concerns
 
+- [Phase 6]: Phase 4 code review carry-overs — CR-01: IonQ runs with ideal_mode=none (noisy, round(p*shots) counts) crash hits_from_counts and lose the record (unused path so far; fix or document before any noisy run); WR-01: the circuit Qollab's browser transpiled differs by one gate per A from the local transpile (sizes 556/3016/5476 vs 555/3013/5471) and the contract p differs in the last digits, so docs claiming "the same transpiled circuits" reproduce p_expected must be reworded and the submitted circuit's own statevector P(flag)/QASM hash recorded per run; WR-02: malformed data/ionq_runs.json can crash the judged Built-in path (catch OverflowError/RecursionError in _ionq_summary). See 04-REVIEW.md.
 - [Phase 1]: ~~Qollab behaviour undocumented (logged-out running, `noise_model="ideal"` pass-through, Pyodide performance).~~ Resolved 2026-10-10 by 01-03; see docs/QOLLAB-RUNTIME.md.
 - [Phase 1]: ~~Placeholder files with spaces in names still at repo root.~~ Resolved 2026-10-10 by 01-01 (deleted; textbook PDF moved to gitignored references/).
 - [Phase 2]: ~~Real ENDF/B-VIII.0 14 MeV cross sections for W heavy alloy and 316 SS not yet pulled; K=1 coverage fraction (~90%) will move.~~ Resolved 2026-10-10 by 02-01: Real ENDF/B-VIII.0 cross sections pulled; transport-corrected K=1 coverage is 99.7% (89.9% only under isotropic_raw).
